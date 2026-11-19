@@ -12,7 +12,7 @@ import { shade } from './SpriteForge';
 export const EDGE = { TOP: 1, RIGHT: 2, BOTTOM: 4, LEFT: 8 } as const;
 export const VARIANTS = 32; // 16 masks * 2 alts
 export const BACK = { NONE: 0, DIRT: 1, STONE: 2, WINDOW: 3, WOOD: 4 } as const;
-export const DECOR_FRAMES = 8;
+export const DECOR_FRAMES = 11; // 0-3 tufts, 4 flowers, 5 rock, 6 bush, 7 skull, 8-9 hanging growth, 10 stalactite
 
 const OUT = '#120c10';
 
@@ -117,30 +117,51 @@ function paint(ctx: CanvasRenderingContext2D, ox: number, t: number, mask: numbe
       }, rng, true);
       break;
     }
-    case T.BRICK:
+    case T.BRICK: {
+      structure(ctx, ox, mask, rng, b);
+      break;
+    }
     case T.CRUMBLE: {
-      // big stone blocks, 8x8 with bevels
       px(ctx, ox, 0, b.brickDark, TILE, TILE);
       for (let by = 0; by < 2; by++) {
         const starts = by ? [-4, 4, 12] : [0, 8];
         for (const st of starts) {
           const xs = Math.max(0, st);
           const xe = Math.min(16, st + 8);
-          const y = by * 8;
-          const c = shade(b.brick, rng.range(0.9, 1.08));
-          px(ctx, ox + xs, y, c, xe - xs - 1, 7);
-          px(ctx, ox + xs, y, shade(c, 1.25), xe - xs - 1, 1);
-          px(ctx, ox + xs, y + 6, shade(c, 0.72), xe - xs - 1, 1);
-          if (rng.chance(0.4) && xe - xs > 5) px(ctx, ox + xs + rng.int(1, 3), y + rng.int(2, 4), shade(c, 0.8), 2, 1);
+          const c = shade(b.brick, rng.range(0.85, 1.0));
+          px(ctx, ox + xs, by * 8, c, xe - xs - 1, 7);
+          px(ctx, ox + xs, by * 8, shade(c, 1.25), xe - xs - 1, 1);
         }
       }
-      if (by4(rng)) px(ctx, ox + 4, 12, shade(b.brick, 0.8), 3, 1);
-      if (t === T.CRUMBLE) {
-        const c = OUT;
-        px(ctx, ox + 3, 2, c, 1, 4); px(ctx, ox + 4, 5, c, 3, 1); px(ctx, ox + 7, 6, c, 1, 5);
-        px(ctx, ox + 11, 1, c, 1, 3); px(ctx, ox + 10, 4, c, 1, 4); px(ctx, ox + 9, 8, c, 3, 1);
-      }
+      const c = OUT;
+      px(ctx, ox + 3, 2, c, 1, 4); px(ctx, ox + 4, 5, c, 3, 1); px(ctx, ox + 7, 6, c, 1, 5);
+      px(ctx, ox + 11, 1, c, 1, 3); px(ctx, ox + 10, 4, c, 1, 4); px(ctx, ox + 9, 8, c, 3, 1);
       edges(ctx, ox, mask, b.brick, null, rng, false);
+      break;
+    }
+    case T.STONE: {
+      // natural rock: chunky boulders packed together
+      const r = b.rock;
+      px(ctx, ox, 0, shade(r, 0.45), TILE, TILE);
+      const blobs: [number, number, number][] = [];
+      for (let i = 0; i < 5; i++) blobs.push([rng.int(0, 15), rng.int(0, 15), rng.int(4, 7)]);
+      for (let y = 0; y < TILE; y++)
+        for (let x = 0; x < TILE; x++) {
+          let best = 99;
+          let second = 99;
+          for (const [bx, by, br] of blobs) {
+            const dx = Math.min(Math.abs(x - bx), 16 - Math.abs(x - bx));
+            const dy = Math.min(Math.abs(y - by), 16 - Math.abs(y - by));
+            const d = Math.hypot(dx, dy) / br;
+            if (d < best) { second = best; best = d; } else if (d < second) second = d;
+          }
+          if (second - best < 0.18) continue; // crack between boulders
+          const lit = best < 0.45 ? 1.2 : best < 0.8 ? 1.0 : 0.8;
+          px(ctx, ox + x, y, shade(r, lit * (0.95 + rng.next() * 0.1)));
+        }
+      edges(ctx, ox, mask, r, null, rng, false);
+      if (mask & EDGE.TOP && b.id === 'snow') px(ctx, ox, 0, b.top, TILE, 3);
+      if (mask & EDGE.TOP && b.id === 'jungle') for (let x = 0; x < TILE; x++) if (rng.chance(0.6)) px(ctx, ox + x, 1, b.topDark, 1, rng.int(1, 3));
       break;
     }
     case T.WOOD: {
@@ -226,6 +247,92 @@ function by4(rng: Rng): boolean {
   return rng.chance(0.25);
 }
 
+/** BRICK tiles get a biome specific look: temple, sandstone, ice, concrete, rusty steel, basalt */
+function structure(ctx: CanvasRenderingContext2D, ox: number, mask: number, rng: Rng, b: Biome): void {
+  const c0 = b.brick;
+  const dk = b.brickDark;
+  switch (b.structure) {
+    case 'temple':
+    case 'icestone': {
+      px(ctx, ox, 0, dk, TILE, TILE);
+      for (let by = 0; by < 2; by++) {
+        const c = shade(c0, rng.range(0.9, 1.06));
+        px(ctx, ox + 1, by * 8 + 1, c, 14, 6);
+        px(ctx, ox + 1, by * 8 + 1, shade(c, 1.25), 14, 1);
+        px(ctx, ox + 1, by * 8 + 6, shade(c, 0.75), 14, 1);
+        if (rng.chance(0.5)) {
+          const g = shade(c, 0.62);
+          px(ctx, ox + 4, by * 8 + 3, g, 8, 1);
+          px(ctx, ox + 4, by * 8 + 3, g, 1, 3);
+          px(ctx, ox + 11, by * 8 + 3, g, 1, 3);
+          px(ctx, ox + 7, by * 8 + 4, g, 2, 1);
+        }
+      }
+      if (b.structure === 'temple' && rng.chance(0.6)) for (let i = 0; i < 6; i++) px(ctx, ox + rng.int(0, 15), rng.int(0, 15), shade(b.vines ?? '#3a8a2a', 0.8), rng.int(1, 3), 1);
+      edges(ctx, ox, mask, c0, null, rng, false);
+      if (mask & EDGE.TOP) {
+        const cap = b.structure === 'temple' ? b.vines ?? b.top : b.top;
+        for (let x = 0; x < TILE; x++) px(ctx, ox + x, 0, cap, 1, rng.int(1, 3));
+      }
+      return;
+    }
+    case 'sandstone': {
+      px(ctx, ox, 0, c0, TILE, TILE);
+      for (let y = 0; y < TILE; y += 5) {
+        px(ctx, ox, y + 4, shade(c0, 0.7), TILE, 1);
+        px(ctx, ox, y, shade(c0, 1.18), TILE, 1);
+        px(ctx, ox + rng.int(2, 13), y, shade(c0, 0.7), 1, 4);
+      }
+      for (let i = 0; i < 8; i++) px(ctx, ox + rng.int(0, 15), rng.int(0, 15), shade(c0, rng.chance(0.5) ? 0.88 : 1.1));
+      edges(ctx, ox, mask, c0, null, rng, false);
+      return;
+    }
+    case 'concrete': {
+      const c = '#7a7476';
+      px(ctx, ox, 0, c, TILE, TILE);
+      for (let i = 0; i < 14; i++) px(ctx, ox + rng.int(0, 15), rng.int(0, 15), shade(c, rng.range(0.85, 1.12)));
+      px(ctx, ox, 0, shade(c, 0.6), TILE, 1);
+      px(ctx, ox, 0, shade(c, 0.6), 1, TILE);
+      if (rng.chance(0.5)) {
+        let x = rng.int(3, 12);
+        for (let y = 0; y < 10; y++) { px(ctx, ox + x, y + 3, '#2a2628'); x += rng.int(-1, 1); }
+      }
+      if (rng.chance(0.4)) px(ctx, ox + rng.int(2, 10), 10, '#5a3a2a', 4, 6);
+      if (rng.chance(0.3)) { px(ctx, ox + 3, 4, '#2a2a3a', 10, 7); px(ctx, ox + 4, 5, '#d8c070', 3, 2); }
+      edges(ctx, ox, mask, c, null, rng, false);
+      return;
+    }
+    case 'rust': {
+      const c = '#7a5a40';
+      px(ctx, ox, 0, c, TILE, TILE);
+      for (let x = 0; x < TILE; x += 3) {
+        px(ctx, ox + x, 0, shade(c, 1.25), 1, TILE);
+        px(ctx, ox + x + 2, 0, shade(c, 0.65), 1, TILE);
+      }
+      for (let i = 0; i < 4; i++) px(ctx, ox + rng.int(0, 13), rng.int(0, 13), '#a0502a', rng.int(2, 3), rng.int(2, 4));
+      px(ctx, ox, 0, '#4a4e54', TILE, 2); px(ctx, ox, 14, '#4a4e54', TILE, 2);
+      for (const x of [2, 7, 12]) { px(ctx, ox + x, 0, '#9aa0a8'); px(ctx, ox + x, 14, '#9aa0a8'); }
+      edges(ctx, ox, mask, c, null, rng, false);
+      return;
+    }
+    case 'basalt': {
+      px(ctx, ox, 0, shade(c0, 0.6), TILE, TILE);
+      for (let x = 0; x < TILE; x += 5) {
+        const c = shade(c0, rng.range(0.85, 1.1));
+        px(ctx, ox + x, 0, c, 4, TILE);
+        px(ctx, ox + x, 0, shade(c, 1.3), 1, TILE);
+        px(ctx, ox + x, rng.int(3, 12), shade(c0, 0.4), 4, 1);
+      }
+      if (rng.chance(0.4)) {
+        let y = rng.int(2, 6);
+        for (let x = 0; x < 9; x++) { px(ctx, ox + 3 + x, y, '#ff7020'); y += rng.int(0, 1); }
+      }
+      edges(ctx, ox, mask, c0, null, rng, false);
+      return;
+    }
+  }
+}
+
 export function makeTiles(scene: Phaser.Scene, b: Biome): string {
   const key = `tiles_${b.id}`;
   canvasTex(scene, key, TILE_TYPES * VARIANTS, (ctx, f, ox) => {
@@ -307,6 +414,23 @@ export function makeDecor(scene: Phaser.Scene, b: Biome): string {
           const d = Math.hypot(x - 7.5, (y - 12) * 1.3);
           if (d < 6.5) px(ctx, ox + x, y, d > 5.6 ? OUT : y < 10 ? shade(g, 1.1) : gd);
         }
+    } else if (f === 8 || f === 9) {
+      // vines / icicles / roots hanging from an overhang
+      const c = b.vines ?? shade(b.dirtDark, 0.7);
+      const icy = b.id === 'snow';
+      for (let i = 0; i < (f === 8 ? 4 : 6); i++) {
+        const x = rng.int(1, 14);
+        const len = icy ? rng.int(3, 8) : rng.int(5, 15);
+        for (let y = 0; y < len; y++) {
+          const w = icy ? Math.max(1, Math.round(2 - (y / len) * 2)) : 1;
+          const xx = icy ? x : x + Math.round(Math.sin(y * 0.6 + i) * 0.8);
+          px(ctx, ox + xx, y, y === 0 ? shade(c, 0.7) : c, w, 1);
+          if (!icy && y % 4 === 2) px(ctx, ox + xx + 1, y, shade(c, 1.25), 2, 1);
+        }
+      }
+    } else if (f === 10) {
+      const c = shade(b.rock, 0.8);
+      for (let y = 0; y < 9; y++) px(ctx, ox + 6 + Math.floor(y / 3), y, y < 2 ? OUT : c, Math.max(1, 4 - Math.floor(y / 2.5)), 1);
     } else {
       // skull on a stick (enemy territory marker)
       px(ctx, ox + 7, 6, OUT, 3, 10);

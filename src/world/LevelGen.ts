@@ -41,6 +41,7 @@ export interface Level {
   enemies: EnemySpawn[];
   props: PropSpawn[];
   pickups: PickupSpawn[];
+  scenery: SceneSpawn[];
   arena: { x0: number; x1: number; doorCol: number; floorRow: number } | null;
 }
 
@@ -48,7 +49,15 @@ const H = LEVEL_H_TILES;
 const MIN_G = 10;
 const MAX_G = 16;
 
-type Chunk = 'flat' | 'pit' | 'bunker' | 'tower' | 'hill' | 'cave' | 'platforms' | 'traps' | 'acid';
+type Chunk = 'flat' | 'pit' | 'bunker' | 'tower' | 'hill' | 'cave' | 'platforms' | 'traps' | 'acid' | 'village' | 'temple' | 'ruin' | 'scaffold' | 'bridge' | 'cliff';
+
+export interface SceneSpawn {
+  type: string; // see gfx/scenery
+  x: number; // px, bottom centre
+  y: number;
+  flip: boolean;
+  h?: number; // stretched height for posts/girders
+}
 
 export function generateLevel(levelNo: number, seed: number, totalPlaySec: number): Level {
   const plan = planLevel(levelNo, seed, totalPlaySec);
@@ -63,6 +72,11 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
   const enemies: EnemySpawn[] = [];
   const props: PropSpawn[] = [];
   const pickups: PickupSpawn[] = [];
+  const scenery: SceneSpawn[] = [];
+  const biome = plan.biome;
+  /** non-colliding decoration standing on (col,row) top edge */
+  const scene = (type: string, col: number, row: number, dx = 0) => scenery.push({ type, x: col * TILE + 8 + dx, y: row * TILE, flip: rng.chance(0.5) });
+  const roofStyle = biome === 'snow' ? 'roof_snow' : biome === 'desert' ? 'roof_tent' : 'roof_thatch';
 
   let g = 14; // current surface row
 
@@ -187,6 +201,21 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     tower: (x, maxW) => {
       const len = 6;
       if (maxW < len) return build.flat(x, maxW);
+      if (biome === 'jungle' || biome === 'snow' || biome === 'desert') {
+        // wooden watchtower on stilts
+        for (let i = 0; i < len; i++) ground(x + i, g);
+        const top = g - rng.int(6, 7);
+        fill(x + 1, top, x + 5, top, T.PLATFORM);
+        grid.init(x + 1, top - 1, T.SANDBAG);
+        grid.init(x + 5, top - 1, T.SANDBAG);
+        fill(x + 3, top, x + 3, g - 1, T.LADDER);
+        scenery.push({ type: 'post', x: (x + 1) * TILE + 8, y: g * TILE, flip: false, h: (g - top) * TILE });
+        scenery.push({ type: 'post', x: (x + 5) * TILE + 8, y: g * TILE, flip: false, h: (g - top) * TILE });
+        scene(roofStyle, x + 3, top - 3);
+        enemyAt(x + 2, top, plan.enemyTypes.includes('sniper') && rng.chance(0.6) ? 'sniper' : 'grunt');
+        sprinkleEnemies(x, x + 5, 0.4);
+        return len;
+      }
       for (let i = 0; i < len; i++) ground(x + i, g);
       const ht = rng.int(6, 8);
       const top = g - ht;
@@ -299,6 +328,136 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
       ground(x + 3 + pool, g);
       return len;
     },
+    village: (x, maxW) => {
+      const len = Math.min(maxW, 16);
+      if (len < 12) return build.flat(x, maxW);
+      for (let i = 0; i < len; i++) ground(x + i, g);
+      for (let hx = x + 2; hx + 5 < x + len; hx += 7) {
+        const fy = g - 3;
+        const ry = fy - 4;
+        fill(hx, fy, hx + 4, fy, T.PLATFORM);
+        fill(hx, ry, hx + 4, ry, T.WOOD);
+        setBack(hx, ry + 1, hx + 4, fy - 1, 4);
+        fill(hx - 1, fy, hx - 1, g - 1, T.LADDER);
+        scene('post', hx, g);
+        scene('post', hx + 4, g);
+        scene(roofStyle, hx + 2, ry + 1);
+        enemyAt(hx + 2, fy);
+        if (rng.chance(0.5)) enemyAt(hx + 3, fy);
+        if (rng.chance(0.3)) propAt(rng.chance(0.5) ? 'cage' : 'crate', hx + 1, fy, { item: randomItem(rng) });
+      }
+      scene('enemyflag', x + len - 2, g);
+      sprinkleEnemies(x + 1, x + len - 1, 0.5);
+      return len;
+    },
+    temple: (x, maxW) => {
+      const len = Math.min(maxW, rng.int(14, 18));
+      if (len < 14) return build.flat(x, maxW);
+      for (let i = 0; i < len; i++) ground(x + i, g);
+      const tiers = 4;
+      for (let k = 0; k < tiers; k++) {
+        const y1 = g - 1 - k * 2;
+        fill(x + 1 + k * 2, y1 - 1, x + len - 2 - k * 2, y1, T.BRICK);
+      }
+      // inner chamber with entrances on both sides
+      fill(x + 4, g - 4, x + len - 5, g - 1, T.EMPTY);
+      setBack(x + 4, g - 4, x + len - 5, g - 1, 2);
+      fill(x + 1, g - 2, x + 4, g - 1, T.EMPTY);
+      fill(x + len - 5, g - 2, x + len - 2, g - 1, T.EMPTY);
+      setBack(x + 1, g - 2, x + len - 2, g - 1, 2);
+      const topY = g - 1 - (tiers - 1) * 2 - 1;
+      scene('statue', x + Math.floor(len / 2), topY);
+      scene('enemyflag', x + 1 + (tiers - 1) * 2, topY);
+      enemyAt(x + 6, g);
+      enemyAt(x + len - 7, g);
+      enemyAt(x + Math.floor(len / 2) + 2, topY);
+      propAt('cage', x + Math.floor(len / 2), g);
+      if (rng.chance(0.5)) propAt('barrel', x + 5, g);
+      return len;
+    },
+    ruin: (x, maxW) => {
+      const len = Math.min(maxW, rng.int(10, 14));
+      if (len < 10) return build.flat(x, maxW);
+      for (let i = 0; i < len; i++) ground(x + i, g);
+      const floors = rng.int(2, 3);
+      const l = x + 1;
+      const r = x + len - 2;
+      const topRow = g - floors * 4;
+      fill(l, topRow, l, g - 1, T.BRICK);
+      fill(r, topRow, r, g - 1, T.BRICK);
+      fill(l, g - 2, l, g - 1, T.EMPTY);
+      fill(r, g - 2, r, g - 1, T.EMPTY);
+      setBack(l, topRow, r, g - 1, 2);
+      for (let f = 1; f <= floors; f++) {
+        const fy = g - f * 4;
+        fill(l, fy, r, fy, T.BRICK);
+        const hole = rng.int(l + 2, r - 3);
+        fill(hole, fy, hole + 1, fy, T.EMPTY);
+        fill(hole, fy, hole, fy + 3, T.LADDER);
+        for (let wx = l + 1; wx < r; wx += 3) back[(fy + 2) * W + wx] = 3;
+        if (f < floors || rng.chance(0.5)) enemyAt(rng.int(l + 1, r - 1), fy);
+        // windows in the outer walls
+        fill(l, fy - 2, l, fy - 2, T.EMPTY);
+        fill(r, fy - 2, r, fy - 2, T.EMPTY);
+      }
+      // broken top
+      for (let cx = l; cx <= r; cx++) if (rng.chance(0.35)) fill(cx, topRow, cx, topRow, T.EMPTY);
+      enemyAt(l + 2, g);
+      if (rng.chance(0.5)) propAt('crate', r - 2, g, { item: randomItem(rng) });
+      scene('lamp', x, g);
+      scene('enemyflag', r - 1, topRow);
+      return len;
+    },
+    scaffold: (x, maxW) => {
+      const len = Math.min(maxW, rng.int(12, 16));
+      if (len < 12) return build.flat(x, maxW);
+      for (let i = 0; i < len; i++) ground(x + i, g);
+      const levels = rng.int(2, 3);
+      for (let k = 1; k <= levels; k++) {
+        const y = g - k * 4;
+        const a = x + 1 + (k % 2) * 2;
+        const b = x + len - 2 - ((k + 1) % 2) * 2;
+        fill(a, y, b, y, T.PLATFORM);
+        for (let px = a; px <= b; px += 4) scenery.push({ type: 'girder', x: px * TILE + 8, y: g * TILE, flip: false, h: (g - y) * TILE });
+        fill(k % 2 ? b : a, y, k % 2 ? b : a, y + 3, T.LADDER);
+        enemyAt(rng.int(a + 1, b - 1), y);
+        if (rng.chance(0.5)) propAt('barrel', rng.int(a, b), y);
+      }
+      scene('tank', x + Math.floor(len / 2), g);
+      scene('pipe', x + 1, g);
+      return len;
+    },
+    bridge: (x, maxW) => {
+      const gap = rng.int(6, 9);
+      const len = gap + 4;
+      if (len > maxW) return build.flat(x, maxW);
+      ground(x, g);
+      ground(x + 1, g);
+      ground(x + 2 + gap, g);
+      ground(x + 3 + gap, g);
+      for (let i = 0; i < gap; i++) grid.init(x + 2 + i, g, rng.chance(0.2) ? T.CRUMBLE : T.PLATFORM);
+      scene('rope', x + 1, g);
+      scene('rope', x + 2 + gap, g);
+      if (rng.chance(0.5)) enemyAt(x + 2 + Math.floor(gap / 2), g);
+      return len;
+    },
+    cliff: (x, maxW) => {
+      const len = Math.min(maxW, rng.int(9, 12));
+      if (len < 9) return build.flat(x, maxW);
+      const up = g - 4 >= MIN_G;
+      const g2 = up ? g - 4 : Math.min(MAX_G, g + 4);
+      for (let i = 0; i < 3; i++) ground(x + i, g);
+      for (let i = 3; i < len; i++) ground(x + i, g2);
+      const face = up ? x + 3 : x + 2;
+      const hi = Math.min(g, g2);
+      const lo = Math.max(g, g2);
+      for (let y = hi; y < lo + 2 && y < H - 1; y++) grid.init(face, y, T.STONE);
+      fill(up ? face - 1 : face + 1, hi, up ? face - 1 : face + 1, lo - 1, T.LADDER);
+      g = g2;
+      sprinkleEnemies(x + 4, x + len - 1, 0.8);
+      if (rng.chance(0.4)) propAt('barrel', x + len - 2, g);
+      return len;
+    },
   };
 
   // ---------- assemble ----------
@@ -319,6 +478,12 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     ['platforms', levelNo >= 2 ? 1.2 : 0.3],
     ['traps', plan.trapRate * 6],
     ['acid', plan.trapRate * 3],
+    ['village', biome === 'jungle' || biome === 'desert' || biome === 'snow' ? 2 : 0],
+    ['temple', biome === 'jungle' || biome === 'desert' || biome === 'volcano' ? (levelNo >= 2 ? 1.2 : 0.5) : 0],
+    ['ruin', biome === 'city' ? 3 : biome === 'snow' ? 0.6 : 0],
+    ['scaffold', biome === 'industrial' ? 3 : biome === 'city' ? 0.8 : 0],
+    ['bridge', biome === 'jungle' || biome === 'snow' || biome === 'volcano' ? 1.2 : 0.5],
+    ['cliff', 1.4],
   ];
   let last: Chunk | null = null;
   while (x < runEnd) {
@@ -351,7 +516,84 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     propAt('exit', W - 6, g);
   }
 
-  return { plan, grid, back, spawn, enemies, props, pickups, arena };
+  // ---------- post passes: rock strata, caves, scenery ----------
+  const startX = 10;
+  const endX = plan.isBoss ? plan.lengthTiles - 6 : W - 14;
+  const surfaceOf = (cx: number) => {
+    for (let y = 0; y < H; y++) if (grid.get(cx, y) === T.DIRT) return y;
+    return -1;
+  };
+  // value noise on a 5-tile lattice
+  const lat = new Map<number, number>();
+  const lv = (ix: number, iy: number) => {
+    const k = ix * 977 + iy;
+    if (!lat.has(k)) lat.set(k, rng.next());
+    return lat.get(k)!;
+  };
+  const noise = (x: number, y: number) => {
+    const fx = x / 5;
+    const fy = y / 4;
+    const ix = Math.floor(fx);
+    const iy = Math.floor(fy);
+    const tx = fx - ix;
+    const ty = fy - iy;
+    return lv(ix, iy) * (1 - tx) * (1 - ty) + lv(ix + 1, iy) * tx * (1 - ty) + lv(ix, iy + 1) * (1 - tx) * ty + lv(ix + 1, iy + 1) * tx * ty;
+  };
+  for (let cx = 0; cx < W; cx++) {
+    const s0 = surfaceOf(cx);
+    if (s0 < 0) continue;
+    for (let y = s0 + 2; y < H - 1; y++) {
+      if (grid.get(cx, y) !== T.DIRT) continue;
+      const depth = (y - s0) / (H - s0);
+      if (noise(cx, y) + depth * 0.35 > 0.78) grid.init(cx, y, T.STONE);
+    }
+  }
+  // underground tunnels with a ladder shaft down from the surface
+  const caves = Math.floor((endX - startX) / 55) + (rng.chance(0.5) ? 1 : 0);
+  for (let c = 0; c < caves; c++) {
+    let cx = rng.int(startX + 4, Math.max(startX + 5, endX - 20));
+    const s0 = surfaceOf(cx);
+    if (s0 < 0 || s0 + 4 > H - 3) continue;
+    let cy = rng.int(s0 + 3, H - 3);
+    const len = rng.int(10, 18);
+    const shaftX = cx;
+    for (let y = s0; y < cy; y++) {
+      if (grid.get(shaftX, y) === T.DIRT || grid.get(shaftX, y) === T.STONE) grid.init(shaftX, y, T.LADDER);
+      back[y * W + shaftX] = 1;
+    }
+    for (let i = 0; i < len && cx < endX; i++, cx++) {
+      if (i > 2 && rng.chance(0.25)) cy = Math.max(surfaceOf(cx) + 3, Math.min(H - 3, cy + rng.pick([-1, 1])));
+      for (const yy of [cy - 1, cy]) {
+        const t = grid.get(cx, yy);
+        if (t === T.DIRT || t === T.STONE) grid.init(cx, yy, T.EMPTY);
+        if (yy >= 0) back[yy * W + cx] = 1;
+      }
+      if (i === Math.floor(len / 2)) enemyAt(cx, cy + 1, 'grunt');
+      if (i === len - 2) propAt(rng.chance(0.5) ? 'cage' : 'crate', cx, cy + 1, { item: randomItem(rng) });
+    }
+  }
+  // trees and other scenery on open ground
+  const sceneryFor: Record<string, [string, number][]> = {
+    jungle: [['palm', 3], ['jungletree', 2], ['fern', 3], ['totem', 0.4]],
+    desert: [['palm', 1], ['cactus', 3], ['bones', 1], ['tent', 0.8]],
+    snow: [['pine', 4], ['pine_small', 2], ['bones', 0.3]],
+    city: [['lamp', 2], ['car', 1], ['deadtree', 1], ['sign', 0.6], ['hydrant', 0.6]],
+    industrial: [['pipe', 2], ['tank', 1], ['lamp', 1.5], ['crate_stack', 1]],
+    volcano: [['deadtree', 3], ['bones', 1.5], ['totem', 1], ['spire', 1]],
+  };
+  const opts = sceneryFor[biome] ?? sceneryFor.jungle;
+  let lastScene = -10;
+  for (let cx = 3; cx < W - 3; cx++) {
+    if (cx - lastScene < 3) continue;
+    const sr = grid.surfaceRow(cx);
+    if (sr < 3 || grid.get(cx, sr) !== T.DIRT) continue;
+    if (grid.get(cx, sr - 1) !== T.EMPTY || grid.get(cx, sr - 2) !== T.EMPTY || grid.get(cx, sr - 3) !== T.EMPTY) continue;
+    if (!rng.chance(0.2)) continue;
+    scene(rng.weighted(opts), cx, sr);
+    lastScene = cx;
+  }
+
+  return { plan, grid, back, spawn, enemies, props, pickups, scenery, arena };
 }
 
 function clampG(v: number): number {

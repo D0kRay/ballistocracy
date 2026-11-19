@@ -157,6 +157,8 @@ describe('guest prediction', () => {
       w.enemies = [];
       w.props = w.props.filter((p) => p.type === 'exit');
       w.players[0].inv = 999;
+      // crumbling tiles are host-only side effects; reconciliation covers them in the real game
+      for (let i = 0; i < w.grid.tiles.length; i++) if (w.grid.tiles[i] === T.CRUMBLE) w.grid.tiles[i] = T.PLATFORM;
       return w;
     };
     const host = mk();
@@ -168,6 +170,7 @@ describe('guest prediction', () => {
       if (i % 200 > 150) bits = IN.LEFT | (i % 20 < 5 ? IN.JUMP : 0);
       host.step(DT, new Map([[0, bits]]));
       host.events = [];
+      if (!host.players[0].alive) break; // deaths/respawns come from snapshots, not prediction
       gp.prev = gp.bits;
       gp.bits = bits;
       predictPlayer(guest, gp, DT);

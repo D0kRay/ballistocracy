@@ -5,6 +5,7 @@ import { CHAR_H, FRAME, HAND, WEAPON_ANCHOR, ensureHands } from '../gfx/characte
 import { PARALLAX_H, makeParallax } from '../gfx/parallax';
 import { HERO_COLORS, shade } from '../gfx/SpriteForge';
 import { BACK, DECOR_FRAMES, EDGE, makeBackTiles, makeDecor, makeTiles, tileFrame } from '../gfx/terrain';
+import { SCENERY_TILED, makeScenery } from '../gfx/scenery';
 import type { GameEvent } from '../sim/types';
 import type { World } from '../sim/World';
 import { T, isSolid } from '../world/tiles';
@@ -30,6 +31,17 @@ interface Fire {
   y: number;
   life: number;
   t: number;
+}
+
+interface SceneObj {
+  obj: Phaser.GameObjects.Image | Phaser.GameObjects.TileSprite;
+  type: string;
+  x: number;
+  y: number;
+  supportCol: number;
+  supportRow: number;
+  dead: boolean;
+  burnT: number;
 }
 
 interface Light {
@@ -78,6 +90,8 @@ export class WorldRenderer {
   private eraser: Phaser.GameObjects.Image;
   private smooth = new Map<number, { x: number; y: number }>();
   private time = 0;
+  private sceneObjs: SceneObj[] = [];
+  private frameNo = 0;
 
   constructor(scene: Phaser.Scene, world: World) {
     this.scene = scene;
@@ -93,6 +107,7 @@ export class WorldRenderer {
     });
     this.tilesKey = makeTiles(scene, b);
     this.buildMap();
+    this.buildScenery();
     this.eraser = scene.make.image({ key: 'px', add: false }).setOrigin(0).setScale(TILE);
     this.smokeG = scene.add.graphics().setDepth(16);
     this.gfx = scene.add.graphics().setDepth(20);
@@ -133,6 +148,70 @@ export class WorldRenderer {
     for (let y = 0; y < g.h; y++) for (let x = 0; x < g.w; x++) this.refreshTint(x, y);
   }
 
+  // ------------------------------------------------------------ scenery
+  private buildScenery(): void {
+    makeScenery(this.scene, this.world.biome);
+    for (const s of this.world.level.scenery ?? []) {
+      const key = `sc_${s.type}`;
+      if (!this.scene.textures.exists(key)) continue;
+      const roof = s.type.startsWith('roof_');
+      const depth = roof ? 0.6 : SCENERY_TILED.has(s.type) ? -0.7 : -0.5;
+      let obj: Phaser.GameObjects.Image | Phaser.GameObjects.TileSprite;
+      if (SCENERY_TILED.has(s.type)) {
+        const src = this.scene.textures.get(key).getSourceImage();
+        obj = this.scene.add.tileSprite(s.x, s.y, src.width, s.h ?? src.height, key).setOrigin(0.5, 1).setDepth(depth);
+      } else {
+        obj = this.scene.add.image(s.x, roof ? s.y + 2 : s.y + 1, key, 0).setOrigin(0.5, 1).setDepth(depth).setFlipX(s.flip && !roof);
+      }
+      const col0 = Math.floor(s.x / TILE);
+      this.sceneObjs.push({ obj, type: s.type, x: s.x, y: s.y, supportCol: col0, supportRow: roof ? Math.floor(s.y / TILE) - 1 : Math.floor(s.y / TILE), dead: false, burnT: 0 });
+    }
+  }
+
+  private destroyScenery(o: SceneObj, burn: boolean): void {
+    if (o.dead || o.burnT > 0) return;
+    if (burn && !o.type.startsWith('roof_') && o.type !== 'lamp' && o.type !== 'car') {
+      o.burnT = 2.5;
+      o.obj.setTint(0x3a2a24);
+      return;
+    }
+    o.dead = true;
+    const h = o.obj.displayHeight;
+    const w = o.obj.displayWidth;
+    for (let i = 0; i < Math.min(30, (w * h) / 40); i++) {
+      this.parts.push({ x: o.x + (Math.random() - 0.5) * w, y: o.y - Math.random() * h, vx: (Math.random() - 0.5) * 120, vy: -Math.random() * 160, life: 1.2, max: 1.2, c: Math.random() < 0.5 ? 0x5a4428 : 0x2e5a2e, s: 2, g: 600, grow: 0 });
+    }
+    this.scene.tweens.add({ targets: o.obj, alpha: 0, y: o.obj.y + 10, angle: (Math.random() - 0.5) * 40, duration: 400, onComplete: () => o.obj.destroy() });
+  }
+
+  private updateScenery(dt: number): void {
+    const g = this.world.grid;
+    const check = this.frameNo % 8 === 0;
+    for (const o of this.sceneObjs) {
+      if (o.dead) continue;
+      if (o.burnT > 0) {
+        o.burnT -= dt;
+        if (Math.random() < 0.6) this.parts.push({ x: o.x + (Math.random() - 0.5) * o.obj.displayWidth * 0.6, y: o.y - Math.random() * o.obj.displayHeight, vx: 0, vy: -50, life: 0.5, max: 0.5, c: Math.random() < 0.5 ? 0xffb030 : 0xe05010, s: 3, g: -20, grow: -1, round: true });
+        if (Math.random() < 0.2) this.parts.push({ x: o.x, y: o.y - o.obj.displayHeight, vx: 6, vy: -25, life: 2.5, max: 2.5, c: 0x1e1a1c, s: 4, g: -6, grow: 10, round: true, fade: true });
+        this.lights.push({ x: o.x, y: o.y - o.obj.displayHeight / 2, r: 50, c: 0xff8030, a: 0.6 });
+        if (o.burnT <= 0) {
+          o.burnT = 0;
+          this.destroyScenery(o, false);
+        }
+        continue;
+      }
+      if (check) {
+        const t = g.get(o.supportCol, o.supportRow);
+        if (!isSolid(t) && t !== T.PLATFORM && t !== T.SANDBAG) this.destroyScenery(o, false);
+      }
+      if (o.type === 'lamp' && !o.dead) {
+        const fx = o.obj instanceof Phaser.GameObjects.Image && o.obj.flipX ? -5 : 5;
+        this.lights.push({ x: o.x + fx, y: o.y - 43, r: 40, c: 0xffe0a0, a: 0.55 });
+      }
+      if (o.type === 'enemyflag' && o.obj instanceof Phaser.GameObjects.Image) o.obj.setFrame(Math.floor(this.time * 4 + o.x) % 2);
+    }
+  }
+
   private exposed(t: number): boolean {
     return !isSolid(t) && t !== T.SANDBAG;
   }
@@ -159,6 +238,7 @@ export class WorldRenderer {
     // decor sits in the empty cell above an exposed dirt top
     this.refreshDecor(x, y - 1);
     this.refreshDecor(x, y);
+    this.refreshDecor(x, y + 1);
     if (tint) for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) this.refreshTint(x + dx, y + dy);
   }
 
@@ -166,7 +246,16 @@ export class WorldRenderer {
     const g = this.world.grid;
     if (!g.inBounds(x, y)) return;
     const below = g.get(x, y + 1);
-    if (g.get(x, y) === T.EMPTY && below === T.DIRT) {
+    const above = g.get(x, y - 1);
+    if (g.get(x, y) === T.EMPTY && !isSolid(below) && y > 0 && (above === T.DIRT || above === T.STONE || above === T.BRICK)) {
+      // growth hanging from overhangs
+      const h = hash2(x * 5 + 3, y * 11 + 1) % 100;
+      const f = h < 45 ? 8 + (h % 2) : h < 52 && above === T.STONE ? 10 : -1;
+      if (f >= 0) this.decorLayer.putTileAt(GID_DECOR + f, x, y);
+      else this.decorLayer.removeTileAt(x, y);
+      return;
+    }
+    if (g.get(x, y) === T.EMPTY && (below === T.DIRT || below === T.STONE)) {
       const h = hash2(x * 3 + 1, y * 7 + 5) % 100;
       const f = h < 55 ? h % 4 : h < 62 ? 4 : h < 67 ? 5 : h < 71 ? 6 : h < 73 ? DECOR_FRAMES - 1 : -1;
       if (f >= 0) this.decorLayer.putTileAt(GID_DECOR + f, x, y);
@@ -251,6 +340,12 @@ export class WorldRenderer {
           },
         });
         this.lights.push({ x: e.x, y: e.y, r: e.r * 4, c: 0xffa040, a: 1 });
+        for (const o of this.sceneObjs) {
+          if (o.dead) continue;
+          const cy = o.y - o.obj.displayHeight / 2;
+          const d = Math.hypot(o.x - e.x, cy - e.y);
+          if (d < e.r + o.obj.displayWidth * 0.4) this.destroyScenery(o, d > e.r * 0.6);
+        }
         const n = Math.round(e.r * 0.8);
         for (let i = 0; i < n; i++) {
           const a = Math.random() * Math.PI * 2;
@@ -363,6 +458,8 @@ export class WorldRenderer {
       }
     }
 
+    this.frameNo++;
+    this.updateScenery(dt);
     this.updateFires(dt);
     this.drawParticles(dt);
     this.drawLights(dt);
@@ -743,6 +840,8 @@ function debrisColor(w: World, t: number): string {
       return '#b8a070';
     case T.METAL:
       return b.metal;
+    case T.STONE:
+      return b.rock;
     default:
       return b.dirt;
   }
