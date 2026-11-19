@@ -49,7 +49,7 @@ export class LobbyScene extends Phaser.Scene {
     this.info = this.add.bitmapText(VIEW_W / 2, 30, 'pix', '', undefined, 1).setOrigin(0.5, 0);
 
     for (let i = 0; i < 4; i++) {
-      const x = 22 + i * 88;
+      const x = (VIEW_W - 352) / 2 + 8 + i * 88;
       const box = this.add.graphics();
       const spr = this.add.sprite(x + 36, 100, 'hero0', 0).setScale(2).setOrigin(0.5, 1).setVisible(false);
       const txt = this.add.bitmapText(x + 36, 106, 'pix', '', undefined, 1).setOrigin(0.5, 0);
@@ -208,12 +208,12 @@ export class LobbyScene extends Phaser.Scene {
     this.info.setText(`${lvl}\n${this.status}\n${startHint}`);
     this.slots.forEach((s, i) => {
       const p = this.players.find((pl) => pl.pid === i);
-      const x = 22 + i * 88;
+      const x = (VIEW_W - 352) / 2 + 8 + i * 88;
       s.box.clear();
       s.box.fillStyle(0x000000, 0.6).fillRect(x, 56, 72, 82);
       s.box.lineStyle(1, p ? Phaser.Display.Color.HexStringToColor(HERO_COLORS[p.hero].band).color : 0x404040).strokeRect(x + 0.5, 56.5, 71, 81);
       if (p) {
-        s.spr.setTexture(`hero${p.hero}`).setVisible(true).setFrame([0, 0, 1, 2, 3, 2][Math.floor(this.t * 8 + i) % 6]);
+        s.spr.setTexture(`hero${p.hero}`).setVisible(true).setFrame(Math.floor(this.t * 2 + i) % 2);
         const local = this.mode === 'guest' ? p.owner === this.myId : p.owner === 'host';
         const where = this.mode === 'local' ? '' : local ? '\nLOCAL' : '\nONLINE';
         s.txt.setText(`P${i + 1}\n${HERO_NAMES[p.hero]}\n${deviceLabel(p.device)}${where}`).setTint(0xffffff);

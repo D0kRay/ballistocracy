@@ -1,4 +1,4 @@
-import { GRAVITY, MAX_FALL, TILE } from '../config';
+import { GRAVITY, MAX_FALL, TILE, VIEW_H } from '../config';
 import type { BossType } from '../progress/difficulty';
 import { moveBody, overlap } from './physics';
 import type { Boss, Player } from './types';
@@ -159,7 +159,7 @@ export function updateBoss(w: World, b: Boss, dt: number): void {
     if (pl) w.hurtPlayer(pl, 1, b.x + b.w / 2);
   } else if (b.type === 'gunship') {
     const floorRow = w.grid.surfaceRow(Math.floor((a.x0 + a.x1) / 2 / TILE));
-    const hover = Math.max(w.levelH - 216 + 20, (floorRow < 0 ? 12 : floorRow) * TILE - 110);
+    const hover = Math.max(w.levelH - VIEW_H + 24, (floorRow < 0 ? 12 : floorRow) * TILE - 110);
     if (b.y < hover) b.y = Math.min(hover, b.y + 50 * dt);
     else b.y = hover + Math.sin(b.t * 1.7) * 6;
     const cx = (a.x0 + a.x1) / 2 - b.w / 2;

@@ -3,7 +3,7 @@ import { VIEW_H, VIEW_W } from '../config';
 import { IN } from '../core/input';
 import { music } from '../audio/Music';
 import { playSfx, toggleMute } from '../audio/Sfx';
-import { makeParallax } from '../gfx/parallax';
+import { PARALLAX_H, makeParallax } from '../gfx/parallax';
 import { CONTROLS_HELP, getInput } from '../input/InputManager';
 import { setNet } from '../net/NetSession';
 import { loadSave, resetSave } from '../progress/save';
@@ -36,7 +36,7 @@ export class MenuScene extends Phaser.Scene {
     this.texts = [];
     this.heroes = [];
     const biome = BIOMES[Math.floor(Math.random() * BIOMES.length)];
-    this.bgs = makeParallax(this, biome).map((k, i) => this.add.tileSprite(0, 0, VIEW_W, VIEW_H, k).setOrigin(0).setDepth(i));
+    this.bgs = makeParallax(this, biome).map((k, i) => this.add.tileSprite(0, 0, VIEW_W, VIEW_H, k).setOrigin(0).setDepth(i).setTileScale(VIEW_H / PARALLAX_H, VIEW_H / PARALLAX_H));
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x000000, 0.35).setOrigin(0).setDepth(5);
 
     const title = this.add.bitmapText(VIEW_W / 2, 30, 'pix', 'BALLISTOCRACY').setOrigin(0.5).setScale(4).setDepth(10).setTint(0xffd040);
@@ -45,7 +45,7 @@ export class MenuScene extends Phaser.Scene {
     this.add.bitmapText(VIEW_W / 2, 52, 'pix', 'CO-OP RUN AND GUN  -  1-4 PLAYERS').setOrigin(0.5).setDepth(10).setTint(0xffffff);
 
     for (let i = 0; i < 4; i++) {
-      const s = this.add.sprite(VIEW_W / 2 - 54 + i * 36, 186, `hero${i}`, 0).setScale(2).setDepth(10).setOrigin(0.5, 1);
+      const s = this.add.sprite(VIEW_W / 2 - 66 + i * 44, VIEW_H - 22, `hero${i}`, 0).setScale(2).setDepth(10).setOrigin(0.5, 1);
       this.heroes.push(s);
     }
 
@@ -58,13 +58,13 @@ export class MenuScene extends Phaser.Scene {
       { label: 'CONTROLS', action: () => this.toggleHelp() },
     ];
     this.items.forEach((it, i) => {
-      const t = this.add.bitmapText(VIEW_W / 2, 74 + i * 13, 'pix', it.label).setOrigin(0.5).setScale(2).setDepth(10);
+      const t = this.add.bitmapText(VIEW_W / 2, 84 + i * 15, 'pix', it.label).setOrigin(0.5).setScale(2).setDepth(10);
       t.setInteractive({ useHandCursor: true });
       t.on('pointerover', () => (this.sel = i));
       t.on('pointerdown', () => it.action());
       this.texts.push(t);
     });
-    this.help = this.add.bitmapText(VIEW_W / 2, 140, 'pix', CONTROLS_HELP.join('\n'), undefined, 1).setOrigin(0.5, 0).setDepth(11).setVisible(false);
+    this.help = this.add.bitmapText(VIEW_W / 2, 168, 'pix', CONTROLS_HELP.join('\n'), undefined, 1).setOrigin(0.5, 0).setDepth(11).setVisible(false);
     this.add.bitmapText(4, VIEW_H - 8, 'pix', `BEST LEVEL ${save.best}   M MUSIC  N MUTE`).setDepth(10).setTint(0x909090);
     this.add.bitmapText(VIEW_W - 4, VIEW_H - 8, 'pix', 'V0.1').setOrigin(1, 0).setDepth(10).setTint(0x909090);
     music.play('menu');
@@ -85,7 +85,7 @@ export class MenuScene extends Phaser.Scene {
     const dt = delta / 1000;
     this.t += dt;
     this.bgs.forEach((b, i) => (b.tilePositionX += [2, 5, 12, 30][i] * dt));
-    this.heroes.forEach((h, i) => h.setFrame([1, 2, 3, 2][Math.floor(this.t * 10 + i) % 4]));
+    this.heroes.forEach((h, i) => h.setFrame(2 + (Math.floor(this.t * 12 + i) % 6)));
 
     const inp = getInput();
     inp.poll();

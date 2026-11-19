@@ -1,4 +1,4 @@
-import { LEVEL_H_TILES, TILE } from '../config';
+import { LEVEL_H_TILES, TILE, VIEW_W } from '../config';
 import { Rng } from '../core/rng';
 import { planLevel, type EnemyType, type LevelPlan } from '../progress/difficulty';
 import { Grid } from './Grid';
@@ -36,6 +36,7 @@ export interface PickupSpawn {
 export interface Level {
   plan: LevelPlan;
   grid: Grid;
+  back: Uint8Array; // background wall per cell (see BACK in gfx/terrain)
   spawn: { x: number; y: number };
   enemies: EnemySpawn[];
   props: PropSpawn[];
@@ -44,26 +45,31 @@ export interface Level {
 }
 
 const H = LEVEL_H_TILES;
-const MIN_G = 8;
-const MAX_G = 14;
+const MIN_G = 10;
+const MAX_G = 16;
 
 type Chunk = 'flat' | 'pit' | 'bunker' | 'tower' | 'hill' | 'cave' | 'platforms' | 'traps' | 'acid';
 
 export function generateLevel(levelNo: number, seed: number, totalPlaySec: number): Level {
   const plan = planLevel(levelNo, seed, totalPlaySec);
   const rng = new Rng(seed);
-  const arenaW = 24;
+  const arenaW = Math.round(VIEW_W / TILE);
   const W = plan.isBoss ? plan.lengthTiles + arenaW : plan.lengthTiles;
   const grid = new Grid(W, H);
+  const back = new Uint8Array(W * H);
+  const setBack = (x0: number, y0: number, x1: number, y1: number, v: number) => {
+    for (let y = Math.max(0, y0); y <= Math.min(H - 1, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(W - 1, x1); x++) back[y * W + x] = v;
+  };
   const enemies: EnemySpawn[] = [];
   const props: PropSpawn[] = [];
   const pickups: PickupSpawn[] = [];
 
-  let g = 12; // current surface row
+  let g = 14; // current surface row
 
   const ground = (x: number, surf: number, mat: number = T.DIRT) => {
     for (let y = surf; y < H - 1; y++) grid.init(x, y, mat);
     grid.init(x, H - 1, T.BEDROCK);
+    setBack(x, surf + 1, x, H - 1, 1);
   };
   const fill = (x0: number, y0: number, x1: number, y1: number, t: number) => {
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) grid.init(x, y, t);
@@ -152,6 +158,8 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
       const l = x + 1;
       const r = x + len - 2;
       const roof = g - hb - 1;
+      setBack(l, roof, r, g - 1, 2);
+      for (let wx = l + 2; wx < r - 1; wx += 3) back[(g - hb + 1) * W + wx] = 3;
       fill(l, roof, r, roof, T.BRICK);
       fill(l, roof, l, g - 1, T.BRICK);
       fill(r, roof, r, g - 1, T.BRICK);
@@ -182,6 +190,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
       for (let i = 0; i < len; i++) ground(x + i, g);
       const ht = rng.int(6, 8);
       const top = g - ht;
+      setBack(x + 1, top, x + 3, g - 1, 2);
       fill(x + 1, top, x + 1, g - 1, T.BRICK);
       fill(x + 3, top, x + 3, g - 1, T.BRICK);
       fill(x + 2, top, x + 2, g - 1, T.LADDER);
@@ -216,6 +225,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
       for (let i = 0; i < len; i++) ground(x + i, g);
       const ceil = g - 4;
       fill(x + 2, ceil - thick + 1, x + len - 3, ceil, T.DIRT);
+      setBack(x + 2, ceil - thick + 2, x + len - 3, g - 1, 1);
       if (rng.chance(0.5)) {
         const c = x + rng.int(4, len - 5);
         fill(c, ceil - thick + 1, c + 1, ceil, T.BRICK);
@@ -328,7 +338,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     // approach + arena with metal walls; door gets sealed when the fight starts
     for (; x < plan.lengthTiles; x++) ground(x, g);
     const a0 = plan.lengthTiles;
-    const floor = plan.bossType === 'drill' ? 10 : 12;
+    const floor = plan.bossType === 'drill' ? 12 : 14;
     for (let i = 0; i < arenaW; i++) ground(a0 + i, floor);
     const doorCol = a0 - 1;
     // metal wall above a 3-tile door; rows g-3..g-1 get sealed when the fight starts
@@ -341,7 +351,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     propAt('exit', W - 6, g);
   }
 
-  return { plan, grid, spawn, enemies, props, pickups, arena };
+  return { plan, grid, back, spawn, enemies, props, pickups, arena };
 }
 
 function clampG(v: number): number {

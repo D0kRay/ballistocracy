@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { VIEW_H, VIEW_W } from '../config';
 import { Rng } from '../core/rng';
 import type { Biome } from '../world/biomes';
 import { shade } from './SpriteForge';
@@ -7,8 +6,11 @@ import { shade } from './SpriteForge';
 // Background layers are painted on canvases, blurred, and drawn at 384x216,
 // so the CSS upscale turns the blur into soft chunky pixels.
 
-const W = VIEW_W;
-const H = VIEW_H;
+// painted at a fixed design size and scaled to the view by the renderer
+export const PARALLAX_W = 384;
+export const PARALLAX_H = 216;
+const W = PARALLAX_W;
+const H = PARALLAX_H;
 
 function mk(scene: Phaser.Scene, key: string, draw: (c: CanvasRenderingContext2D) => void): void {
   if (scene.textures.exists(key)) scene.textures.remove(key);
@@ -92,7 +94,7 @@ export function makeParallax(scene: Phaser.Scene, b: Biome): string[] {
   mk(scene, keys[1], (c) => {
     c.save();
     c.filter = 'blur(2.5px)';
-    c.fillStyle = b.far;
+    c.fillStyle = lerpColor(b.far, b.skyBottom, 0.42); // atmospheric haze
     farShape(c, b, rng);
     c.restore();
   });
@@ -101,7 +103,7 @@ export function makeParallax(scene: Phaser.Scene, b: Biome): string[] {
   mk(scene, keys[2], (c) => {
     c.save();
     c.filter = 'blur(1px)';
-    c.fillStyle = b.mid;
+    c.fillStyle = lerpColor(b.mid, b.skyBottom, 0.2);
     midShape(c, b, rng);
     c.restore();
   });

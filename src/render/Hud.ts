@@ -11,6 +11,7 @@ export class Hud {
   private scene: Phaser.Scene;
   private g: Phaser.GameObjects.Graphics;
   private panels: Phaser.GameObjects.BitmapText[] = [];
+  private portraits: Phaser.GameObjects.Image[] = [];
   private right: Phaser.GameObjects.BitmapText;
   private bossName: Phaser.GameObjects.BitmapText;
   private banner: Phaser.GameObjects.BitmapText;
@@ -22,7 +23,11 @@ export class Hud {
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     this.g = scene.add.graphics().setScrollFactor(0).setDepth(100);
-    for (let i = 0; i < 4; i++) this.panels.push(scene.add.bitmapText(0, 0, 'pix', '').setScrollFactor(0).setDepth(101));
+    for (let i = 0; i < 4; i++) {
+      this.panels.push(scene.add.bitmapText(0, 0, 'pix', '').setScrollFactor(0).setDepth(101));
+      // head close-up cropped from the hero's idle frame
+      this.portraits.push(scene.add.image(0, 0, `hero${i}`, 0).setOrigin(0).setScale(2).setCrop(7, 0, 11, 10).setScrollFactor(0).setDepth(101));
+    }
     this.right = scene.add.bitmapText(VIEW_W - 4, 3, 'pix', '').setOrigin(1, 0).setScrollFactor(0).setDepth(101);
     this.heart = scene.add.image(0, 3, 'heart').setOrigin(0, 0).setScrollFactor(0).setDepth(101);
     this.bossName = scene.add.bitmapText(VIEW_W / 2, VIEW_H - 18, 'pix', '').setOrigin(0.5, 0).setScrollFactor(0).setDepth(101);
@@ -48,22 +53,28 @@ export class Hud {
     g.clear();
 
     // player panels
-    const pw = 92;
+    const pw = 112;
     w.players.forEach((p, i) => {
       const x = 3 + i * (pw + 2);
       const y = 3;
       const c = HERO_COLORS[p.hero % 4];
-      g.fillStyle(0x000000, 0.55);
-      g.fillRect(x, y, pw, 22);
-      g.fillStyle(col(c.band), 1);
-      g.fillRect(x, y, 2, 22);
+      g.fillStyle(0x120c10, 0.8);
+      g.fillRect(x, y, pw, 24);
+      g.lineStyle(1, col(c.band), 1);
+      g.strokeRect(x + 0.5, y + 0.5, pw - 1, 23);
+      g.fillStyle(col(c.band), 0.35);
+      g.fillRect(x + 2, y + 2, 22, 20);
+      const portrait = this.portraits[i];
+      portrait.setTexture(`hero${p.hero % 4}`, 0).setCrop(7, 0, 11, 10).setPosition(x + 2 - 14, y + 2).setVisible(true);
+      portrait.setTint(p.alive ? 0xffffff : 0x505050);
+      const tx = x + 26;
       for (let h = 0; h < 3; h++) {
         g.fillStyle(h < p.hp ? 0xe02030 : 0x402020, 1);
-        g.fillRect(x + 5 + h * 6, y + 9, 5, 4);
+        g.fillRect(tx + h * 6, y + 9, 5, 4);
       }
       for (let a = 0; a < p.armor; a++) {
         g.fillStyle(0x4080f0, 1);
-        g.fillRect(x + 25 + a * 4, y + 9, 3, 4);
+        g.fillRect(tx + 20 + a * 4, y + 9, 3, 4);
       }
       const wd = WEAPONS[p.weapon];
       const ammo = Number.isFinite(p.ammo) ? ` ${p.ammo}` : '';
@@ -72,10 +83,13 @@ export class Hud {
       let line1 = `P${p.pid + 1} ${name}`;
       if (!p.connected) line1 += ' (LEFT)';
       else if (!p.alive) line1 += p.respawnT === Infinity ? ' DOWN' : ` ${Math.ceil(p.respawnT)}`;
-      this.panels[i].setText(`${line1}\n\n${wd.name}${ammo}  ${spec}`).setPosition(x + 5, y + 2);
+      this.panels[i].setText(`${line1}\n\n${wd.name}${ammo}  ${spec}`).setPosition(tx, y + 3);
       this.panels[i].setVisible(true);
     });
-    for (let i = w.players.length; i < 4; i++) this.panels[i].setVisible(false);
+    for (let i = w.players.length; i < 4; i++) {
+      this.panels[i].setVisible(false);
+      this.portraits[i].setVisible(false);
+    }
 
     // right: lives, level
     const lvl = w.level.plan;

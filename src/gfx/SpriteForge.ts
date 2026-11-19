@@ -3,6 +3,8 @@ import { TILE } from '../config';
 import { Rng } from '../core/rng';
 import type { Biome } from '../world/biomes';
 import { T, TILE_TYPES } from '../world/tiles';
+import { ENEMY_SPECS, HERO_SPECS, makeCharacter, makeWeapons } from './characters';
+import { makeFx } from './fx';
 
 // All art is generated at boot from tiny ASCII grids + limited palettes.
 // Nothing is loaded from disk, so every sprite is original and license-free.
@@ -161,31 +163,13 @@ function deadWith(dead: string[]): string[] {
 }
 
 export function makeHeroes(scene: Phaser.Scene): void {
-  HERO_COLORS.forEach((c, i) => {
-    const pal: Pal = {
-      k: '#141414', s: '#f0b080', S: '#b87048', h: c.band, b: c.shirt, p: c.pants,
-      g: '#3a3a42', G: '#8a8a96', w: '#ffffff', o: '#2a1a10',
-    };
-    sheet(scene, `hero${i}`, humanFrames(HEAD_HERO, TORSO_GUN), pal, 16, 16);
-  });
-  // rescued prisoner (for cages)
-  sheet(scene, 'prisoner', [[...HEAD_HERO, ...TORSO_EMPTY, ...LEGS.idle]], {
-    k: '#141414', s: '#f0b080', S: '#b87048', h: '#888888', b: '#c8c8c8', p: '#707070', w: '#ffffff', o: '#2a1a10',
-  }, 16, 16);
+  HERO_SPECS.forEach((spec, i) => makeCharacter(scene, `hero${i}`, spec));
+  makeCharacter(scene, 'prisoner', { skin: '#e0a878', hair: '#6a6a6a', head: 'bald', accent: '#000000', shirt: '#b8b0a0', sleeves: false, pants: '#6a6460', boots: '#3a3a3a', build: 0 });
+  makeWeapons(scene);
 }
 
 export function makeEnemies(scene: Phaser.Scene): void {
-  const base: Pal = { k: '#141414', s: '#e0a070', S: '#a86a40', g: '#2a2a30', G: '#6a6a74', w: '#ff3030', o: '#1a1410', r: '#d02020' };
-  sheet(scene, 'e_grunt', humanFrames(HEAD_HELMET, TORSO_GUN), { ...base, H: '#5a6a3a', m: '#2e2626', b: '#8a3a2a', p: '#4a3a2a' }, 16, 16);
-  sheet(scene, 'e_sniper', humanFrames(HEAD_HAT, TORSO_RIFLE_LONG), { ...base, H: '#6a4a2a', m: '#6a3a2a', b: '#3e5232', p: '#3a3a2a', w: '#ffffff' }, 16, 16);
-  sheet(scene, 'e_bomber', humanFrames(HEAD_HELMET, TORSO_BOMB), { ...base, H: '#2a2a2a', m: '#1e1e1e', b: '#c8b070', p: '#4a3a2a' }, 16, 16);
-  sheet(scene, 'e_heavy', humanFrames(HEAD_HELMET, TORSO_HEAVY), { ...base, H: '#3a3a3a', m: '#1e1e1e', b: '#5a2a4a', p: '#2a2a2a' }, 16, 16);
-  // shield guy: grunt body + riot shield overlay
-  const shieldFrames = humanFrames(HEAD_HELMET, TORSO_EMPTY).map((f, i) => {
-    if (i === 6) return f;
-    return f.map((row, y) => (y >= 3 && y <= 13 ? row.slice(0, 11) + (y === 3 || y === 13 ? 'kkk' : 'kZz') + row.slice(14) : row));
-  });
-  sheet(scene, 'e_shield', shieldFrames, { ...base, H: '#3a4a6a', m: '#2a2a3a', b: '#4a5a7a', p: '#2a3040', z: '#7a8494', Z: '#c8d0dc' }, 16, 16);
+  for (const [type, spec] of Object.entries(ENEMY_SPECS)) makeCharacter(scene, `e_${type}`, spec);
 
   const dogA = [
     '................',
@@ -368,32 +352,41 @@ export const ITEM_ICON: Record<string, [string, string]> = {
 
 export function makeProps(scene: Phaser.Scene): void {
   // crate
+  const O = '#120c10';
+  // military supply crate
   canvasTex(scene, 'crate', 16, 16, 1, (c, _f, ox) => {
-    px(c, ox, 0, '#141414', 16, 16);
-    px(c, ox + 1, 1, '#a8743a', 14, 14);
-    px(c, ox + 1, 1, '#c89050', 14, 1);
-    px(c, ox + 1, 14, '#6a4420', 14, 1);
-    for (let i = 0; i < 12; i++) {
-      px(c, ox + 2 + i, 2 + i, '#6a4420', 1, 1);
-      px(c, ox + 13 - i, 2 + i, '#6a4420', 1, 1);
-    }
-    px(c, ox + 1, 7, '#6a4420', 14, 1);
+    px(c, ox, 0, O, 16, 16);
+    px(c, ox + 1, 1, '#6a7a3a', 14, 14);
+    px(c, ox + 1, 1, '#8a9a52', 14, 1);
+    px(c, ox + 1, 1, '#8a9a52', 1, 14);
+    px(c, ox + 1, 14, '#46521e', 14, 1);
+    px(c, ox + 14, 1, '#46521e', 1, 14);
+    px(c, ox + 1, 4, '#46521e', 14, 1);
+    px(c, ox + 1, 11, '#46521e', 14, 1);
+    px(c, ox + 5, 6, '#e8e0b0', 6, 1); px(c, ox + 5, 8, '#e8e0b0', 6, 1); px(c, ox + 7, 5, '#e8e0b0', 2, 5);
+    for (const [x, y] of [[2, 2], [13, 2], [2, 13], [13, 13]]) px(c, ox + x, y, '#c8c8a0');
   });
+  // oil drum with hazard band
   canvasTex(scene, 'barrel', 12, 16, 1, (c, _f, ox) => {
-    px(c, ox + 1, 0, '#141414', 10, 16);
-    px(c, ox, 1, '#141414', 12, 14);
-    px(c, ox + 1, 1, '#c02020', 10, 14);
-    px(c, ox + 2, 1, '#e04040', 2, 14);
-    px(c, ox + 1, 6, '#f0d020', 10, 4);
-    px(c, ox + 3, 7, '#141414', 1, 2); px(c, ox + 6, 7, '#141414', 1, 2); px(c, ox + 9, 7, '#141414', 1, 2);
-    px(c, ox + 1, 3, '#801010', 10, 1); px(c, ox + 1, 12, '#801010', 10, 1);
+    px(c, ox + 1, 0, O, 10, 16);
+    px(c, ox, 1, O, 12, 14);
+    px(c, ox + 1, 1, '#b81c1c', 10, 14);
+    px(c, ox + 2, 1, '#e44a3a', 2, 14);
+    px(c, ox + 9, 1, '#7a1010', 2, 14);
+    px(c, ox + 1, 3, '#5a0c0c', 10, 1); px(c, ox + 1, 12, '#5a0c0c', 10, 1);
+    px(c, ox + 1, 6, '#f0c820', 10, 4);
+    for (let x = 1; x < 11; x += 3) px(c, ox + x, 6, O, 2, 4);
+    px(c, ox + 4, 0, '#d0d0d0', 3, 1);
   });
-  canvasTex(scene, 'cage', 16, 16, 1, (c, _f, ox) => {
-    // prisoner inside
-    px(c, ox + 6, 5, '#f0b080', 4, 3); px(c, ox + 6, 4, '#888', 4, 1); px(c, ox + 5, 8, '#c8c8c8', 6, 4); px(c, ox + 6, 12, '#707070', 4, 3);
-    px(c, ox, 0, '#3a3a3a', 16, 2); px(c, ox, 14, '#3a3a3a', 16, 2);
-    for (let x = 0; x < 16; x += 3) px(c, ox + x, 2, '#9a9aa4', 1, 12);
-    px(c, ox, 0, '#6a6a74', 16, 1);
+  // bamboo cage (prisoner sprite drawn behind it by the renderer)
+  canvasTex(scene, 'cage', 20, 24, 1, (c, _f, ox) => {
+    px(c, ox, 0, O, 20, 3); px(c, ox + 1, 1, '#b8943a', 18, 1);
+    px(c, ox, 21, O, 20, 3); px(c, ox + 1, 22, '#b8943a', 18, 1);
+    for (let x = 0; x < 20; x += 4) {
+      px(c, ox + x, 3, O, 3, 18);
+      px(c, ox + x + 1, 3, '#d8b45a', 1, 18);
+      px(c, ox + x + 1, 9, '#8a6a2a', 1, 1); px(c, ox + x + 1, 15, '#8a6a2a', 1, 1);
+    }
   });
   canvasTex(scene, 'exit', 24, 48, 2, (c, f, ox) => {
     px(c, ox + 3, 2, '#d0d0d0', 2, 44);
@@ -450,15 +443,18 @@ export function makeProps(scene: Phaser.Scene): void {
     px(c, ox + 1, 0, '#6a6a74', 2, 3);
   });
 
-  // pickups
+  // pickups: little ammo boxes with a coloured stencil plate
   for (const [item, [letter, color]] of Object.entries(ITEM_ICON)) {
-    canvasTex(scene, `pk_${item}`, 12, 12, 1, (c, _f, ox) => {
-      px(c, ox, 0, '#141414', 12, 12);
-      px(c, ox + 1, 1, color, 10, 10);
-      px(c, ox + 1, 1, shade(color, 1.4), 10, 1);
-      px(c, ox + 1, 10, shade(color, 0.6), 10, 1);
+    canvasTex(scene, `pk_${item}`, 14, 12, 1, (c, _f, ox) => {
+      px(c, ox, 0, O, 14, 12);
+      px(c, ox + 1, 1, '#4e5a2a', 12, 10);
+      px(c, ox + 1, 1, '#6e7a42', 12, 1);
+      px(c, ox + 1, 10, '#323a18', 12, 1);
+      px(c, ox + 3, 2, O, 8, 8);
+      px(c, ox + 4, 3, color, 6, 6);
+      px(c, ox + 4, 3, shade(color, 1.4), 6, 1);
       const rows = (LETTERS[letter] ?? LETTERS['+']).split(' ');
-      for (let y = 0; y < 5; y++) for (let x = 0; x < 3; x++) if (rows[y][x] === '#') px(c, ox + 3 + x * 2, 1 + y * 2 - 0, '#141414', 2, 2);
+      for (let y = 0; y < 5; y++) for (let x = 0; x < 3; x++) if (rows[y][x] === '#') px(c, ox + 6 + x, 4 + y, O, 1, 1);
     });
   }
 }
@@ -588,6 +584,7 @@ export function makeBosses(scene: Phaser.Scene): void {
 }
 
 export function makeAll(scene: Phaser.Scene): void {
+  makeFx(scene);
   makeHeroes(scene);
   makeEnemies(scene);
   makeProps(scene);

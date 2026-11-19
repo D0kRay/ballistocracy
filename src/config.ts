@@ -1,9 +1,9 @@
 // Global tuning constants. Internal resolution is tiny on purpose:
 // the canvas is upscaled by CSS so everything renders as chunky 80s pixels.
-export const VIEW_W = 384;
-export const VIEW_H = 216;
+export const VIEW_W = 480;
+export const VIEW_H = 270;
 export const TILE = 16;
-export const LEVEL_H_TILES = 18;
+export const LEVEL_H_TILES = 20;
 
 export const DT = 1 / 60;
 export const GRAVITY = 950;
