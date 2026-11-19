@@ -158,7 +158,8 @@ export function updateBoss(w: World, b: Boss, dt: number): void {
     const pl = w.overlapsAnyPlayer(b);
     if (pl) w.hurtPlayer(pl, 1, b.x + b.w / 2);
   } else if (b.type === 'gunship') {
-    const hover = a.floorRow * TILE - 140;
+    const floorRow = w.grid.surfaceRow(Math.floor((a.x0 + a.x1) / 2 / TILE));
+    const hover = Math.max(w.levelH - 216 + 20, (floorRow < 0 ? 12 : floorRow) * TILE - 110);
     if (b.y < hover) b.y = Math.min(hover, b.y + 50 * dt);
     else b.y = hover + Math.sin(b.t * 1.7) * 6;
     const cx = (a.x0 + a.x1) / 2 - b.w / 2;

@@ -41,6 +41,8 @@ const PREVENT = new Set(['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDo
 
 export class InputManager {
   private down = new Set<string>();
+  private tapped = new Set<string>(); // keys pressed since the last poll (catches very short taps)
+  private frameTapped = new Set<string>();
   private prevBits = new Map<DeviceId, number>();
   private curBits = new Map<DeviceId, number>();
   private typingTarget = false;
@@ -50,6 +52,7 @@ export class InputManager {
     if (this.typingTarget) return;
     if (PREVENT.has(e.code)) e.preventDefault();
     this.down.add(e.code);
+    this.tapped.add(e.code);
   };
   private onKeyUp = (e: KeyboardEvent) => {
     this.down.delete(e.code);
@@ -69,12 +72,14 @@ export class InputManager {
   }
 
   keyDown(code: string): boolean {
-    return this.down.has(code);
+    return this.down.has(code) || this.frameTapped.has(code);
   }
 
   /** call once per frame */
   poll(): void {
     for (const [d, b] of this.curBits) this.prevBits.set(d, b);
+    this.frameTapped = this.tapped;
+    this.tapped = new Set();
     this.curBits.set('kbA', this.kbBits(KB_A));
     this.curBits.set('kbB', this.kbBits(KB_B));
     const pads = navigator.getGamepads ? navigator.getGamepads() : [];
@@ -106,7 +111,7 @@ export class InputManager {
     let b = 0;
     for (const k of Object.keys(map)) {
       const bit = Number(k);
-      if (map[bit].some((c) => this.down.has(c))) b |= bit;
+      if (map[bit].some((c) => this.down.has(c) || this.frameTapped.has(c))) b |= bit;
     }
     return b;
   }

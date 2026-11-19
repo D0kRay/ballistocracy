@@ -203,6 +203,7 @@ export class World {
     // camera + keep everyone on screen
     const alive = this.alivePlayers();
     this.cam = computeCamera(this.cam, alive, this.levelW, this.levelH, VIEW_W, VIEW_H, CAMERA_MARGIN, this.arenaLocked && this.level.arena ? this.level.arena.x0 : null);
+    if (this.arenaLocked) this.cam.y = Math.max(0, this.levelH - VIEW_H);
     for (const p of alive) clampToView(p, this.cam, VIEW_W);
 
     // cleanup
