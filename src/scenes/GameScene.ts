@@ -14,6 +14,8 @@ import { HERO_NAMES, World } from '../sim/World';
 import { clearDom } from '../ui/dom';
 import { generateLevel } from '../world/LevelGen';
 import { randomSeed } from '../core/rng';
+import { clampToView } from '../camera/coopCamera';
+import { predictPlayer } from '../sim/players';
 
 export type GameMode = 'local' | 'host' | 'guest';
 export interface GameData extends StartData {
@@ -38,7 +40,9 @@ export class GameScene extends Phaser.Scene {
   private keyLatch = new Set<string>();
   private paused = false;
   private pauseText!: Phaser.GameObjects.BitmapText;
-  private sendAcc = 0;
+  private seq = 0;
+  private history: { seq: number; b: [number, number][] }[] = [];
+  private acks = new Map<number, number>();
   private lastSnapAt = 0;
 
   constructor() {
@@ -54,6 +58,9 @@ export class GameScene extends Phaser.Scene {
     this.evBuf = [];
     this.tileBuf = [];
     this.remoteInputs.clear();
+    this.acks.clear();
+    this.history = [];
+    this.seq = 0;
     this.paused = false;
     this.escArm = 0;
   }
@@ -110,7 +117,10 @@ export class GameScene extends Phaser.Scene {
     if (m.t === 'in') {
       for (const [pid, bits] of m.b) {
         const lp = this.data0.players.find((p) => p.pid === pid);
-        if (lp && lp.owner === from) this.remoteInputs.set(pid, bits);
+        if (lp && lp.owner === from) {
+          this.remoteInputs.set(pid, bits);
+          if (typeof m.s === 'number') this.acks.set(pid, m.s);
+        }
       }
     }
   }
@@ -131,16 +141,26 @@ export class GameScene extends Phaser.Scene {
 
     const mode = this.data0.mode;
     if (mode === 'guest') {
-      this.sendAcc += dt;
-      if (this.sendAcc >= 1 / 30) {
-        this.sendAcc = 0;
-        this.net?.send({ t: 'in', b: this.localMap.map((l) => [l.pid, inp.bits(l.device)] as [number, number]) });
-      }
+      // 1) apply authoritative snapshots, then re-run our unacknowledged inputs on top
+      let ack: Map<number, number> | null = null;
       while (this.snaps.length) {
         const s = this.snaps.shift()!;
         applySnapshot(this.world, s);
+        ack = new Map(s.a ?? []);
         this.lastSnapAt = this.time.now;
         for (const e of s.ev) this.handleEvent(e);
+      }
+      if (ack) this.reconcile(ack);
+      // 2) predict local players at the fixed rate and stream inputs to the host
+      this.acc += dt;
+      while (this.acc >= DT) {
+        this.acc -= DT;
+        this.seq++;
+        const b = this.localMap.map((l) => [l.pid, inp.bits(l.device)] as [number, number]);
+        this.history.push({ seq: this.seq, b });
+        if (this.history.length > 240) this.history.shift();
+        this.net?.send({ t: 'in', s: this.seq, b });
+        this.predict(b);
       }
       // extrapolate projectiles between snapshots
       for (const pr of this.world.projectiles) {
@@ -169,7 +189,7 @@ export class GameScene extends Phaser.Scene {
           this.evBuf.push(...evs.filter((e) => e.k !== 'text' || true));
           this.tileBuf.push(...tl);
           if (this.steps % NET_SNAPSHOT_EVERY === 0 && this.net) {
-            this.net.send({ t: 'snap', s: makeSnapshot(this.world, this.evBuf, this.tileBuf) });
+            this.net.send({ t: 'snap', s: makeSnapshot(this.world, this.evBuf, this.tileBuf, this.acks) });
             this.evBuf = [];
             this.tileBuf = [];
           }
@@ -179,8 +199,45 @@ export class GameScene extends Phaser.Scene {
       if (mode === 'host') this.hud.setStatus(`ONLINE  KEY ${this.net?.key ?? ''}  PEERS ${this.net?.peerCount ?? 0}`);
     }
 
-    this.view.update(dt, mode === 'guest');
+    this.view.update(dt, mode === 'guest', this.localPidSet);
     this.hud.update(this.world, dt);
+  }
+
+  private get localPidSet(): Set<number> {
+    return new Set(this.data0.mode === 'guest' ? this.localMap.map((l) => l.pid) : []);
+  }
+
+  /** guest: advance own players immediately instead of waiting for the host */
+  private predict(b: [number, number][]): void {
+    for (const [pid, bits] of b) {
+      const p = this.world.players.find((pl) => pl.pid === pid);
+      if (!p || !p.alive) continue;
+      p.prev = p.bits;
+      p.bits = bits;
+      predictPlayer(this.world, p, DT);
+      clampToView(p, this.world.cam, VIEW_W);
+    }
+  }
+
+  /** guest: snapshot reset our players to the host's (older) state; replay inputs the host has not seen yet */
+  private reconcile(ack: Map<number, number>): void {
+    for (const l of this.localMap) {
+      const p = this.world.players.find((pl) => pl.pid === l.pid);
+      if (!p || !p.alive) continue;
+      const a = ack.get(l.pid) ?? 0;
+      let prevBits = this.history.find((h) => h.seq === a)?.b.find(([pid]) => pid === l.pid)?.[1] ?? 0;
+      for (const h of this.history) {
+        if (h.seq <= a) continue;
+        const bits = h.b.find(([pid]) => pid === l.pid)?.[1] ?? 0;
+        p.prev = prevBits;
+        p.bits = bits;
+        predictPlayer(this.world, p, DT);
+        clampToView(p, this.world.cam, VIEW_W);
+        prevBits = bits;
+      }
+    }
+    const minAck = Math.min(...this.localMap.map((l) => ack.get(l.pid) ?? 0));
+    if (Number.isFinite(minAck)) this.history = this.history.filter((h) => h.seq >= minAck);
   }
 
   private hotkeys(): void {

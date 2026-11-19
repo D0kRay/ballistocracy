@@ -147,3 +147,34 @@ describe('stress', () => {
     }
   });
 });
+
+import { predictPlayer } from '../src/sim/players';
+
+describe('guest prediction', () => {
+  it('predicted movement matches the authoritative simulation', () => {
+    const mk = () => {
+      const w = new World(generateLevel(2, 555, 0), [{ pid: 0, hero: 0, name: 'A' }], 9);
+      w.enemies = [];
+      w.props = w.props.filter((p) => p.type === 'exit');
+      w.players[0].inv = 999;
+      return w;
+    };
+    const host = mk();
+    const guest = mk();
+    const gp = guest.players[0];
+    for (let i = 0; i < 600; i++) {
+      let bits = IN.RIGHT;
+      if (i % 70 < 25) bits |= IN.JUMP;
+      if (i % 200 > 150) bits = IN.LEFT | (i % 20 < 5 ? IN.JUMP : 0);
+      host.step(DT, new Map([[0, bits]]));
+      host.events = [];
+      gp.prev = gp.bits;
+      gp.bits = bits;
+      predictPlayer(guest, gp, DT);
+      guest.cam = { ...host.cam };
+      clampToView(gp, guest.cam, VIEW_W);
+      expect(Math.abs(gp.x - host.players[0].x)).toBeLessThan(0.5);
+      expect(Math.abs(gp.y - host.players[0].y)).toBeLessThan(0.5);
+    }
+  });
+});

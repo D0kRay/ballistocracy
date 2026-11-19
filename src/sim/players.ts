@@ -14,6 +14,20 @@ export function updatePlayer(w: World, p: Player, dt: number): void {
     }
     return;
   }
+  const dropThrough = steer(w, p, dt, true);
+  actions(w, p);
+  integrate(w, p, dt, dropThrough, true);
+}
+
+/** Guest-side prediction: movement only, no shooting, no side effects. */
+export function predictPlayer(w: World, p: Player, dt: number): void {
+  if (!p.alive) return;
+  const dropThrough = steer(w, p, dt, false);
+  integrate(w, p, dt, dropThrough, false);
+}
+
+/** input -> velocity (run, jump, ladders, wall climb). Returns drop-through flag. */
+function steer(w: World, p: Player, dt: number, fx: boolean): boolean {
   const b = p.bits;
   const pv = p.prev;
   const left = has(b, IN.LEFT);
@@ -43,7 +57,7 @@ export function updatePlayer(w: World, p: Player, dt: number): void {
     if (pressed(b, pv, IN.JUMP)) {
       p.climbing = false;
       p.vy = -JUMP_VEL * 0.8;
-      w.sfx('jump', p.x);
+      if (fx) w.sfx('jump', p.x);
     }
     dropThrough = true;
   } else {
@@ -63,7 +77,7 @@ export function updatePlayer(w: World, p: Player, dt: number): void {
         p.vx = -move * speed * 1.2;
         p.wallJumpT = 0.16;
         p.facing = -move;
-        w.sfx('jump', p.x);
+        if (fx) w.sfx('jump', p.x);
       }
     }
 
@@ -73,11 +87,19 @@ export function updatePlayer(w: World, p: Player, dt: number): void {
     } else if (pressed(b, pv, IN.JUMP) && (p.onGround || p.coyote > 0)) {
       p.vy = -JUMP_VEL;
       p.coyote = 0;
-      w.sfx('jump', p.x);
+      if (fx) w.sfx('jump', p.x);
     }
     if (!has(b, IN.JUMP) && p.vy < -140 && !touchingWall) p.vy *= 0.6; // variable jump height
   }
   if (move !== 0 && p.wallJumpT <= 0) p.facing = move;
+  return dropThrough;
+}
+
+function actions(w: World, p: Player): void {
+  const b = p.bits;
+  const pv = p.prev;
+  const up = has(b, IN.UP);
+  const down = has(b, IN.DOWN);
 
   // --- shooting
   const wd = WEAPONS[p.weapon];
@@ -153,8 +175,11 @@ export function updatePlayer(w: World, p: Player, dt: number): void {
     }
   }
 
-  // --- physics
+}
+
+function integrate(w: World, p: Player, dt: number, dropThrough: boolean, fx: boolean): void {
   moveBody(p, w.grid, dt, dropThrough);
+  if (!fx) return;
   if (p.onGround) {
     const ty = Math.floor((p.y + p.h + 1) / TILE);
     w.touchCrumble(Math.floor((p.x + 1) / TILE), ty);

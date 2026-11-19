@@ -18,7 +18,7 @@ export interface StartData {
 export type Msg =
   | { t: 'hello' }
   | { t: 'locals'; devices: string[] }
-  | { t: 'in'; b: [number, number][] }
+  | { t: 'in'; s: number; b: [number, number][] } // s = input sequence for prediction acks
   | { t: 'lobby'; players: LobbyPlayer[]; level: number; you: string }
   | { t: 'start'; d: StartData }
   | { t: 'snap'; s: Snap }

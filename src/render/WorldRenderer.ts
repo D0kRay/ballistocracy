@@ -159,7 +159,7 @@ export class WorldRenderer {
   }
 
   // ------------------------------------------------------------ frame
-  update(dt: number, remote: boolean): void {
+  update(dt: number, remote: boolean, localPids: Set<number> = new Set()): void {
     this.time += dt;
     const w = this.world;
     const cam = this.scene.cameras.main;
@@ -282,7 +282,8 @@ export class WorldRenderer {
     for (const p of w.players) {
       if (!p.alive) continue;
       const s = this.spr(p.id, `hero${p.hero % 4}`, 12);
-      const pos = this.smoothPos(p.id, p.x, p.y, remote, dt);
+      // own predicted players: only a quick blend to hide reconciliation corrections
+      const pos = this.smoothPos(p.id, p.x, p.y, remote, dt, localPids.has(p.pid) ? 35 : 18);
       s.setOrigin(0.5, 1).setPosition(Math.round(pos.x + p.w / 2), Math.round(pos.y + p.h + 1));
       s.setFlipX(p.facing < 0);
       let f = 0;
@@ -349,14 +350,14 @@ export class WorldRenderer {
     this.texts = this.texts.filter((t) => t.life > 0);
   }
 
-  private smoothPos(id: number, x: number, y: number, remote: boolean, dt: number): { x: number; y: number } {
+  private smoothPos(id: number, x: number, y: number, remote: boolean, dt: number, rate = 18): { x: number; y: number } {
     if (!remote) return { x, y };
     let s = this.smooth.get(id);
     if (!s || Math.hypot(s.x - x, s.y - y) > 48) {
       s = { x, y };
       this.smooth.set(id, s);
     }
-    const k = Math.min(1, dt * 18);
+    const k = Math.min(1, dt * rate);
     s.x += (x - s.x) * k;
     s.y += (y - s.y) * k;
     return s;

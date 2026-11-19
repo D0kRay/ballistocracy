@@ -37,9 +37,10 @@ export interface Snap {
   bs: number[][];
   ev: GameEvent[];
   tl: number[];
+  a: [number, number][]; // [pid, last input seq the host applied]
 }
 
-export function makeSnapshot(w: World, events: GameEvent[], tiles: number[]): Snap {
+export function makeSnapshot(w: World, events: GameEvent[], tiles: number[], acks: Map<number, number> = new Map()): Snap {
   const cx = w.cam.x + VIEW_W / 2;
   const near = (x: number) => Math.abs(x - cx) < VIEW_W * 1.1;
   const b = w.boss;
@@ -68,6 +69,7 @@ export function makeSnapshot(w: World, events: GameEvent[], tiles: number[]): Sn
     bs: b ? b.segs.map((s) => [r1(s.x), r1(s.y)]) : [],
     ev: events,
     tl: tiles,
+    a: [...acks],
   };
 }
 
