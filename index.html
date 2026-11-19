@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ballistocracy</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #0a0608; overflow: hidden; }
+      #game { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+      #game canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+      #ui { position: absolute; left: 50%; bottom: 6%; transform: translateX(-50%); z-index: 10; font-family: 'Courier New', monospace; }
+      #ui .panel { background: #000c; border: 3px solid #f0c020; padding: 10px 16px; color: #f0e0a0; text-align: center; letter-spacing: 2px; box-shadow: 4px 4px 0 #702010; }
+      #ui .key { font-size: 34px; font-weight: bold; color: #ffe040; margin: 6px 0; letter-spacing: 8px; }
+      #ui input { font: bold 26px 'Courier New', monospace; width: 190px; text-transform: uppercase; text-align: center; letter-spacing: 6px; background: #1a1010; color: #ffe040; border: 2px solid #f0c020; margin: 8px; padding: 4px; }
+      #ui button { font: bold 16px 'Courier New', monospace; background: #c02020; color: #fff; border: 2px solid #fff; padding: 6px 16px; cursor: pointer; letter-spacing: 2px; }
+      #ui button:hover { background: #e04040; }
+      #ui .err { color: #ff6060; margin-top: 6px; }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <div id="ui"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
