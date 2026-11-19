@@ -21,7 +21,7 @@ export function updatePlayer(w: World, p: Player, dt: number): void {
 
 /** Guest-side prediction: movement only, no shooting, no side effects. */
 export function predictPlayer(w: World, p: Player, dt: number): void {
-  if (!p.alive) return;
+  if (!p.alive || p.inVehicle) return;
   const dropThrough = steer(w, p, dt, false);
   integrate(w, p, dt, dropThrough, false);
 }

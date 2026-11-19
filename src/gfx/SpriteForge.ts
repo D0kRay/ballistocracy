@@ -4,7 +4,7 @@ import { Rng } from '../core/rng';
 import type { Biome } from '../world/biomes';
 import { T, TILE_TYPES } from '../world/tiles';
 import { ENEMY_SPECS, HERO_SPECS, makeCharacter, makeWeapons } from './characters';
-import { makeFx } from './fx';
+import { makeFx, makeVehicles } from './fx';
 
 // All art is generated at boot from tiny ASCII grids + limited palettes.
 // Nothing is loaded from disk, so every sprite is original and license-free.
@@ -585,6 +585,7 @@ export function makeBosses(scene: Phaser.Scene): void {
 
 export function makeAll(scene: Phaser.Scene): void {
   makeFx(scene);
+  makeVehicles(scene);
   makeHeroes(scene);
   makeEnemies(scene);
   makeProps(scene);

@@ -8,6 +8,15 @@ import { World } from '../src/sim/World';
 import { generateLevel } from '../src/world/LevelGen';
 import { T } from '../src/world/tiles';
 
+function skipIntro(w: World): World {
+  w.intro = null;
+  for (const p of w.players) {
+    p.inVehicle = false;
+    p.inv = 0;
+  }
+  return w;
+}
+
 describe('rng', () => {
   it('is deterministic', () => {
     const a = new Rng(42);
@@ -113,7 +122,7 @@ describe('world simulation', () => {
 
   it('boss level spawns a boss once players enter the arena', () => {
     const lvl = generateLevel(5, 77, 0);
-    const w = new World(lvl, [{ pid: 0, hero: 0, name: 'BOT' }], 99);
+    const w = skipIntro(new World(lvl, [{ pid: 0, hero: 0, name: 'BOT' }], 99));
     const p = w.players[0];
     p.x = lvl.arena!.x0 + 40;
     p.y = 40;
@@ -128,7 +137,7 @@ describe('stress', () => {
   it('runs every boss type and many levels without throwing', () => {
     for (const level of [5, 10, 15, 3, 7, 9, 12]) {
       const lvl = generateLevel(level, level * 31, 600);
-      const w = new World(lvl, [0, 1, 2].map((i) => ({ pid: i, hero: i, name: 'B' })), 99);
+      const w = skipIntro(new World(lvl, [0, 1, 2].map((i) => ({ pid: i, hero: i, name: 'B' })), 99));
       if (lvl.arena) {
         w.players.forEach((p, i) => {
           p.x = lvl.arena!.x0 + 30 + i * 20;
@@ -156,6 +165,7 @@ describe('guest prediction', () => {
       const w = new World(generateLevel(2, 555, 0), [{ pid: 0, hero: 0, name: 'A' }], 9);
       w.enemies = [];
       w.props = w.props.filter((p) => p.type === 'exit');
+      skipIntro(w);
       w.players[0].inv = 999;
       // crumbling tiles are host-only side effects; reconciliation covers them in the real game
       for (let i = 0; i < w.grid.tiles.length; i++) if (w.grid.tiles[i] === T.CRUMBLE) w.grid.tiles[i] = T.PLATFORM;
@@ -179,5 +189,29 @@ describe('guest prediction', () => {
       expect(Math.abs(gp.x - host.players[0].x)).toBeLessThan(0.5);
       expect(Math.abs(gp.y - host.players[0].y)).toBeLessThan(0.5);
     }
+  });
+});
+
+describe('intro and extraction', () => {
+  it('helicopter drops every player, then all must board to finish', () => {
+    const lvl = generateLevel(1, 4242, 0);
+    const w = new World(lvl, [0, 1].map((i) => ({ pid: i, hero: i, name: 'B' })), 9);
+    expect(w.players.every((p) => p.inVehicle)).toBe(true);
+    for (let i = 0; i < 60 * 4; i++) w.step(DT, new Map());
+    expect(w.status).toBe('playing');
+    expect(w.players.every((p) => !p.inVehicle && p.alive)).toBe(true);
+    const exit = w.props.find((p) => p.type === 'exit')!;
+    const zoneY = exit.variant === 'truck' ? exit.y - 2 : exit.variant === 'plane' ? exit.y + exit.h - 14 : exit.y + 20;
+    // only one player arrives: level must not end yet
+    Object.assign(w.players[0], { x: exit.x + 4, y: zoneY, vx: 0, vy: 0 });
+    w.cam.x = Math.max(0, exit.x - 200);
+    w.players[1].x = w.cam.x + 20;
+    w.step(DT, new Map());
+    expect(w.players[0].inVehicle).toBe(true);
+    expect(w.status).toBe('playing');
+    Object.assign(w.players[1], { x: exit.x + 4, y: zoneY, vx: 0, vy: 0 });
+    w.step(DT, new Map());
+    w.step(DT, new Map());
+    expect(w.status).toBe('complete');
   });
 });

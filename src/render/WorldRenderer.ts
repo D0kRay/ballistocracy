@@ -9,6 +9,7 @@ import { SCENERY_TILED, makeScenery } from '../gfx/scenery';
 import type { GameEvent } from '../sim/types';
 import type { World } from '../sim/World';
 import { T, isSolid } from '../world/tiles';
+import { biomeAt } from '../world/biomes';
 
 interface Particle {
   x: number;
@@ -91,6 +92,7 @@ export class WorldRenderer {
   private smooth = new Map<number, { x: number; y: number }>();
   private time = 0;
   private sceneObjs: SceneObj[] = [];
+  private night = false;
   private frameNo = 0;
 
   constructor(scene: Phaser.Scene, world: World) {
@@ -98,7 +100,13 @@ export class WorldRenderer {
     this.world = world;
     ensureHands();
     const b = world.biome;
-    const keys = makeParallax(scene, b);
+    const tod = world.level.plan.tod ?? 'day';
+    const keys = makeParallax(scene, biomeAt(b, tod), world.level.plan.seed % 9973, tod === 'night');
+    if (tod !== 'day') {
+      // multiply grade over the whole world; lights are drawn above it so they pop
+      scene.add.rectangle(0, 0, VIEW_W, VIEW_H, tod === 'night' ? (b.id === 'volcano' ? 0xd0a098 : 0x8c98cc) : 0xffd0b4).setOrigin(0).setScrollFactor(0).setDepth(89).setBlendMode(Phaser.BlendModes.MULTIPLY);
+    }
+    this.night = tod === 'night';
     const s = VIEW_H / PARALLAX_H;
     keys.forEach((k, i) => {
       const ts = scene.add.tileSprite(0, 0, VIEW_W, VIEW_H, k).setOrigin(0).setScrollFactor(0).setDepth(-10 + i);
@@ -206,7 +214,7 @@ export class WorldRenderer {
       }
       if (o.type === 'lamp' && !o.dead) {
         const fx = o.obj instanceof Phaser.GameObjects.Image && o.obj.flipX ? -5 : 5;
-        this.lights.push({ x: o.x + fx, y: o.y - 43, r: 40, c: 0xffe0a0, a: 0.55 });
+        this.lights.push({ x: o.x + fx, y: o.y - 43, r: 30, c: 0xffe0a0, a: 0.45 });
       }
       if (o.type === 'enemyflag' && o.obj instanceof Phaser.GameObjects.Image) o.obj.setFrame(Math.floor(this.time * 4 + o.x) % 2);
     }
@@ -438,6 +446,7 @@ export class WorldRenderer {
     top.clear();
 
     this.drawProps(dt);
+    this.drawIntro();
     this.drawPickups();
 
     for (const d of w.debris) {
@@ -496,17 +505,7 @@ export class WorldRenderer {
       const s = this.spr(p.id, p.type, 5);
       s.setPosition(p.x + p.w / 2, p.y + p.h).setOrigin(0.5, 1);
       if (p.type === 'exit') {
-        s.setFrame(Math.floor(this.time * 4) % 2);
-        // extraction chopper hovering above the flag
-        const ch = this.spr(p.id * 1000 + 7, 'chopper', 13);
-        const cy = p.y - 46 + Math.sin(this.time * 2) * 3;
-        ch.setOrigin(0.5, 0.5).setPosition(Math.round(p.x + p.w / 2 + 6), Math.round(cy)).setFrame(Math.floor(this.time * 24) % 2);
-        g.fillStyle(0x8a6a3a, 1);
-        for (let yy = cy + 14; yy < p.y + p.h - 6; yy += 4) {
-          g.fillRect(p.x + p.w / 2 - 3, yy, 1, 4);
-          g.fillRect(p.x + p.w / 2 + 3, yy, 1, 4);
-          g.fillRect(p.x + p.w / 2 - 3, yy + 3, 7, 1);
-        }
+        this.drawVehicle(p, s);
       } else if (p.type === 'cage') {
         const pr = this.spr(p.id * 1000 + 3, 'prisoner', 4.9);
         pr.setOrigin(0.5, 1).setPosition(Math.round(p.x + p.w / 2), Math.round(p.y + p.h - 2)).setFrame(Math.floor(this.time * 1.5 + p.id) % 2);
@@ -533,6 +532,83 @@ export class WorldRenderer {
       }
     }
     void dt;
+  }
+
+  /** extraction vehicle; boarded players ride on it and it leaves once the level is complete */
+  private drawVehicle(p: { id: number; x: number; y: number; w: number; h: number; variant?: string }, flag: Spr): void {
+    const w = this.world;
+    const g = this.gfx;
+    const leaving = w.status === 'complete' ? w.statusT : 0;
+    const riders = w.players.filter((pl) => pl.alive && pl.inVehicle && (!w.intro || w.intro.dropped >= w.players.length));
+    const v = p.variant ?? 'chopper';
+    const rider = (pl: (typeof riders)[number], x: number, y: number, frame: number, flip: boolean) => {
+      const rs = this.spr(pl.id * 1000 + 9, `hero${pl.hero % 4}`, 12.6);
+      rs.setOrigin(0.5, 1).setPosition(Math.round(x), Math.round(y)).setFrame(frame).setFlipX(flip).clearTint().setVisible(true);
+    };
+    if (v === 'truck') {
+      flag.setVisible(false);
+      const dx = leaving * leaving * 70;
+      const tr = this.spr(p.id * 1000 + 7, 'truck', 6);
+      const tx = p.x + p.w / 2 + dx;
+      tr.setOrigin(0.5, 1).setPosition(Math.round(tx), Math.round(p.y + p.h + 1)).setFrame(leaving > 0 ? Math.floor(this.time * 16) % 2 : 0);
+      if (leaving > 0 && Math.random() < 0.6) this.parts.push({ x: tx + 9, y: p.y + 2, vx: -20, vy: -30, life: 1, max: 1, c: 0x4a4446, s: 3, g: -10, grow: 6, round: true, fade: true });
+      riders.forEach((pl, i) => rider(pl, p.x + 8 + i * 9 + dx, p.y + 13, FRAME.idle + (Math.floor(this.time * 2 + i) % 2), false));
+      if (!leaving) this.lights.push({ x: tx + 30, y: p.y + 18, r: 30, c: 0xfff0a0, a: 0.5 });
+      return;
+    }
+    if (v === 'plane') {
+      flag.setVisible(false);
+      const dx = leaving * leaving * 90;
+      const dy = -(Math.max(0, leaving - 1) ** 2) * 45;
+      const pl = this.spr(p.id * 1000 + 7, 'plane', 6);
+      pl.setOrigin(0, 1).setPosition(Math.round(p.x + dx), Math.round(p.y + p.h + 3 + dy)).setFrame(Math.floor(this.time * 20) % 2);
+      pl.setRotation(dy < 0 ? -0.12 : 0);
+      if (leaving > 0 && Math.random() < 0.7) this.parts.push({ x: p.x + dx + 70, y: p.y + 14 + dy, vx: -40, vy: 0, life: 0.8, max: 0.8, c: 0x8a8a8a, s: 2, g: 0, grow: 5, round: true, fade: true });
+      if (!leaving) {
+        // blinking guide lights on the ramp
+        if (Math.floor(this.time * 3) % 2) this.lights.push({ x: p.x + 8, y: p.y + p.h - 4, r: 20, c: 0x40ff60, a: 0.8 });
+      }
+      return;
+    }
+    // chopper hovering above the flag with a rope ladder
+    flag.setFrame(Math.floor(this.time * 4) % 2).setVisible(!leaving);
+    const ch = this.spr(p.id * 1000 + 7, 'chopper', 13);
+    const dx = leaving * leaving * 60;
+    const cy = p.y - 46 + Math.sin(this.time * 2) * 3 - leaving * 50;
+    const cx = p.x + p.w / 2 + 6 + dx;
+    ch.setOrigin(0.5, 0.5).setPosition(Math.round(cx), Math.round(cy)).setFrame(Math.floor(this.time * 24) % 2).setRotation(leaving ? -0.15 : 0);
+    const lx = cx - 6;
+    const bottom = p.y + p.h - 6 - leaving * 50;
+    g.fillStyle(0x8a6a3a, 1);
+    for (let yy = cy + 14; yy < bottom; yy += 4) {
+      g.fillRect(lx - 3, yy, 1, 4);
+      g.fillRect(lx + 3, yy, 1, 4);
+      g.fillRect(lx - 3, yy + 3, 7, 1);
+    }
+    riders.forEach((pl, i) => rider(pl, lx + (i % 2 ? 2 : -2), bottom - i * 11 + 4, FRAME.climb + (Math.floor(this.time * 3 + i) % 2), i % 2 === 1));
+    if (!leaving) {
+      // rotor downwash
+      if (Math.random() < 0.5) this.parts.push({ x: lx + (Math.random() - 0.5) * 40, y: p.y + p.h - 2, vx: (Math.random() - 0.5) * 120, vy: -10, life: 0.5, max: 0.5, c: 0xb0a890, s: 2, g: 0, grow: 3, round: true, fade: true });
+    }
+  }
+
+  /** intro helicopter carrying the squad in */
+  private drawIntro(): void {
+    const it = this.world.intro;
+    if (!it) return;
+    const ch = this.spr(-777, 'chopper', 13);
+    const bob = Math.sin(this.time * 3) * 2;
+    ch.setOrigin(0.5, 0.5).setPosition(Math.round(it.x), Math.round(it.y + bob)).setFrame(Math.floor(this.time * 24) % 2).setFlipX(true);
+    ch.setRotation(it.x < this.world.level.spawn.x ? 0.08 : -0.05);
+    const riders = this.world.players.filter((p) => p.inVehicle);
+    riders.forEach((p, i) => {
+      const rs = this.spr(p.id * 1000 + 9, `hero${p.hero % 4}`, 12.6);
+      rs.setOrigin(0.5, 1).setPosition(Math.round(it.x - 4 + i * 5), Math.round(it.y + bob + 13)).setFrame(FRAME.idle).setFlipX(false).clearTint().setVisible(true);
+    });
+    if (Math.random() < 0.5) {
+      const gy = this.world.grid.surfaceRow(Math.floor(it.x / TILE));
+      if (gy > 0 && gy * TILE - it.y < 120) this.parts.push({ x: it.x + (Math.random() - 0.5) * 50, y: gy * TILE - 2, vx: (Math.random() - 0.5) * 140, vy: -15, life: 0.5, max: 0.5, c: 0xb0a890, s: 2, g: 0, grow: 3, round: true, fade: true });
+    }
   }
 
   private drawPickups(): void {
@@ -637,7 +713,7 @@ export class WorldRenderer {
   private drawPlayers(dt: number, remote: boolean, localPids: Set<number>): void {
     const w = this.world;
     for (const p of w.players) {
-      if (!p.alive) continue;
+      if (!p.alive || p.inVehicle) continue;
       const s = this.spr(p.id, `hero${p.hero % 4}`, 12);
       const pos = this.smoothPos(p.id, p.x, p.y, remote, dt, localPids.has(p.pid) ? 35 : 18);
       const bx = Math.round(pos.x + p.w / 2);
@@ -781,10 +857,10 @@ export class WorldRenderer {
       if (l.x < cx - 80 || l.x > cx + VIEW_W + 80 || l.y < cy - 80 || l.y > cy + VIEW_H + 80) continue;
       let img = this.lightPool[i];
       if (!img) {
-        img = this.scene.add.image(0, 0, 'glow').setBlendMode(Phaser.BlendModes.ADD).setDepth(17);
+        img = this.scene.add.image(0, 0, 'glow').setBlendMode(Phaser.BlendModes.ADD).setDepth(89.5);
         this.lightPool.push(img);
       }
-      img.setVisible(true).setPosition(Math.round(l.x), Math.round(l.y)).setScale(l.r / 32).setTint(l.c).setAlpha(Math.min(1, l.a));
+      img.setVisible(true).setPosition(Math.round(l.x), Math.round(l.y)).setScale((l.r / 32) * (this.night ? 1.25 : 1)).setTint(l.c).setAlpha(Math.min(1, l.a * (this.night ? 1.3 : 0.8)));
       i++;
     }
     for (; i < this.lightPool.length; i++) this.lightPool[i].setVisible(false);

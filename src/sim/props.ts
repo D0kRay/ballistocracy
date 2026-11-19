@@ -53,9 +53,26 @@ export function updateProps(w: World, dt: number): void {
           }
         }
         break;
-      case 'exit':
-        if (w.overlapsAnyPlayer(p)) w.complete();
+      case 'exit': {
+        if (w.intro && w.intro.dropped < w.players.length) break; // squad is still arriving
+        // everyone has to get on board: chopper ladder, truck bed (jump on), plane ramp
+        const zone =
+          p.variant === 'truck' ? { x: p.x + 2, y: p.y - 4, w: 34, h: 12 }
+          : p.variant === 'plane' ? { x: p.x, y: p.y + p.h - 18, w: 26, h: 18 }
+          : { x: p.x, y: p.y + 8, w: p.w, h: p.h - 8 };
+        for (const pl of w.players) {
+          if (!pl.alive || pl.inVehicle || !overlap(pl, zone)) continue;
+          pl.inVehicle = true;
+          pl.vx = 0;
+          pl.vy = 0;
+          w.text(pl.x - 10, pl.y - 10, 'ABOARD!', '#60ff60');
+          w.sfx('pickup', pl.x);
+        }
+        const boarded = w.players.filter((pl) => pl.inVehicle).length;
+        const waiting = w.players.some((pl) => pl.connected && !pl.inVehicle && (pl.alive || pl.respawnT !== Infinity));
+        if (boarded > 0 && !waiting) w.complete();
         break;
+      }
       case 'spikes': {
         const box = { x: p.x + 1, y: p.y + 2, w: p.w - 2, h: p.h - 2 };
         const pl = w.overlapsAnyPlayer(box);

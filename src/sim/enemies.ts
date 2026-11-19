@@ -30,7 +30,7 @@ function findTarget(w: World, e: Enemy, range: number): Player | null {
   const ex = e.x + e.w / 2;
   const ey = e.y + 4;
   for (const p of w.players) {
-    if (!p.alive) continue;
+    if (!p.alive || p.inVehicle) continue;
     const dx = p.x + p.w / 2 - ex;
     const dy = p.y + p.h / 2 - ey;
     if (Math.abs(dx) > range || Math.abs(dy) > (e.type === 'drone' ? 160 : 72)) continue;

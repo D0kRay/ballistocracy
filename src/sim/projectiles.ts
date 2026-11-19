@@ -98,7 +98,7 @@ function steerMissile(w: World, pr: Projectile, dt: number): void {
   let best = null as null | { x: number; y: number };
   let bd = Infinity;
   for (const p of w.players) {
-    if (!p.alive) continue;
+    if (!p.alive || p.inVehicle) continue;
     const d = Math.hypot(p.x - pr.x, p.y - pr.y);
     if (d < bd) {
       bd = d;

@@ -50,6 +50,7 @@ export interface Player extends Body {
   bits: number;
   prev: number;
   connected: boolean;
+  inVehicle: boolean; // riding the intro helicopter or boarded the extraction vehicle
 }
 
 export interface Enemy extends Body {
@@ -101,6 +102,7 @@ export interface Prop {
   y0: number;
   dir: number;
   item?: ItemId;
+  variant?: string; // exit vehicle kind
   dead: boolean;
 }
 

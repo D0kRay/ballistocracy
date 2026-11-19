@@ -47,7 +47,7 @@ export const BIOMES: readonly Biome[] = [
   {
     id: 'snow', name: 'ARCTIC', skyTop: '#5878b0', skyBottom: '#d8e4f0', sun: null, cloud: '#f0f4ff',
     far: '#9aaccc', farShape: 'peaks', mid: '#6a80a8', near: '#2a3a52', nearShape: 'pines',
-    dirt: '#6a6a78', dirtDark: '#404050', top: '#f4f8ff', topDark: '#b8c8e0',
+    dirt: '#6e625a', dirtDark: '#463c38', top: '#f4f8ff', topDark: '#b8c8e0',
     brick: '#8890a0', brickDark: '#545a68', wood: '#7a5a3a', metal: '#7a8898', weather: 'snow', liquid: '#7ce0f0', rock: '#5a6070', structure: 'icestone', vines: '#d0e8ff',
   },
   {
@@ -59,7 +59,7 @@ export const BIOMES: readonly Biome[] = [
   {
     id: 'industrial', name: 'FACTORY', skyTop: '#5a4a2a', skyBottom: '#d8a050', sun: '#ffe080', cloud: '#a08a60',
     far: '#6a5a3a', farShape: 'factories', mid: '#4a3e28', near: '#221c14', nearShape: 'pipes',
-    dirt: '#5e4e3a', dirtDark: '#3a3024', top: '#7e6e52', topDark: '#5e4e3a',
+    dirt: '#5e4e3a', dirtDark: '#3a3024', top: '#8a8c88', topDark: '#55585a',
     brick: '#7a6a5a', brickDark: '#4a3e34', wood: '#8a6a3a', metal: '#6e7478', weather: 'smog', liquid: '#b8f040', rock: '#4e463c', structure: 'rust', vines: null,
   },
   {
@@ -69,6 +69,32 @@ export const BIOMES: readonly Biome[] = [
     brick: '#5a4a44', brickDark: '#362c28', wood: '#6a4a2a', metal: '#5a5458', weather: 'ash', liquid: '#ff7020', rock: '#2e2828', structure: 'basalt', vines: '#5a3a2a',
   },
 ];
+
+function mix(a: string, b: string, t: number): string {
+  const pa = parseInt(a.slice(1), 16);
+  const pb = parseInt(b.slice(1), 16);
+  const c = (s: number) => Math.round(((pa >> s) & 255) * (1 - t) + ((pb >> s) & 255) * t);
+  return '#' + [c(16), c(8), c(0)].map((v) => v.toString(16).padStart(2, '0')).join('');
+}
+
+/** recolour the sky/background layers for dusk or night */
+export function biomeAt(b: Biome, tod: 'day' | 'dusk' | 'night'): Biome {
+  if (tod === 'dusk')
+    return {
+      ...b,
+      skyTop: mix(b.skyTop, '#3a2a6a', 0.55), skyBottom: mix(b.skyBottom, '#f08a50', 0.6), sun: '#ffb070',
+      cloud: mix(b.cloud, '#e88a70', 0.55), far: mix(b.far, '#5a3050', 0.35), mid: mix(b.mid, '#3a1e30', 0.35), near: mix(b.near, '#1a0e18', 0.3),
+    };
+  if (tod === 'night' && b.id === 'volcano')
+    return { ...b, skyTop: '#08040a', skyBottom: '#7a2010', sun: '#ffd0b0', cloud: '#4a1e1a', far: mix(b.far, '#200808', 0.3), mid: mix(b.mid, '#100404', 0.3) };
+  if (tod === 'night')
+    return {
+      ...b,
+      skyTop: mix(b.skyTop, '#060818', 0.8), skyBottom: mix(b.skyBottom, '#24345e', 0.75), sun: '#e8ecff',
+      cloud: mix(b.cloud, '#3a4468', 0.75), far: mix(b.far, '#18203a', 0.6), mid: mix(b.mid, '#101628', 0.6), near: mix(b.near, '#080a14', 0.5),
+    };
+  return b;
+}
 
 export function biomeById(id: BiomeId): Biome {
   return BIOMES.find((b) => b.id === id) ?? BIOMES[0];

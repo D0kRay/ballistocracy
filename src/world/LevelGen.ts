@@ -22,6 +22,7 @@ export interface PropSpawn {
   h: number;
   x2?: number; // saw travel end
   item?: ItemId;
+  variant?: string; // exit vehicle: chopper | truck | plane
 }
 export interface EnemySpawn {
   type: EnemyType;
@@ -211,7 +212,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
         fill(x + 3, top, x + 3, g - 1, T.LADDER);
         scenery.push({ type: 'post', x: (x + 1) * TILE + 8, y: g * TILE, flip: false, h: (g - top) * TILE });
         scenery.push({ type: 'post', x: (x + 5) * TILE + 8, y: g * TILE, flip: false, h: (g - top) * TILE });
-        scene(roofStyle, x + 3, top - 3);
+        scene(roofStyle, x + 3, top - 1);
         enemyAt(x + 2, top, plan.enemyTypes.includes('sniper') && rng.chance(0.6) ? 'sniper' : 'grunt');
         sprinkleEnemies(x, x + 5, 0.4);
         return len;
@@ -513,7 +514,15 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     pickups.push({ item: 'armor', x: (a0 - 7) * TILE, y: (g - 1) * TILE });
   } else {
     for (; x < W; x++) ground(x, g);
-    propAt('exit', W - 6, g);
+    // extraction vehicle: everybody has to get on board
+    const vehicle = rng.weighted<string>([
+      ['chopper', 3],
+      ['truck', biome === 'snow' || biome === 'volcano' ? 0.5 : 2.5],
+      ['plane', biome === 'desert' || biome === 'snow' || biome === 'industrial' ? 2 : 0.6],
+    ]);
+    if (vehicle === 'truck') props.push({ type: 'exit', variant: 'truck', x: (W - 9) * TILE, y: g * TILE - 30, w: 64, h: 30 });
+    else if (vehicle === 'plane') props.push({ type: 'exit', variant: 'plane', x: (W - 11) * TILE, y: g * TILE - 44, w: 128, h: 44 });
+    else propAt('exit', W - 6, g, { variant: 'chopper' });
   }
 
   // ---------- post passes: rock strata, caves, scenery ----------
@@ -545,7 +554,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     for (let y = s0 + 2; y < H - 1; y++) {
       if (grid.get(cx, y) !== T.DIRT) continue;
       const depth = (y - s0) / (H - s0);
-      if (noise(cx, y) + depth * 0.35 > 0.78) grid.init(cx, y, T.STONE);
+      if (noise(cx, y) + depth * 0.3 > 0.86) grid.init(cx, y, T.STONE);
     }
   }
   // underground tunnels with a ladder shaft down from the surface

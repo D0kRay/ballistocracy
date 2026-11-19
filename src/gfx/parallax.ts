@@ -35,8 +35,20 @@ function lerpColor(a: string, b: string, t: number): string {
   return `rgb(${r},${g},${bl})`;
 }
 
-export function makeParallax(scene: Phaser.Scene, b: Biome): string[] {
-  const rng = new Rng(b.id.length * 1337 + b.name.charCodeAt(0));
+/** dithered haze band rising from the bottom of a layer */
+function fog(c: CanvasRenderingContext2D, col: string, from: number, alpha: number): void {
+  const steps = 6;
+  for (let i = 0; i < steps; i++) {
+    const y0 = from + ((H - from) * i) / steps;
+    c.globalAlpha = (alpha * (i + 1)) / steps;
+    c.fillStyle = col;
+    c.fillRect(0, Math.round(y0), W, Math.ceil((H - from) / steps) + 1);
+  }
+  c.globalAlpha = 1;
+}
+
+export function makeParallax(scene: Phaser.Scene, b: Biome, seed = 0, night = false): string[] {
+  const rng = new Rng(b.id.length * 1337 + b.name.charCodeAt(0) + seed * 7919);
   const keys = [`bg0_${b.id}`, `bg1_${b.id}`, `bg2_${b.id}`, `bg3_${b.id}`];
 
   // 0: sky – banded gradient with dithered seams (very 80s), blurred clouds, sun
@@ -67,7 +79,7 @@ export function makeParallax(scene: Phaser.Scene, b: Biome): string[] {
       c.arc(W * 0.72, H * 0.32, 18, 0, Math.PI * 2);
       c.fill();
     }
-    if (b.id === 'snow' || b.id === 'city') {
+    if (b.id === 'snow' || b.id === 'city' || night) {
       c.fillStyle = '#ffffff';
       for (let i = 0; i < 60; i++) c.fillRect(rng.int(0, W), rng.int(0, H * 0.5), 1, 1);
     }
@@ -97,6 +109,10 @@ export function makeParallax(scene: Phaser.Scene, b: Biome): string[] {
     c.fillStyle = lerpColor(b.far, b.skyBottom, 0.42); // atmospheric haze
     farShape(c, b, rng);
     c.restore();
+    c.save();
+    c.globalCompositeOperation = 'source-atop';
+    fog(c, b.skyBottom, H * 0.45, 0.6);
+    c.restore();
   });
 
   // 2: mid layer – slight blur
@@ -105,6 +121,10 @@ export function makeParallax(scene: Phaser.Scene, b: Biome): string[] {
     c.filter = 'blur(1px)';
     c.fillStyle = lerpColor(b.mid, b.skyBottom, 0.2);
     midShape(c, b, rng);
+    c.restore();
+    c.save();
+    c.globalCompositeOperation = 'source-atop';
+    fog(c, b.skyBottom, H * 0.65, 0.45);
     c.restore();
   });
 

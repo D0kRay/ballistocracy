@@ -107,3 +107,64 @@ export function makeFx(scene: Phaser.Scene): void {
     R(10, 27, 36, 2, '#1a1a1a'); R(14, 24, 2, 3, '#1a1a1a'); R(40, 24, 2, 3, '#1a1a1a');
   });
 }
+
+export function makeVehicles(scene: Phaser.Scene): void {
+  // military truck (faces right, open cargo bed at the back), 2 frames for wheels
+  tex(scene, 'truck', 66, 32, 2, (c, f, ox) => {
+    const R = (x: number, y: number, w: number, h: number, col: string) => {
+      c.fillStyle = col;
+      c.fillRect(ox + x, y, w, h);
+    };
+    const body = '#5a6a3a';
+    // bed
+    R(1, 11, 40, 14, OUT); R(2, 12, 38, 12, body); R(2, 12, 38, 2, '#7a8a52'); R(2, 21, 38, 3, '#3a4626');
+    for (let x = 6; x < 40; x += 8) R(x, 14, 1, 7, '#3a4626');
+    R(1, 6, 2, 6, OUT); R(39, 6, 2, 6, OUT); R(1, 6, 40, 2, OUT); // bed rails
+    // cab
+    R(41, 4, 22, 21, OUT); R(42, 5, 20, 19, body); R(42, 5, 20, 2, '#7a8a52');
+    R(50, 7, 11, 7, OUT); R(51, 8, 9, 5, '#7ad0f0'); R(52, 8, 3, 2, '#e0f8ff');
+    R(60, 16, 4, 4, '#f0e080'); // headlight
+    R(43, 15, 6, 3, '#f0f0e0'); R(45, 14, 2, 5, '#f0f0e0'); // star
+    R(0, 24, 66, 3, OUT);
+    // wheels
+    for (const wx of [10, 30, 52]) {
+      R(wx - 5, 23, 11, 9, OUT);
+      R(wx - 4, 24, 9, 7, '#2a2a2a');
+      R(wx - 1, 26 + (f ? 1 : 0), 3, 2, '#7a7a7a');
+    }
+    // exhaust
+    R(41, 0, 2, 5, '#3a3a3a');
+  });
+  // cargo plane (faces right) with rear ramp lowered on the left
+  tex(scene, 'plane', 132, 48, 2, (c, f, ox) => {
+    const R = (x: number, y: number, w: number, h: number, col: string) => {
+      c.fillStyle = col;
+      c.fillRect(ox + x, y, w, h);
+    };
+    const body = '#6a7480';
+    const lt = '#8a949e';
+    const dk = '#4a525c';
+    // tail fin
+    R(10, 2, 18, 22, OUT); R(12, 4, 14, 18, body); R(12, 4, 14, 2, lt);
+    R(14, 8, 8, 4, '#c03020');
+    // fuselage
+    R(14, 16, 110, 20, OUT); R(15, 17, 108, 18, body); R(15, 17, 108, 3, lt); R(15, 31, 108, 4, dk);
+    R(118, 20, 10, 12, OUT); R(119, 21, 8, 10, body); // nose
+    R(112, 20, 9, 6, OUT); R(113, 21, 7, 4, '#7ad0f0');
+    for (let x = 40; x < 105; x += 10) R(x, 22, 4, 4, '#2a3038');
+    // wing + engines
+    R(54, 12, 40, 6, OUT); R(55, 13, 38, 4, dk);
+    for (const ex of [62, 82]) {
+      R(ex, 6, 12, 8, OUT); R(ex + 1, 7, 10, 6, '#3a3e44');
+      R(ex + 10, 5 + f * 2, 2, 10 - f * 4, '#c8c8c8'); // spinning prop
+    }
+    // star roundel
+    R(30, 22, 10, 10, OUT); R(31, 23, 8, 8, '#f0f0e0'); R(33, 25, 4, 4, '#3a5a8a');
+    // ramp down to the ground (left)
+    for (let i = 0; i < 12; i++) R(4 + i, 36 + Math.floor((12 - i) / 1.2) - 10, 1, 1 + Math.floor((12 - i) / 1.2), dk);
+    R(2, 44, 16, 2, OUT);
+    // landing gear
+    R(48, 35, 3, 9, OUT); R(46, 42, 8, 6, '#1a1a1a');
+    R(104, 35, 3, 9, OUT); R(102, 42, 8, 6, '#1a1a1a');
+  });
+}

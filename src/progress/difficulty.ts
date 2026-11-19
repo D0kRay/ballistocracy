@@ -3,6 +3,7 @@ import { Rng } from '../core/rng';
 import { BIOMES, type BiomeId } from '../world/biomes';
 
 export type BossType = 'tank' | 'gunship' | 'drill';
+export type TimeOfDay = 'day' | 'dusk' | 'night';
 export type EnemyType = 'grunt' | 'shield' | 'sniper' | 'bomber' | 'dog' | 'drone' | 'heavy';
 
 export interface LevelPlan {
@@ -16,6 +17,7 @@ export interface LevelPlan {
   enemyTypes: EnemyType[];
   enemyDensity: number; // enemies per chunk (avg)
   trapRate: number; // 0..1
+  tod: TimeOfDay;
 }
 
 export const BOSS_ORDER: readonly BossType[] = ['tank', 'gunship', 'drill'];
@@ -55,5 +57,8 @@ export function planLevel(level: number, seed: number, totalPlaySec: number): Le
     enemyTypes: types,
     enemyDensity: Math.min(4.5, 0.9 + level * 0.28),
     trapRate: Math.min(0.75, 0.08 + level * 0.06),
+    tod: level === 1 ? 'day' : rng.weighted<TimeOfDay>(
+      biome === 'city' || biome === 'volcano' ? [['day', 1], ['dusk', 2], ['night', 3]] : [['day', 3], ['dusk', 2], ['night', 1.5]],
+    ),
   };
 }

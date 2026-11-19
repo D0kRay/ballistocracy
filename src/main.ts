@@ -30,3 +30,4 @@ window.addEventListener('pointerdown', unlock);
 window.addEventListener('keydown', unlock);
 
 (window as unknown as { __game: Phaser.Game }).__game = game;
+if (import.meta.env.DEV) void import('./devtools').then((m) => m.installDevtools(game));

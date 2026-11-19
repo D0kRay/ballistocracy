@@ -49,6 +49,8 @@ export class World {
   bossDefeated = false;
   kills = 0;
   crumbles = new Map<number, number>();
+  /** intro helicopter that drops the squad at the level start */
+  intro: { t: number; x: number; y: number; dropped: number; x0: number } | null = null;
 
   constructor(level: Level, defs: PlayerDef[], lives = START_LIVES) {
     this.level = level;
@@ -68,6 +70,14 @@ export class World {
       x: clamp(level.spawn.x - VIEW_W / 3, 0, Math.max(0, this.levelW - VIEW_W)),
       y: Math.max(0, this.levelH - VIEW_H),
     };
+    if (this.players.length) {
+      const x0 = this.cam.x - 90;
+      this.intro = { t: 0, x: x0, y: level.spawn.y - 58, dropped: 0, x0 };
+      for (const p of this.players) {
+        p.inVehicle = true;
+        p.inv = 999;
+      }
+    }
   }
 
   id(): number {
@@ -111,6 +121,7 @@ export class World {
       bits: 0,
       prev: 0,
       connected: true,
+      inVehicle: false,
     };
   }
 
@@ -154,6 +165,7 @@ export class World {
       y0: s.y,
       dir: 1,
       item: s.item,
+      variant: s.variant,
       dead: false,
     };
     this.props.push(p);
@@ -173,7 +185,43 @@ export class World {
   }
 
   alivePlayers(): Player[] {
-    return this.players.filter((p) => p.alive);
+    return this.players.filter((p) => p.alive && !p.inVehicle);
+  }
+
+  private updateIntro(dt: number): void {
+    const it = this.intro;
+    if (!it) return;
+    it.t += dt;
+    const target = this.level.spawn.x + 10;
+    const arrive = 1.5;
+    const dropGap = 0.22;
+    const dropEnd = arrive + dropGap * this.players.length;
+    if (it.t < arrive) {
+      const k = it.t / arrive;
+      it.x = it.x0 + (target - it.x0) * (1 - (1 - k) * (1 - k));
+    } else if (it.t < dropEnd + 0.3) {
+      it.x = target;
+      const due = Math.min(this.players.length, Math.floor((it.t - arrive) / dropGap) + 1);
+      while (it.dropped < due) {
+        const p = this.players[it.dropped++];
+        p.inVehicle = false;
+        p.x = it.x - 6 + (it.dropped % 2 ? -4 : 4);
+        p.y = it.y + 16;
+        p.vx = 0;
+        p.vy = 30;
+        p.inv = 1.5;
+        this.sfx('jump', p.x);
+      }
+    } else {
+      it.x += 170 * dt;
+      it.y -= 50 * dt;
+      if (it.x > this.cam.x + VIEW_W + 120) this.intro = null;
+    }
+    // undropped players ride along (keeps them out of harm's way)
+    for (const p of this.players) if (p.inVehicle && it) {
+      p.x = it.x;
+      p.y = it.y;
+    }
   }
 
   // ------------------------------------------------------------------
@@ -190,7 +238,8 @@ export class World {
       return;
     }
 
-    for (const p of this.players) updatePlayer(this, p, dt);
+    this.updateIntro(dt);
+    for (const p of this.players) if (!p.inVehicle) updatePlayer(this, p, dt);
     updateEnemies(this, dt);
     if (this.boss) updateBoss(this, this.boss, dt);
     updateProjectiles(this, dt);
@@ -274,12 +323,12 @@ export class World {
     this.emit({ k: 'banner', s: 'BOSS DEFEATED', sub: 'GET TO THE EXTRACTION' });
     const col = Math.floor((a.x0 + a.x1) / 2 / TILE);
     const row = this.grid.surfaceRow(col);
-    this.spawnProp({ type: 'exit', x: col * TILE - 4, y: (row < 0 ? 12 : row) * TILE - 48, w: 24, h: 48 });
+    this.spawnProp({ type: 'exit', variant: 'chopper', x: col * TILE - 4, y: (row < 0 ? 12 : row) * TILE - 48, w: 24, h: 48 });
   }
 
   // ------------------------------------------------------------------
   hurtPlayer(p: Player, n: number, fromX?: number): void {
-    if (!p.alive || p.inv > 0) return;
+    if (!p.alive || p.inv > 0 || p.inVehicle) return;
     if (p.armor > 0) {
       p.armor--;
       p.inv = 1;
@@ -398,7 +447,7 @@ export class World {
     }
 
     for (const p of this.players) {
-      if (!p.alive) continue;
+      if (!p.alive || p.inVehicle) continue;
       const d = Math.hypot(p.x + p.w / 2 - x, p.y + p.h / 2 - y);
       if (d > r + 6) continue;
       const k = 1 - d / (r + 6);
@@ -476,7 +525,7 @@ export class World {
   }
 
   overlapsAnyPlayer(b: { x: number; y: number; w: number; h: number }): Player | null {
-    for (const p of this.players) if (p.alive && overlap(p, b)) return p;
+    for (const p of this.players) if (p.alive && !p.inVehicle && overlap(p, b)) return p;
     return null;
   }
 }

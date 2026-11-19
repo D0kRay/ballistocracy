@@ -106,7 +106,7 @@ function paint(ctx: CanvasRenderingContext2D, ox: number, t: number, mask: numbe
       }
       edges(ctx, ox, mask, b.dirt, (c, o) => {
         for (let x = 0; x < TILE; x++) {
-          const d = 3 + ((x * 7 + rng.int(0, 2)) % 3);
+          const d = (b.id === 'snow' ? 5 : 3) + ((x * 7 + rng.int(0, 2)) % 3);
           px(c, o + x, 0, b.top, 1, d);
           px(c, o + x, d, b.topDark, 1, 1);
           px(c, o + x, d + 1, shade(b.dirtDark, 0.7), 1, 1);
@@ -142,7 +142,7 @@ function paint(ctx: CanvasRenderingContext2D, ox: number, t: number, mask: numbe
     case T.STONE: {
       // natural rock: chunky boulders packed together
       const r = b.rock;
-      px(ctx, ox, 0, shade(r, 0.45), TILE, TILE);
+      px(ctx, ox, 0, shade(r, 0.62), TILE, TILE);
       const blobs: [number, number, number][] = [];
       for (let i = 0; i < 5; i++) blobs.push([rng.int(0, 15), rng.int(0, 15), rng.int(4, 7)]);
       for (let y = 0; y < TILE; y++)
@@ -155,8 +155,8 @@ function paint(ctx: CanvasRenderingContext2D, ox: number, t: number, mask: numbe
             const d = Math.hypot(dx, dy) / br;
             if (d < best) { second = best; best = d; } else if (d < second) second = d;
           }
-          if (second - best < 0.18) continue; // crack between boulders
-          const lit = best < 0.45 ? 1.2 : best < 0.8 ? 1.0 : 0.8;
+          if (second - best < 0.1) continue; // crack between boulders
+          const lit = best < 0.4 ? 1.18 : best < 0.85 ? 1.0 : 0.86;
           px(ctx, ox + x, y, shade(r, lit * (0.95 + rng.next() * 0.1)));
         }
       edges(ctx, ox, mask, r, null, rng, false);

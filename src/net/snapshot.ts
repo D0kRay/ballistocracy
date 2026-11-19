@@ -37,6 +37,8 @@ export interface Snap {
   bs: number[][];
   ev: GameEvent[];
   tl: number[];
+  ih: [number, number] | null; // intro helicopter
+  pv: (string | null)[]; // exit vehicle per prop (parallel to pp)
   a: [number, number][]; // [pid, last input seq the host applied]
 }
 
@@ -54,7 +56,7 @@ export function makeSnapshot(w: World, events: GameEvent[], tiles: number[], ack
     al: w.arenaLocked ? 1 : 0,
     p: w.players.map((p) => [
       p.id, p.pid, p.hero, r1(p.x), r1(p.y), r1(p.vx), r1(p.vy), p.facing,
-      (p.alive ? 1 : 0) | (p.onGround ? 2 : 0) | (p.climbing ? 4 : 0) | (p.connected ? 8 : 0),
+      (p.alive ? 1 : 0) | (p.onGround ? 2 : 0) | (p.climbing ? 4 : 0) | (p.connected ? 8 : 0) | (p.inVehicle ? 16 : 0),
       p.hp, p.armor, r1(p.inv), WEAPON_IDS.indexOf(p.weapon), Number.isFinite(p.ammo) ? p.ammo : -1,
       SPECIAL_IDS.indexOf(p.special), p.specialCount, Number.isFinite(p.respawnT) ? r1(p.respawnT) : -1, r1(p.speedT),
     ]),
@@ -70,6 +72,8 @@ export function makeSnapshot(w: World, events: GameEvent[], tiles: number[], ack
     ev: events,
     tl: tiles,
     a: [...acks],
+    ih: w.intro ? [r1(w.intro.x), r1(w.intro.y)] : null,
+    pv: w.props.filter((p) => near(p.x) || p.type === 'saw').map((p) => p.variant ?? null),
   };
 }
 
@@ -89,7 +93,7 @@ export function applySnapshot(w: World, s: Snap): void {
     const p: Player = oldP.get(a[0]) ?? (w.makePlayer({ pid: a[1], hero: a[2], name: '' }, a[3], a[4]) as Player);
     const prevX = p.x;
     p.id = a[0]; p.pid = a[1]; p.hero = a[2]; p.x = a[3]; p.y = a[4]; p.vx = a[5]; p.vy = a[6]; p.facing = a[7];
-    p.alive = (a[8] & 1) !== 0; p.onGround = (a[8] & 2) !== 0; p.climbing = (a[8] & 4) !== 0; p.connected = (a[8] & 8) !== 0;
+    p.alive = (a[8] & 1) !== 0; p.onGround = (a[8] & 2) !== 0; p.climbing = (a[8] & 4) !== 0; p.connected = (a[8] & 8) !== 0; p.inVehicle = (a[8] & 16) !== 0;
     p.hp = a[9]; p.armor = a[10]; p.inv = a[11]; p.weapon = WEAPON_IDS[a[12]] ?? 'rifle'; p.ammo = a[13] < 0 ? Infinity : a[13];
     p.special = SPECIAL_IDS[a[14]] ?? 'grenade'; p.specialCount = a[15]; p.respawnT = a[16] < 0 ? Infinity : a[16]; p.speedT = a[17];
     if (Math.abs(p.x - prevX) > 0.01) p.animT += 0.05;
@@ -121,10 +125,12 @@ export function applySnapshot(w: World, s: Snap): void {
     return p;
   });
 
-  w.props = s.pp.map((a) => {
-    const p: Prop = { id: a[0], type: PROP_IDS[a[1]], x: a[2], y: a[3], w: a[4], h: a[5], hp: 1, state: a[6], t: 0, x0: a[7], x2: a[8], y0: a[9], dir: 1, dead: false };
+  w.props = s.pp.map((a, i) => {
+    const p: Prop = { id: a[0], type: PROP_IDS[a[1]], x: a[2], y: a[3], w: a[4], h: a[5], hp: 1, state: a[6], t: 0, x0: a[7], x2: a[8], y0: a[9], dir: 1, dead: false, variant: s.pv?.[i] ?? undefined };
     return p;
   });
+  if (s.ih) w.intro = { t: 0, x: s.ih[0], y: s.ih[1], dropped: 0, x0: s.ih[0] };
+  else w.intro = null;
   w.pickups = s.pk.map((a) => ({ id: a[0], item: ITEM_IDS[a[1]], x: a[2], y: a[3], w: 12, h: 12, vy: 0, life: a[4], dead: false }) as Pickup);
   w.debris = s.d.map((a) => ({ id: a[0], t: a[1], x: a[2], y: a[3], vy: 0, dead: false }) as Debris);
 

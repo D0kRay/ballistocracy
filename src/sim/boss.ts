@@ -76,7 +76,7 @@ function nearest(w: World, b: Boss): Player | null {
   let best: Player | null = null;
   let bd = Infinity;
   for (const p of w.players) {
-    if (!p.alive) continue;
+    if (!p.alive || p.inVehicle) continue;
     const d = Math.abs(p.x - (b.x + b.w / 2));
     if (d < bd) {
       bd = d;
