@@ -133,8 +133,6 @@ export class LobbyScene extends Phaser.Scene {
   private broadcastLobby(): void {
     const net = getNet();
     if (!net || net.role !== 'host') return;
-    for (const p of new Set(this.players.map((pl) => pl.owner))) void p;
-    // each guest needs its own id echoed back
     net.send({ t: 'lobby', players: this.players, level: this.level, you: '' });
   }
 
@@ -216,7 +214,7 @@ export class LobbyScene extends Phaser.Scene {
       s.box.lineStyle(1, p ? Phaser.Display.Color.HexStringToColor(HERO_COLORS[p.hero].band).color : 0x404040).strokeRect(x + 0.5, 56.5, 71, 81);
       if (p) {
         s.spr.setTexture(`hero${p.hero}`).setVisible(true).setFrame([0, 0, 1, 2, 3, 2][Math.floor(this.t * 8 + i) % 6]);
-        const local = this.mode === 'guest' ? p.owner === this.myId || (this.myId === '' && false) : p.owner === 'host';
+        const local = this.mode === 'guest' ? p.owner === this.myId : p.owner === 'host';
         const where = this.mode === 'local' ? '' : local ? '\nLOCAL' : '\nONLINE';
         s.txt.setText(`P${i + 1}\n${HERO_NAMES[p.hero]}\n${deviceLabel(p.device)}${where}`).setTint(0xffffff);
       } else {

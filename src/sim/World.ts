@@ -391,7 +391,7 @@ export class World {
       }
     }
     if (destroyed) {
-      for (const f of this.grid.findUnsupported(cx, cy, tr + 5)) {
+      for (const f of this.grid.findUnsupported(cx, cy, tr + 9)) {
         this.grid.set(f.x, f.y, T.EMPTY);
         this.debris.push({ id: this.id(), t: f.t, x: f.x * TILE, y: f.y * TILE, vy: 0, dead: false });
       }
