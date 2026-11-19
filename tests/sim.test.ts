@@ -163,7 +163,7 @@ describe('guest prediction', () => {
     const guest = mk();
     const gp = guest.players[0];
     for (let i = 0; i < 600; i++) {
-      let bits = IN.RIGHT;
+      let bits: number = IN.RIGHT;
       if (i % 70 < 25) bits |= IN.JUMP;
       if (i % 200 > 150) bits = IN.LEFT | (i % 20 < 5 ? IN.JUMP : 0);
       host.step(DT, new Map([[0, bits]]));
