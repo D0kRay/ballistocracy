@@ -1,4 +1,4 @@
-import { IN } from '../core/input';
+import { IN, withAim } from '../core/input';
 
 // On-screen controls for phones/tablets: a floating stick on the left half,
 // action buttons on the right, plus START and PAUSE. Multi-touch via pointer events.
@@ -26,6 +26,11 @@ export class TouchControls {
   private held = new Map<number, Btn>(); // pointerId -> button
   private buttons: Btn[] = [];
   private tapBits = 0; // presses since the last poll (keeps very short taps)
+  // FIRE doubles as an aim stick: drag away from where it was pressed to shoot that way
+  private fireId: number | null = null;
+  private fireOrigin = { x: 0, y: 0 };
+  private fireAim: number | null = null;
+  private fireArrow!: HTMLElement;
   private onKey: (code: string) => void;
   visible = false;
 
@@ -39,7 +44,7 @@ export class TouchControls {
       <div class="btns">
         <button data-b="special" class="b-special">BOOM</button>
         <button data-b="interact" class="b-interact">GRAB</button>
-        <button data-b="fire" class="b-fire">FIRE</button>
+        <button data-b="fire" class="b-fire">FIRE<span class="aim-arrow"></span></button>
         <button data-b="jump" class="b-jump">JUMP</button>
       </div>
       <button data-b="start" class="b-start">START</button>
@@ -50,6 +55,7 @@ export class TouchControls {
     document.body.appendChild(this.root);
     this.stickBase = this.root.querySelector('.stick-base') as HTMLElement;
     this.stickKnob = this.root.querySelector('.stick-knob') as HTMLElement;
+    this.fireArrow = this.root.querySelector('.aim-arrow') as HTMLElement;
 
     const bitOf: Record<string, number> = { jump: IN.JUMP, fire: IN.FIRE, special: IN.SPECIAL, interact: IN.INTERACT, start: IN.START };
     this.root.querySelectorAll('button').forEach((el) => {
@@ -69,6 +75,11 @@ export class TouchControls {
         this.tapBits |= b.bit;
         el.classList.add('on');
         if (b.key) this.onKey(b.key);
+        if (b.bit === IN.FIRE && this.fireId === null) {
+          this.fireId = e.pointerId;
+          this.fireOrigin = { x: e.clientX, y: e.clientY };
+          this.setFireAim(null);
+        }
         try {
           (el as HTMLElement).setPointerCapture(e.pointerId);
           navigator.vibrate?.(8);
@@ -76,7 +87,21 @@ export class TouchControls {
           /* capture not available for this pointer */
         }
       });
+      if (b.bit === IN.FIRE) {
+        el.addEventListener('pointermove', (e) => {
+          if (e.pointerId !== this.fireId) return;
+          const dx = e.clientX - this.fireOrigin.x;
+          const dy = e.clientY - this.fireOrigin.y;
+          // small wiggles keep shooting straight ahead; a real drag aims
+          if (Math.hypot(dx, dy) > 14) this.setFireAim(Math.atan2(dy, dx));
+          else if (Math.hypot(dx, dy) < 6) this.setFireAim(null);
+        });
+      }
       const up = (e: PointerEvent) => {
+        if (e.pointerId === this.fireId) {
+          this.fireId = null;
+          this.setFireAim(null);
+        }
         this.held.delete(e.pointerId);
         if (![...this.held.values()].includes(b)) el.classList.remove('on');
       };
@@ -141,6 +166,12 @@ export class TouchControls {
     sys.style.top = `${Math.max(6, r.top + r.height * 0.15)}px`;
   }
 
+  private setFireAim(a: number | null): void {
+    this.fireAim = a;
+    this.fireArrow.style.display = a === null ? 'none' : 'block';
+    if (a !== null) this.fireArrow.style.transform = `rotate(${a}rad)`;
+  }
+
   private placeStick(x: number, y: number, kx: number, ky: number): void {
     this.stickBase.style.left = `${x}px`;
     this.stickBase.style.top = `${y}px`;
@@ -156,6 +187,8 @@ export class TouchControls {
       this.held.clear();
       this.stickId = null;
       this.dir = { x: 0, y: 0 };
+      this.fireId = null;
+      this.setFireAim(null);
       this.buttons.forEach((b) => b.el.classList.remove('on'));
     }
   }
@@ -170,6 +203,7 @@ export class TouchControls {
     for (const btn of this.held.values()) b |= btn.bit;
     b |= this.tapBits;
     this.tapBits = 0;
+    if (this.fireAim !== null) b = withAim(b, this.fireAim);
     return b;
   }
 }
