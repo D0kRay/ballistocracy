@@ -58,3 +58,7 @@ Every file there shows up in the game under **Community levels**.
 ```
 Entities stand on the tile row `y` (drones hover in row `y`). The full list of types is in
 [`src/world/levelFormat.ts`](src/world/levelFormat.ts).
+
+## License of contributions
+
+By opening a pull request (code or levels) you agree that your contribution is licensed under the GNU AGPL v3 or later, the same license as the project (see [LICENSE](LICENSE)).

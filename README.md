@@ -54,3 +54,11 @@ The game has a built-in level editor (main menu, **Level editor**). Levels are J
 - `src/gfx/` – procedural sprites, pixel font, parallax backgrounds
 - `src/net/` – PeerJS session, protocol, snapshots
 - `src/scenes/` – boot, menu, lobby, game, game over
+
+## License
+
+Copyright (C) 2026 the Ballistocracy contributors.
+
+Ballistocracy is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. See [LICENSE](LICENSE).
+
+In short: anyone who shares, sells or hosts a modified version must publish its complete source code under the same license.
