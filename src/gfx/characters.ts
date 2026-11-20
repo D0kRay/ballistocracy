@@ -261,8 +261,9 @@ function matsFor(s: CharSpec): Record<number, Mat> {
 // ---------------------------------------------------------------- poses
 // Frame layout (shared by all humanoids):
 // 0-1 idle, 2-7 run, 8 jump, 9 fall, 10-11 climb, 12 wall cling, 13 dead
-export const FRAME = { idle: 0, run: 2, jump: 8, fall: 9, climb: 10, wall: 12, dead: 13 } as const;
-export const FRAME_COUNT = 14;
+// 14-15: seen from behind, climbing (ladders, rope ladders, walking into vehicles)
+export const FRAME = { idle: 0, run: 2, jump: 8, fall: 9, climb: 10, wall: 12, dead: 13, back: 14 } as const;
+export const FRAME_COUNT = 16;
 
 function poses(): Pose[] {
   const out: Pose[] = [];
@@ -309,6 +310,12 @@ export function makeCharacter(scene: Phaser.Scene, key: string, s: CharSpec): vo
   if (s.head !== 'bald') c.rect(3, 19, 2, 4, s.head === 'helmet' || s.head === 'riot' || s.head === 'beret' ? M.accent : M.hair);
   shadeAndOutline(c, mats, ctx, FRAME.dead * CHAR_W, 0, { ...s, extra: undefined, head: 'gasmask' }, { bob: 99, legF: [0, 0], legB: [0, 0], arms: 'down' });
   if (fill) HAND[FRAME.dead] = { x: -99, y: 0 };
+  for (let f = 0; f < 2; f++) {
+    const cb = new Canvas();
+    paintBack(cb, s, f);
+    shadeAndOutline(cb, mats, ctx, (FRAME.back + f) * CHAR_W, 0, { ...s, extra: s.extra === 'dynamite' || s.extra === 'shield' ? s.extra : undefined, head: 'gasmask' }, { bob: 99, legF: [0, 0], legB: [0, 0], arms: 'down' });
+    if (fill) HAND[FRAME.back + f] = { x: -99, y: 0 };
+  }
   for (let i = 0; i < FRAME_COUNT; i++) tex.add(i, 0, i * CHAR_W, 0, CHAR_W, CHAR_H);
   tex.refresh();
 }
@@ -320,6 +327,66 @@ export function ensureHands(): void {
     HAND[i] = { x: h.hx, y: h.hy };
   });
   HAND[FRAME.dead] = { x: -99, y: 0 };
+  HAND[FRAME.back] = { x: -99, y: 0 };
+  HAND[FRAME.back + 1] = { x: -99, y: 0 };
+}
+
+/** character seen from behind, climbing: arms and legs alternate between the two frames */
+function paintBack(c: Canvas, s: CharSpec, f: number): void {
+  const bulk = s.build;
+  const armMat = s.sleeves ? M.sleeve : M.skin;
+  const hiL = f === 0 ? 0 : 3; // hands reach above the head, alternating
+  const hiR = f === 0 ? 3 : 0;
+  // arms
+  c.line(8 - bulk, 12, 6 - bulk, hiL + 2, 2, armMat);
+  c.rect(5 - bulk, hiL, 3, 2, M.skin);
+  c.line(16 + bulk, 12, 18 + bulk, hiR + 2, 2, armMat);
+  c.rect(17 + bulk, hiR, 3, 2, M.skin);
+  // legs: one stretched, one bent on a rung
+  const lL = f === 0 ? 23 : 21;
+  const lR = f === 0 ? 21 : 23;
+  c.line(10, 18, 10, lL, 3, M.pants);
+  c.line(14, 18, 14, lR, 3, M.pants);
+  c.rect(9, lL - 1, 3, 2, M.boots);
+  c.rect(13, lR - 1, 3, 2, M.boots);
+  // torso and hips
+  c.rect(8 - bulk, 11, 9 + bulk * 2, 6, M.shirt);
+  c.rect(9 - bulk, 17, 7 + bulk * 2, 2, M.pants);
+  if (s.vest || s.extra === 'vest') c.rect(9 - bulk, 12, 7 + bulk * 2, 4, M.vest);
+  if (s.extra === 'dynamite') for (let i = 0; i < 3; i++) c.rect(9 + i * 2, 12, 1, 4, M.red);
+  // back of the head
+  c.rect(10, 10, 5, 1, M.skin); // neck
+  const headMat = s.head === 'bald' ? M.skin : s.head === 'helmet' || s.head === 'riot' || s.head === 'boonie' ? M.accent : M.hair;
+  c.rect(9, 4, 7, 6, headMat);
+  c.rect(10, 3, 5, 1, headMat);
+  c.set(8, 7, M.skin); // ears
+  c.set(16, 7, M.skin);
+  switch (s.head) {
+    case 'bandana':
+      c.rect(9, 5, 7, 1, M.accent);
+      c.rect(12, 6, 1, 3, M.accent); // knot tails
+      c.rect(13, 6, 1, 4, M.accent);
+      break;
+    case 'beret':
+      c.rect(9, 3, 7, 2, M.accent);
+      break;
+    case 'blond':
+      c.rect(9, 9, 7, 1, M.hair);
+      c.set(11, 2, M.hair);
+      c.set(13, 2, M.hair);
+      break;
+    case 'boonie':
+      c.rect(7, 6, 11, 1, M.accent);
+      break;
+    case 'balaclava':
+    case 'gasmask':
+      c.rect(9, 9, 7, 1, M.hair);
+      if (s.head === 'gasmask') c.rect(11, 5, 3, 3, M.metal); // filter canister
+      break;
+    default:
+      break;
+  }
+  if (s.extra === 'shield') c.rect(17 + bulk, 9, 2, 12, M.metal); // shield slung on the back
 }
 
 // ---------------------------------------------------------------- roster (original designs)

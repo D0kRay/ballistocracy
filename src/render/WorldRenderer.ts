@@ -95,6 +95,7 @@ export class WorldRenderer {
   private sceneObjs: SceneObj[] = [];
   private painter!: TerrainPainter;
   private night = false;
+  private boardT = new Map<number, number>(); // when each player boarded (plane walk-in)
   private frameNo = 0;
 
   constructor(scene: Phaser.Scene, world: World) {
@@ -582,6 +583,19 @@ export class WorldRenderer {
       pl.setOrigin(0, 1).setPosition(Math.round(p.x + dx), Math.round(p.y + p.h + 3 + dy)).setFrame(Math.floor(this.time * 20) % 2);
       pl.setRotation(dy < 0 ? -0.12 : 0);
       if (leaving > 0 && Math.random() < 0.7) this.parts.push({ x: p.x + dx + 70, y: p.y + 14 + dy, vx: -40, vy: 0, life: 0.8, max: 0.8, c: 0x8a8a8a, s: 2, g: 0, grow: 5, round: true, fade: true });
+      riders.forEach((r) => {
+        let t0 = this.boardT.get(r.id);
+        if (t0 === undefined) {
+          t0 = this.time;
+          this.boardT.set(r.id, t0);
+        }
+        const k = (this.time - t0) / 0.7; // 0..1 walking into the hold
+        if (k < 1 && !leaving) {
+          const rs = this.spr(r.id * 1000 + 9, `hero${r.hero % 4}`, 6.5);
+          rs.setOrigin(0.5, 1).setPosition(Math.round(p.x + 6 + k * 14), Math.round(p.y + p.h - 2 - k * 12)).setFrame(FRAME.back + (Math.floor(this.time * 8) % 2)).setFlipX(false);
+          rs.clearTint().setVisible(true).setAlpha(1 - k * 0.6);
+        }
+      });
       if (!leaving) {
         // blinking guide lights on the ramp
         if (Math.floor(this.time * 3) % 2) this.lights.push({ x: p.x + 8, y: p.y + p.h - 4, r: 20, c: 0x40ff60, a: 0.8 });
@@ -603,7 +617,7 @@ export class WorldRenderer {
       g.fillRect(lx + 3, yy, 1, 4);
       g.fillRect(lx - 3, yy + 3, 7, 1);
     }
-    riders.forEach((pl, i) => rider(pl, lx + (i % 2 ? 2 : -2), bottom - i * 11 + 4, FRAME.climb + (Math.floor(this.time * 3 + i) % 2), i % 2 === 1));
+    riders.forEach((pl, i) => rider(pl, lx + (i % 2 ? 2 : -2), bottom - i * 11 + 4, FRAME.back + (Math.floor(this.time * 3 + i) % 2), false));
     if (!leaving) {
       // rotor downwash
       if (Math.random() < 0.5) this.parts.push({ x: lx + (Math.random() - 0.5) * 40, y: p.y + p.h - 2, vx: (Math.random() - 0.5) * 120, vy: -10, life: 0.5, max: 0.5, c: 0xb0a890, s: 2, g: 0, grow: 3, round: true, fade: true });
@@ -740,7 +754,12 @@ export class WorldRenderer {
       let facing = p.facing;
       let f: number;
       const wallCling = !p.onGround && ((p.wallR && p.vx >= 0 && (p.bits & 2) !== 0) || (p.wallL && p.vx <= 0 && (p.bits & 1) !== 0));
-      if (p.climbing) f = FRAME.climb + (Math.floor(p.animT * 6) % 2);
+      if (p.climbing) {
+        // seen from behind on ladders; only animate while actually moving
+        const moving = Math.abs(p.vy) > 1 || Math.abs(p.vx) > 1;
+        f = FRAME.back + (moving ? Math.floor(p.animT * 7) % 2 : 0);
+        facing = 1;
+      }
       else if (wallCling) {
         f = FRAME.wall;
         facing = p.wallR ? 1 : -1;
