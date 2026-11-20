@@ -1,0 +1,164 @@
+{
+ "format": "ballistocracy-level",
+ "version": 1,
+ "name": "FIRST STEPS",
+ "author": "Ballistocracy team",
+ "biome": "jungle",
+ "tod": "day",
+ "width": 110,
+ "height": 20,
+ "tiles": [
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................wwwww...........................................",
+  "..............................................................................................................",
+  "........................................bbbbbbbbbblbb.........................................................",
+  "........................................b.........l.b.........................................................",
+  "..................ddddddd...............b.........l.b........lppppp...........................................",
+  "..................ddddddd.........................l..........l..............ssss..............................",
+  "..................ddddddd.........................l..........l..............ssss..............................",
+  "dddddddddddddddddddddddddddddd...ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddd...ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddd...ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddd...ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddd...ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ ],
+ "back": [
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................................................................",
+  "..............................................................wwwww...........................................",
+  "........................................sssssssssssss.........wwwww...........................................",
+  "........................................sssssssssssss.........wwwww...........................................",
+  "........................................sssWsssWsssss.........................................................",
+  "........................................sssssssssssss.........................................................",
+  "........................................sssssssssssss.........................................................",
+  "..............................................................................................................",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+ ],
+ "spawn": {
+  "x": 3,
+  "y": 14
+ },
+ "exit": {
+  "x": 102,
+  "y": 14,
+  "vehicle": "chopper"
+ },
+ "boss": null,
+ "entities": [
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 8,
+   "y": 14,
+   "item": "rocket"
+  },
+  {
+   "kind": "scenery",
+   "type": "palm",
+   "x": 12,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 21,
+   "y": 11
+  },
+  {
+   "kind": "scenery",
+   "type": "fern",
+   "x": 26,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 44,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 47,
+   "y": 9
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 46,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 62,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 66,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "roof_thatch",
+   "x": 64,
+   "y": 8
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 64,
+   "y": 11
+  },
+  {
+   "kind": "scenery",
+   "type": "enemyflag",
+   "x": 69,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 72,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 84,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "jungletree",
+   "x": 90,
+   "y": 14
+  },
+  {
+   "kind": "pickup",
+   "item": "grenade",
+   "x": 95,
+   "y": 14
+  }
+ ],
+ "description": "A gentle hand-made warm-up: a pit, a bunker and a village."
+}

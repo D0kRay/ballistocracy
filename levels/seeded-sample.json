@@ -1,0 +1,610 @@
+{
+ "format": "ballistocracy-level",
+ "version": 1,
+ "name": "SEEDED SAMPLE",
+ "author": "level generator",
+ "biome": "city",
+ "tod": "day",
+ "width": 174,
+ "height": 20,
+ "tiles": [
+  "..............................................................................................................................................................................",
+  "..............................................................................................................................................................................",
+  "...........pppppppppl................bbl..b..........................................................................................................bb..l....................",
+  "....................l..............b...l..b................bb.bbbbb...b..............................................................................b...l..b.................",
+  "....................l..................l...................b.......l..b..................................................................................l....................",
+  "....................l..............b...l..b........................l..................wwlww..........................................................b...l..b.................",
+  ".........lppppppppp................bbbl.bbb................b.......l..b................blb...........................................................bbbbl.bb.................",
+  ".........l.........................b..l...b................bbbbbl.bbbbb................blb...........................................................b...l..b.................",
+  ".........l............................l....................b....l.....b................blb........................................ppp....................l....................",
+  ".........l............................l.........................l.......................lb......pp.......................................................l....................",
+  "...........pppppppppl....lsdddddddddddldddddddddddd.............l.......................lb...............dldddddddddddddddddddddd.....dddddddddddddddddddddddddddddddddddddddd",
+  "....................l....lsdddddddddddldddddddddddddddddddldddddddddddddddddddddddddddddddddddd....dddddddlddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "....................l....lsddddssssssdldddddddddddddddddddldddddddddddddddddddddddddddddddddddddddddddddddldd..s.....ddddddddddddddddddddddddddddddddddddddsdddddddddddddddddd",
+  "....................l....lsddddddssssdldddddddddddddddddddldddddddddddddddddddddddddddddddsdddddddddddddddl..........ddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ddddddddddddddddddddddddddsdddddddssssldddddddddddddddddddldddddddddddddddddddddddddddddddsddddddddddddddd...dd.ddddddddsddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ddddddddddddddddddddddddddsdddddddsssslddddddd...dddddddddldddddddddddsd.dddddddsdddddddddddddddddddssssssddddddddddddddsdddddddddddddddddddddddddddddddddddddddddddddddddsddd",
+  "ddddddddddddddddddddddddddddddddddssssl..........dddddddddl..............dddddddssdddddddddddssssssssssssssddddddddssssssdddddddddddddddddddddddddddddsddddddddddddddddddsssdd",
+  "ddddssdddddddddddddddddddddddddddddsdd........dddddddddddd..............ddddddddsdddddddddddddddsssssssssssdddddddssssdddddddddddddddddddddddddddddddddddddddddddddddddddsssdd",
+  "ddddssdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddssssssdddddddsdddddddddssdddddsssssssssssddddddsssddddddddddsssssddddddddddddddddddddddddddddsdddddddssssdd",
+  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ ],
+ "back": [
+  "..............................................................................................................................................................................",
+  "..............................................................................................................................................................................",
+  "...................................ssssssss..........................................................................................................ssssssss.................",
+  "...................................ssssssss................ssssssssssss..............................................................................ssssssss.................",
+  "...................................sWssWsss................ssssssssssss..............................................................................sWssWsss.................",
+  "...................................ssssssss................sWssWssWssWs................sss...........................................................ssssssss.................",
+  "...................................ssssssss................ssssssssssss................sss...........................................................ssssssss.................",
+  "...................................ssssssss................ssssssssssss................sss...........................................................ssssssss.................",
+  "...................................sWssWsss................ssssssssssss................sss...........................................................sWssWsss.................",
+  "...................................ssssssss................sWssWssWssWs................sss...........................................................ssssssss.................",
+  "......................................d....................ssssssssssss................sss................d...................................................................",
+  "..........................ddddddddddddddddddddddddd.......d..............................................dddddddddddddddddddddddd.....dddddddddddddddddddddddddddddddddddddddd",
+  "..........................ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd....ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "..........................dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "..........................dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+ ],
+ "spawn": {
+  "x": 3,
+  "y": 14
+ },
+ "exit": {
+  "vehicle": "chopper",
+  "x": 168,
+  "y": 10
+ },
+ "boss": null,
+ "entities": [
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 17,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 17,
+   "y": 6
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 12,
+   "y": 2
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 28,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 41,
+   "y": 6
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 40,
+   "y": 2
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 37,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 52,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 54,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 65,
+   "y": 7
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 65,
+   "y": 3
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 61,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 80,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 90,
+   "y": 5
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 104,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 122,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 140,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 140,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 150,
+   "y": 6
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 154,
+   "y": 2
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 151,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 43,
+   "y": 18
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 65,
+   "y": 18
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 111,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 6,
+   "y": 14,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 55,
+   "y": 11,
+   "item": "rocket"
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 52,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 68,
+   "y": 11,
+   "item": "flamer"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 75,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 78,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "mine",
+   "x": 80,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "mine",
+   "x": 82,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 95,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 96,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 97,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 98,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 118,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 119,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "flamejet",
+   "x": 123,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 129,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 130,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 131,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 132,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 133,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 141,
+   "y": 10,
+   "item": "shotgun"
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 145,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 47,
+   "y": 17,
+   "item": "health"
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 71,
+   "y": 18,
+   "item": "shotgun"
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 115,
+   "y": 14,
+   "item": "flamer"
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 11,
+   "y": 14,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 15,
+   "y": 14,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 19,
+   "y": 14,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 9,
+   "y": 14,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 13,
+   "y": 14,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 17,
+   "y": 14,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 11,
+   "y": 14,
+   "h": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 15,
+   "y": 14,
+   "h": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 19,
+   "y": 14,
+   "h": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "tank",
+   "x": 15,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pipe",
+   "x": 9,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 34,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "enemyflag",
+   "x": 41,
+   "y": 2
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 58,
+   "y": 11,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "enemyflag",
+   "x": 69,
+   "y": 3
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 148,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "enemyflag",
+   "x": 155,
+   "y": 2,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 5,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 21,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "deadtree",
+   "x": 39,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "deadtree",
+   "x": 46,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "car",
+   "x": 49,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "sign",
+   "x": 76,
+   "y": 11,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 82,
+   "y": 11
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 92,
+   "y": 11,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 95,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "hydrant",
+   "x": 98,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 107,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 118,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 125,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 133,
+   "y": 11,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "deadtree",
+   "x": 136,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "sign",
+   "x": 141,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 163,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 167,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "deadtree",
+   "x": 170,
+   "y": 10,
+   "flip": true
+  }
+ ],
+ "description": "Exported from the procedural generator (seed 20261120)."
+}

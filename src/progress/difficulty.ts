@@ -18,6 +18,7 @@ export interface LevelPlan {
   enemyDensity: number; // enemies per chunk (avg)
   trapRate: number; // 0..1
   tod: TimeOfDay;
+  name?: string; // set for hand-made levels
 }
 
 export const BOSS_ORDER: readonly BossType[] = ['tank', 'gunship', 'drill'];

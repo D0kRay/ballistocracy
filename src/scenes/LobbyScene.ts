@@ -10,12 +10,15 @@ import type { LobbyPlayer, Msg, StartData } from '../net/protocol';
 import { loadSave } from '../progress/save';
 import { HERO_NAMES } from '../sim/World';
 import { clearDom, showHostKey, showJoinBox } from '../ui/dom';
+import type { LevelFile } from '../world/levelFormat';
 
 type Mode = 'local' | 'host' | 'guest';
 
 export class LobbyScene extends Phaser.Scene {
   private mode: Mode = 'local';
   private level = 1;
+  private custom: LevelFile | undefined;
+  private customName = '';
   private players: LobbyPlayer[] = [];
   private myDevices: DeviceId[] = []; // guest: devices joined locally
   private myId = 'host';
@@ -29,7 +32,9 @@ export class LobbyScene extends Phaser.Scene {
     super('Lobby');
   }
 
-  init(data: { mode: Mode; level: number }): void {
+  init(data: { mode: Mode; level: number; custom?: LevelFile }): void {
+    this.custom = data.custom;
+    this.customName = data.custom?.name ?? '';
     this.mode = data.mode;
     this.level = data.level;
     this.players = [];
@@ -124,6 +129,7 @@ export class LobbyScene extends Phaser.Scene {
     if (m.t === 'lobby') {
       this.players = m.players;
       this.level = m.level;
+      this.customName = m.customName ?? '';
       this.myId = m.you || this.myId;
     } else if (m.t === 'start') {
       this.scene.start('Game', { mode: 'guest', ...m.d });
@@ -133,7 +139,7 @@ export class LobbyScene extends Phaser.Scene {
   private broadcastLobby(): void {
     const net = getNet();
     if (!net || net.role !== 'host') return;
-    net.send({ t: 'lobby', players: this.players, level: this.level, you: '' });
+    net.send({ t: 'lobby', players: this.players, level: this.level, you: '', customName: this.customName || undefined });
   }
 
   // ---------------------------------------------------------------- players
@@ -152,7 +158,7 @@ export class LobbyScene extends Phaser.Scene {
   private start(): void {
     if (!this.players.length) return;
     const save = loadSave();
-    const d: StartData = { level: this.level, seed: randomSeed(), total: save.total, lives: START_LIVES + Math.max(0, this.players.length - 1), players: this.players };
+    const d: StartData = { level: this.level, seed: randomSeed(), total: save.total, lives: START_LIVES + Math.max(0, this.players.length - 1), players: this.players, custom: this.custom };
     const net = getNet();
     if (this.mode === 'host' && net) net.send({ t: 'start', d });
     this.scene.start('Game', { mode: this.mode, ...d });
@@ -203,7 +209,7 @@ export class LobbyScene extends Phaser.Scene {
   }
 
   private draw(): void {
-    const lvl = `LEVEL ${this.level}${this.level % 5 === 0 ? '  (BOSS)' : ''}`;
+    const lvl = this.customName ? `CUSTOM LEVEL: ${this.customName}` : `LEVEL ${this.level}${this.level % 5 === 0 ? '  (BOSS)' : ''}`;
     const startHint = this.mode === 'guest' ? 'WAITING FOR HOST TO START' : this.players.length ? 'PRESS ENTER / START TO DEPLOY' : '';
     this.info.setText(`${lvl}\n${this.status}\n${startHint}`);
     this.slots.forEach((s, i) => {

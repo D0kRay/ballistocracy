@@ -45,11 +45,12 @@ export class GameOverScene extends Phaser.Scene {
     if (inp.keyDown('Escape')) {
       if (this.d.mode === 'host') getNet()?.send({ t: 'menu' });
       setNet(null);
-      this.scene.start('Menu');
+      if (this.d.returnTo) this.scene.start(this.d.returnTo.scene, this.d.returnTo.data as object);
+      else this.scene.start(this.d.custom ? 'Levels' : 'Menu');
       return;
     }
     if (this.t > 1 && this.d.mode !== 'guest' && (inp.anyPressed(IN.START) || inp.anyPressed(IN.JUMP) || inp.keyDown('Enter'))) {
-      const d: StartData = { level: this.d.level, seed: this.d.seed, total: this.d.total, lives: this.d.lives, players: this.d.players };
+      const d: StartData = { level: this.d.level, seed: this.d.seed, total: this.d.total, lives: this.d.lives, players: this.d.players, custom: this.d.custom, returnTo: this.d.returnTo };
       if (this.d.mode === 'host') getNet()?.send({ t: 'start', d });
       this.scene.start('Game', { mode: this.d.mode, ...d });
     }

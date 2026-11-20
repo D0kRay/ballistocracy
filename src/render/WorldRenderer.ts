@@ -157,8 +157,21 @@ export class WorldRenderer {
   }
 
   // ------------------------------------------------------------ scenery
-  private buildScenery(): void {
-    makeScenery(this.scene, this.world.biome);
+  /** editor: change one background wall cell */
+  setBack(x: number, y: number, v: number): void {
+    if (v === BACK.NONE) this.backLayer.removeTileAt(x, y);
+    else this.backLayer.putTileAt(GID_BACK + v, x, y);
+  }
+
+  /** editor: rebuild scenery sprites after the level's scenery list changed */
+  rebuildScenery(): void {
+    for (const o of this.sceneObjs) o.obj.destroy();
+    this.sceneObjs = [];
+    this.buildScenery(false);
+  }
+
+  private buildScenery(makeTextures = true): void {
+    if (makeTextures) makeScenery(this.scene, this.world.biome);
     for (const s of this.world.level.scenery ?? []) {
       const key = `sc_${s.type}`;
       if (!this.scene.textures.exists(key)) continue;

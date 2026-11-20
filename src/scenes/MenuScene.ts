@@ -55,10 +55,12 @@ export class MenuScene extends Phaser.Scene {
       { label: 'NEW CAMPAIGN', action: () => this.go('local', resetSave().level) },
       { label: 'HOST ONLINE GAME', action: () => this.go('host', save.level) },
       { label: 'JOIN ONLINE GAME', action: () => this.go('guest', 1) },
+      { label: 'COMMUNITY LEVELS', action: () => this.scene.start('Levels') },
+      { label: 'LEVEL EDITOR', action: () => this.scene.start('Editor', {}) },
       { label: 'CONTROLS', action: () => this.toggleHelp() },
     ];
     this.items.forEach((it, i) => {
-      const t = this.add.bitmapText(VIEW_W / 2, 84 + i * 15, 'pix', it.label).setOrigin(0.5).setScale(2).setDepth(10);
+      const t = this.add.bitmapText(VIEW_W / 2, 76 + i * 14, 'pix', it.label).setOrigin(0.5).setScale(2).setDepth(10);
       t.setInteractive({ useHandCursor: true });
       t.on('pointerover', () => (this.sel = i));
       t.on('pointerdown', () => it.action());

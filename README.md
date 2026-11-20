@@ -40,6 +40,9 @@ One player picks **Host online game** and shares the 6-letter key. Others pick *
 - **Traps:** spikes, landmines, flame jets, saw blades, acid, crushers, crumbling platforms, explosive barrels.
 - **Items:** shotgun, flamer, rocket launcher, minigun, grenades, C4, armor, speed, health, ammo, extra life. Cages hold prisoners: free them for +1 life.
 
+## Make your own levels
+The game has a built-in level editor (main menu, **Level editor**). Levels are JSON files in `levels/` and appear under **Community levels**. See [CONTRIBUTING.md](CONTRIBUTING.md) to add yours to the game.
+
 ## Code map
 - `src/sim/` – deterministic-ish game simulation (no Phaser), runs on the host
 - `src/world/` – tile grid, tiles, biomes, procedural level generator

@@ -13,6 +13,7 @@ import type { GameEvent } from '../sim/types';
 import { HERO_NAMES, World } from '../sim/World';
 import { clearDom } from '../ui/dom';
 import { generateLevel } from '../world/LevelGen';
+import { levelFromFile } from '../world/levelFormat';
 import { randomSeed } from '../core/rng';
 import { clampToView } from '../camera/coopCamera';
 import { predictPlayer } from '../sim/players';
@@ -68,7 +69,7 @@ export class GameScene extends Phaser.Scene {
   create(): void {
     clearDom();
     const d = this.data0;
-    const level = generateLevel(d.level, d.seed, d.total);
+    const level = d.custom ? levelFromFile(d.custom) : generateLevel(d.level, d.seed, d.total);
     this.world = new World(level, d.players.map((p) => ({ pid: p.pid, hero: p.hero, name: HERO_NAMES[p.hero % 4] })), d.lives);
     this.view = new WorldRenderer(this, this.world);
     this.hud = new Hud(this);
@@ -106,8 +107,8 @@ export class GameScene extends Phaser.Scene {
     music.play(level.plan.isBoss ? 'boss' : 'level');
     this.hud.handle({
       k: 'banner',
-      s: level.plan.isBoss ? `LEVEL ${d.level}: BOSS` : `LEVEL ${d.level}`,
-      sub: `${this.world.biome.name}${level.plan.isBoss ? '  -  FIGHT TO THE END' : '  -  REACH THE FLAG'}`,
+      s: d.custom ? d.custom.name : level.plan.isBoss ? `LEVEL ${d.level}: BOSS` : `LEVEL ${d.level}`,
+      sub: d.custom ? `BY ${d.custom.author || 'UNKNOWN'}  -  ${this.world.biome.name}` : `${this.world.biome.name}${level.plan.isBoss ? '  -  FIGHT TO THE END' : '  -  GET TO THE EXTRACTION'}`,
     });
     this.events.once('shutdown', () => music.stop());
   }
@@ -276,7 +277,9 @@ export class GameScene extends Phaser.Scene {
       if (this.data0.mode === 'host') this.net.send({ t: 'menu' });
       setNet(null);
     }
-    this.scene.start('Menu');
+    const back = this.data0.returnTo;
+    if (back) this.scene.start(back.scene, back.data as object);
+    else this.scene.start(this.data0.custom ? 'Levels' : 'Menu');
   }
 
   private handleEvent(e: GameEvent): void {
@@ -292,7 +295,19 @@ export class GameScene extends Phaser.Scene {
     if (this.ended) return;
     const w = this.world;
     const d = this.data0;
-    if (w.status === 'complete' && w.statusT > 3) {
+    if (w.status === 'complete' && w.statusT > 3 && d.custom) {
+      // hand-made level: back to where we came from
+      this.ended = true;
+      this.cameras.main.fadeOut(300);
+      this.time.delayedCall(320, () => {
+        if (d.returnTo) this.scene.start(d.returnTo.scene, d.returnTo.data as object);
+        else {
+          if (d.mode === 'host') this.net?.send({ t: 'menu' });
+          if (d.mode !== 'local') setNet(null);
+          this.scene.start(d.mode === 'guest' ? 'Menu' : 'Levels');
+        }
+      });
+    } else if (w.status === 'complete' && w.statusT > 3) {
       this.ended = true;
       const save = loadSave();
       const total = d.total + w.time;
@@ -304,8 +319,8 @@ export class GameScene extends Phaser.Scene {
       this.time.delayedCall(320, () => this.scene.restart({ mode: d.mode, ...next }));
     } else if (w.status === 'gameover' && w.statusT > 3.5) {
       this.ended = true;
-      const retry: StartData = { level: d.level, seed: randomSeed(), total: d.total + w.time, lives: d.lives, players: d.players };
-      writeSave({ ...loadSave(), total: retry.total });
+      const retry: StartData = { level: d.level, seed: randomSeed(), total: d.total + w.time, lives: d.lives, players: d.players, custom: d.custom, returnTo: d.returnTo };
+      if (!d.custom) writeSave({ ...loadSave(), total: retry.total });
       if (d.mode === 'host') this.net?.send({ t: 'gameover', d: retry });
       this.scene.start('GameOver', { mode: d.mode, ...retry, kills: w.kills, time: w.time });
     }
