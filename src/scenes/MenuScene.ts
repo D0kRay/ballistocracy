@@ -59,6 +59,8 @@ export class MenuScene extends Phaser.Scene {
       { label: 'LEVEL EDITOR', action: () => this.scene.start('Editor', {}) },
       { label: 'CONTROLS', action: () => this.toggleHelp() },
     ];
+    // the level editor needs a mouse: hide it on touch devices
+    if (getInput().touch) this.items = this.items.filter((i) => i.label !== 'LEVEL EDITOR');
     this.items.forEach((it, i) => {
       const t = this.add.bitmapText(VIEW_W / 2, 76 + i * 14, 'pix', it.label).setOrigin(0.5).setScale(2).setDepth(10);
       t.setInteractive({ useHandCursor: true });
@@ -70,6 +72,9 @@ export class MenuScene extends Phaser.Scene {
     this.add.bitmapText(4, VIEW_H - 8, 'pix', `BEST LEVEL ${save.best}   M MUSIC  N MUTE`).setDepth(10).setTint(0x909090);
     this.add.bitmapText(VIEW_W - 4, VIEW_H - 8, 'pix', 'V0.1').setOrigin(1, 0).setDepth(10).setTint(0x909090);
     music.play('menu');
+    if (getInput().touch) {
+      this.add.bitmapText(VIEW_W / 2, VIEW_H - 18, 'pix', 'TAP A MENU ITEM.  FULLSCREEN BUTTON: TOP RIGHT IN GAME').setOrigin(0.5).setDepth(10).setTint(0xc0c0c0);
+    }
   }
 
   private toggleHelp(): void {

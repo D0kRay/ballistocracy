@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import { planLevel } from './progress/difficulty';
+import { getInput } from './input/InputManager';
 
 // Dev-only helpers (window.__view(seed)) used to inspect generated levels quickly.
 
@@ -12,6 +13,7 @@ export function installDevtools(game: Phaser.Game): void {
     if (!seeds[k]) seeds[k] = s;
   }
   w.__seeds = seeds;
+  w.__input = getInput();
   w.__view = async (key: string | number, frac = 0.35, level = 4, custom?: unknown) => {
     const seed = typeof key === 'number' ? key : seeds[key] ?? 1;
     const cur = game.scene.getScenes(true)[0];

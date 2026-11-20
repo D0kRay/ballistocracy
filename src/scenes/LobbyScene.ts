@@ -60,8 +60,10 @@ export class LobbyScene extends Phaser.Scene {
       const txt = this.add.bitmapText(x + 36, 106, 'pix', '', undefined, 1).setOrigin(0.5, 0);
       this.slots.push({ box, spr, txt });
     }
-    this.add.bitmapText(VIEW_W / 2, VIEW_H - 22, 'pix', 'PRESS JUMP OR FIRE ON ANY KEYBOARD/GAMEPAD TO JOIN\nGRENADE BUTTON TO LEAVE   ESC BACK', undefined, 1).setOrigin(0.5, 0).setTint(0xa0a0a0);
+    this.add.bitmapText(VIEW_W / 2, VIEW_H - 22, 'pix', 'PRESS JUMP OR FIRE ON ANY KEYBOARD/GAMEPAD/TOUCH TO JOIN\nGRENADE BUTTON TO LEAVE   ESC/II BACK   START TO DEPLOY', undefined, 1).setOrigin(0.5, 0).setTint(0xa0a0a0);
 
+    getInput().touch?.setVisible(true, this.mode !== 'guest');
+    this.events.once('shutdown', () => getInput().touch?.setVisible(false));
     if (this.mode === 'host') this.startHost();
     else if (this.mode === 'guest') this.showJoin();
     this.events.once('shutdown', () => clearDom());

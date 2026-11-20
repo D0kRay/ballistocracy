@@ -23,6 +23,8 @@ export class GameOverScene extends Phaser.Scene {
     this.t = 0;
   }
   create(): void {
+    getInput().touch?.setVisible(true, this.d.mode !== 'guest');
+    this.events.once('shutdown', () => getInput().touch?.setVisible(false));
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x100406).setOrigin(0);
     this.add.bitmapText(VIEW_W / 2, 50, 'pix', 'GAME OVER').setOrigin(0.5).setScale(5).setTint(0xe02020);
     const m = Math.floor(this.d.time / 60);

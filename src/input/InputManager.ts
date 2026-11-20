@@ -1,4 +1,5 @@
 import { IN } from '../core/input';
+import { TouchControls, isTouchDevice } from './TouchControls';
 
 export type DeviceId = string; // 'kbA' | 'kbB' | 'pad0'..'pad3'
 
@@ -46,6 +47,8 @@ export class InputManager {
   private prevBits = new Map<DeviceId, number>();
   private curBits = new Map<DeviceId, number>();
   private typingTarget = false;
+  /** on-screen controls, only on touch devices */
+  readonly touch: TouchControls | null = null;
   private onKeyDown = (e: KeyboardEvent) => {
     const tag = (e.target as HTMLElement | null)?.tagName;
     this.typingTarget = tag === 'INPUT' || tag === 'TEXTAREA';
@@ -60,6 +63,12 @@ export class InputManager {
   private onBlur = () => this.down.clear();
 
   constructor() {
+    if (isTouchDevice()) {
+      this.touch = new TouchControls((code) => {
+        // virtual key press (pause button) seen by keyDown() for one frame
+        this.tapped.add(code);
+      });
+    }
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('keyup', this.onKeyUp);
     window.addEventListener('blur', this.onBlur);
@@ -82,6 +91,7 @@ export class InputManager {
     this.tapped = new Set();
     this.curBits.set('kbA', this.kbBits(KB_A));
     this.curBits.set('kbB', this.kbBits(KB_B));
+    if (this.touch) this.curBits.set('touch', this.touch.bits());
     const pads = navigator.getGamepads ? navigator.getGamepads() : [];
     for (let i = 0; i < 4; i++) {
       const p = pads[i];
@@ -143,6 +153,7 @@ export function getInput(): InputManager {
 export function deviceLabel(d: DeviceId): string {
   if (d === 'kbA') return 'KEYS A';
   if (d === 'kbB') return 'KEYS B';
+  if (d === 'touch') return 'TOUCH';
   if (d.startsWith('pad')) return `PAD ${Number(d.slice(3)) + 1}`;
   return d.toUpperCase();
 }

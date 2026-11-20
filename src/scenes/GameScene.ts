@@ -3,6 +3,7 @@ import { DT, NET_SNAPSHOT_EVERY, VIEW_W } from '../config';
 import { music } from '../audio/Music';
 import { playSfx, toggleMute } from '../audio/Sfx';
 import { getInput } from '../input/InputManager';
+import { IN } from '../core/input';
 import { getNet, setNet, type NetSession } from '../net/NetSession';
 import type { LobbyPlayer, Msg, StartData } from '../net/protocol';
 import { applySnapshot, makeSnapshot, type Snap } from '../net/snapshot';
@@ -107,6 +108,8 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    getInput().touch?.setVisible(true);
+    this.events.once('shutdown', () => getInput().touch?.setVisible(false));
     this.cameras.main.fadeIn(300);
     music.play(level.plan.isBoss ? 'boss' : 'level');
     this.hud.handle({
@@ -272,6 +275,11 @@ export class GameScene extends Phaser.Scene {
     if (tap('KeyP') && this.data0.mode === 'local') {
       this.paused = !this.paused;
       this.pauseText.setText('PAUSED\n\nESC: QUIT TO MENU\nP: RESUME').setVisible(this.paused);
+    }
+    // touch players have no P key: JUMP resumes
+    if (this.paused && inp.touch && inp.justPressed('touch', IN.JUMP)) {
+      this.paused = false;
+      this.pauseText.setVisible(false);
     }
     if (!this.paused && this.escArm < this.time.now) this.pauseText.setVisible(false);
   }

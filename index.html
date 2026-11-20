@@ -2,10 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#0a0608" />
     <title>Ballistocracy</title>
     <style>
-      html, body { margin: 0; height: 100%; background: #0a0608; overflow: hidden; }
+      html, body { margin: 0; height: 100%; background: #0a0608; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; overscroll-behavior: none; }
       #game { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
       #game canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
       #ui { position: absolute; left: 50%; bottom: 6%; transform: translateX(-50%); z-index: 10; font-family: 'Courier New', monospace; }
@@ -21,11 +24,29 @@
       #editor-ui button { font: bold 11px 'Courier New', monospace; background: #c02020; color: #fff; border: 1px solid #fff; padding: 3px 7px; cursor: pointer; }
       #editor-ui button:hover { background: #e04040; }
       #editor-ui .status { flex-basis: 100%; font-size: 11px; color: #a0e0a0; }
+      #touch-ui { position: fixed; inset: 0; z-index: 15; pointer-events: none; font-family: 'Courier New', monospace; }
+      #touch-ui .zone-left { position: absolute; left: 0; top: 15%; width: 45%; bottom: 0; pointer-events: auto; touch-action: none; }
+      #touch-ui .stick-base { position: absolute; width: 104px; height: 104px; margin: -52px 0 0 -52px; border-radius: 50%; border: 3px solid #ffffff40; background: #00000030; opacity: 0; pointer-events: none; }
+      #touch-ui .stick-base.active { opacity: 1; }
+      #touch-ui .stick-knob { position: absolute; left: 30px; top: 30px; width: 44px; height: 44px; border-radius: 50%; background: #f0c020b0; border: 2px solid #fff8; }
+      #touch-ui button { pointer-events: auto; touch-action: none; position: absolute; border-radius: 50%; border: 3px solid #ffffff90; color: #fff; font: bold 13px 'Courier New', monospace; background: #00000055; -webkit-tap-highlight-color: transparent; }
+      #touch-ui button.on { background: #ffffff70; transform: scale(0.94); }
+      #touch-ui .btns { position: absolute; right: max(12px, env(safe-area-inset-right)); bottom: 14px; width: 210px; height: 190px; pointer-events: none; }
+      #touch-ui .b-jump { right: 0; bottom: 0; width: 86px; height: 86px; background: #2a8a3a80; }
+      #touch-ui .b-fire { right: 98px; bottom: 6px; width: 78px; height: 78px; background: #c0302080; }
+      #touch-ui .b-special { right: 8px; bottom: 100px; width: 64px; height: 64px; background: #d0802080; }
+      #touch-ui .b-interact { right: 92px; bottom: 100px; width: 58px; height: 58px; background: #3060c080; font-size: 11px; }
+      #touch-ui .b-start { left: 50%; transform: translateX(-50%); top: 8px; width: auto; height: 34px; padding: 0 16px; border-radius: 8px; background: #f0c02090; color: #120c10; }
+      #touch-ui .b-pause { left: max(10px, env(safe-area-inset-left)); top: 50%; width: 36px; height: 36px; font-size: 12px; }
+      #touch-ui .b-full { left: 50%; margin-left: 90px; top: 6px; width: 36px; height: 36px; font-size: 11px; }
+      #rotate-hint { display: none; position: fixed; inset: 0; z-index: 50; background: #0a0608; color: #f0c020; font: bold 20px 'Courier New', monospace; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+      @media (orientation: portrait) and (pointer: coarse) { #rotate-hint { display: flex; } }
     </style>
   </head>
   <body>
     <div id="game"></div>
     <div id="ui"></div>
+    <div id="rotate-hint">ROTATE YOUR DEVICE<br />TO LANDSCAPE</div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
