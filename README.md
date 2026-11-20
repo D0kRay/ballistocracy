@@ -1,10 +1,55 @@
-# Ballistocracy
+<p align="center">
+  <img src="docs/media/banner.gif" alt="BALLISTOCRACY - co-op run and gun" width="960">
+</p>
 
-An original 80s-style co-op run'n'gun for the browser. Procedural levels, destructible terrain, bosses, 1–4 players on one screen or online via peer-to-peer.
+<h1 align="center">💥 BALLISTOCRACY 💥</h1>
 
-All graphics and sounds are generated in code at startup (ASCII pixel grids + limited palettes, WebAudio synth), so there are no external assets or licenses involved.
+<p align="center">
+  <b>An 80s pixel-art co-op run'n'gun that runs in your browser.</b><br>
+  Blow up the map, free the prisoners, take down the bosses: alone, on one screen with up to 4 friends, or online.
+</p>
 
-## Run
+<p align="center">
+  <a href="https://d0kray.github.io/ballistocracy/"><b>▶ PLAY NOW IN YOUR BROWSER</b></a>
+  &nbsp;·&nbsp; desktop and mobile &nbsp;·&nbsp; no install, no account
+</p>
+
+<p align="center">
+  <a href="https://d0kray.github.io/ballistocracy/"><img src="https://img.shields.io/badge/play-online-ff4030?style=for-the-badge" alt="Play online"></a>
+  <img src="https://img.shields.io/badge/players-1--4-ffd040?style=for-the-badge" alt="1-4 players">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-3070ff?style=for-the-badge" alt="AGPL-3.0"></a>
+</p>
+
+## Gameplay
+
+<p align="center">
+  <img src="docs/media/coop.gif" alt="Two players fighting through a jungle level" width="720"><br>
+  <i>Two-player co-op in the jungle: run, jump, shoot, throw grenades.</i>
+</p>
+
+<p align="center">
+  <img src="docs/media/destruction.gif" alt="Rockets and grenades blowing holes into an arctic level" width="720"><br>
+  <i>Every explosion digs into the terrain. Watch your step (and your own rockets).</i>
+</p>
+
+<p align="center">
+  <img src="docs/media/boss.gif" alt="Boss fight against the IRON HOG tank on a volcano" width="720"><br>
+  <i>Every 5th level ends in a boss arena: here the IRON HOG tank on the volcano.</i>
+</p>
+
+## Features
+
+- Procedural levels in six biomes (jungle, desert, arctic, ruined city, industrial, volcano), each with its own soundtrack.
+- Destructible terrain: rockets, grenades, C4 and barrels tear the map apart, and loose chunks fall.
+- Three bosses, enemies that alert each other, traps, weapons, power-ups and prisoners to free.
+- Local co-op for 1–4 players (two keyboard halves plus gamepads) and online co-op over peer-to-peer.
+- Mouse aiming on PC, touch controls with drag-to-aim on phones.
+- Progress is saved in your browser, so you can continue where you stopped.
+- Built-in level editor and community levels.
+
+All graphics and sounds are generated in code at startup (ASCII pixel grids + limited palettes, WebAudio synth), so there are no external assets.
+
+## Run locally
 
 ```bash
 npm install
@@ -25,7 +70,9 @@ npm run build    # static build in dist/
 
 `Esc` pause/quit, `P` pause, `M` music, `N` mute. Down+Jump drops through wooden platforms.
 
-**Mouse:** the keyboard player (Keyboard A, else B) aims with the mouse: left click fires, right click throws a grenade toward the cursor, middle click picks up or throws a weapon. Pressing the keyboard fire key switches back to keyboard aiming.
+**Mouse:** the keyboard player (Keyboard A, else B) aims with the mouse: left click fires, right click throws a grenade toward the cursor, middle click picks up or throws a weapon. Pressing the keyboard fire key switches back to keyboard aiming. Walking with the keys turns the hero; the cursor takes over again as soon as you move the mouse or click.
+
+**Touch (phones):** stick on the left, JUMP / FIRE / BOOM / GRAB on the right. Hold FIRE and drag to aim. GRAB + BOOM together pauses. In menus the left side becomes a cross and the four buttons change to OK / BACK and so on.
 
 **Saving:** progress is stored in your browser (localStorage). After each cleared level the menu offers **Continue level N** and **Host online level N**. Online guests save the level they reached too, as long as it is beyond their own progress.
 

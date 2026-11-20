@@ -77,9 +77,14 @@ export class InputManager {
   private mouseHeld = 0; // IN bits held via mouse buttons
   private mouseTap = 0; // pressed since last poll
   private mouseFrame = 0;
+  /** counts real mouse moves; the game scene uses it to see if the cursor moved */
+  mouseMoves = 0;
   private onPointerMove = (e: PointerEvent) => {
     if (e.pointerType !== 'mouse') return;
-    if (this.mouseEnabled && (Math.abs(e.clientX - this.mouseX) > 2 || Math.abs(e.clientY - this.mouseY) > 2)) this.mouseActive = true;
+    if (this.mouseEnabled && (Math.abs(e.clientX - this.mouseX) > 2 || Math.abs(e.clientY - this.mouseY) > 2)) {
+      this.mouseActive = true;
+      this.mouseMoves++;
+    }
     this.mouseX = e.clientX;
     this.mouseY = e.clientY;
   };

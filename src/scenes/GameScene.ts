@@ -49,6 +49,9 @@ export class GameScene extends Phaser.Scene {
   private acks = new Map<number, number>();
   private lastSnapAt = 0;
   private mouseDevice: string | null = null;
+  /** true while key walking overrides the mouse aim */
+  private aimParked = false;
+  private mouseMovesSeen = 0;
   /** touch pause/leave menu (GRAB + BOOM together); the four buttons get menu labels */
   private touchMenu = false;
   private touchMenuAt = 0;
@@ -255,10 +258,15 @@ export class GameScene extends Phaser.Scene {
     if (device === 'touch' && this.touchHold && (b & 511) === 0) // 511 = all move/button bits, aim bits ignored this.touchHold = false;
     if (device === 'touch' && (this.touchMenu || this.touchHold)) return 0;
     if (device !== this.mouseDevice || !inp.mouseActive || this.paused) return b;
-    b |= inp.mouseBits();
+    const mb = inp.mouseBits();
+    b |= mb;
+    // walking with the keys turns the hero; the cursor takes over again once it moves or a mouse button is used
+    if (inp.mouseMoves !== this.mouseMovesSeen || mb) this.aimParked = false;
+    else if (b & (IN.LEFT | IN.RIGHT)) this.aimParked = true;
+    this.mouseMovesSeen = inp.mouseMoves;
     const m = inp.mouseView(VIEW_W, VIEW_H);
     const p = this.world.players.find((pl) => pl.pid === pid);
-    if (m && p && p.alive) {
+    if (m && p && p.alive && !this.aimParked) {
       const px = p.x + p.w / 2 - this.world.cam.x;
       const py = p.y + 7 - this.world.cam.y;
       b = withAim(b, Math.atan2(m.y - py, m.x - px));
