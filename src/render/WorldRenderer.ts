@@ -8,7 +8,7 @@ import { BACK, DECOR_FRAMES, EDGE, makeBackTiles, makeDecor, makeTiles, tileFram
 import { SCENERY_TILED, makeScenery } from '../gfx/scenery';
 import type { GameEvent } from '../sim/types';
 import type { World } from '../sim/World';
-import { T, isSolid } from '../world/tiles';
+import { BACK_CHANGE, T, isSolid } from '../world/tiles';
 import { TerrainPainter, isNatural } from './TerrainPainter';
 import { biomeAt } from '../world/biomes';
 
@@ -315,6 +315,10 @@ export class WorldRenderer {
       const i = changes[k];
       const x = i % w;
       const y = Math.floor(i / w);
+      if (changes[k + 1] >= BACK_CHANGE) {
+        this.setBack(x, y, changes[k + 1] - BACK_CHANGE);
+        continue;
+      }
       for (const [dx, dy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) this.refreshTile(x + dx, y + dy, dx === 0 && dy === 0);
       if (changes[k + 1] === T.EMPTY) this.eraseDecal(x * TILE, y * TILE);
       this.painter.repaint(x, y);

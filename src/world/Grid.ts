@@ -1,5 +1,5 @@
 import { TILE } from '../config';
-import { T, TILE_HP, isAnchor, isDestructible, isSolid, isOneWay, isLadder } from './tiles';
+import { BACK_CHANGE, T, TILE_HP, isAnchor, isBuildingBack, isDestructible, isSolid, isOneWay, isLadder } from './tiles';
 
 /** Destructible tile grid. Every change is recorded so renderer + network can follow it. */
 export class Grid {
@@ -9,6 +9,8 @@ export class Grid {
   readonly dmg: Float32Array;
   /** cells that hold the terrain around them up (floating islands' hidden cores) */
   readonly anchors: Uint8Array;
+  /** background wall per cell (the level's back array, shared with the renderer) */
+  back: Uint8Array;
   private dirty: number[] = [];
 
   constructor(w: number, h: number) {
@@ -17,6 +19,20 @@ export class Grid {
     this.tiles = new Uint8Array(w * h);
     this.dmg = new Float32Array(w * h);
     this.anchors = new Uint8Array(w * h);
+    this.back = new Uint8Array(w * h);
+  }
+
+  getBack(x: number, y: number): number {
+    return this.inBounds(x, y) ? this.back[y * this.w + x] : 0;
+  }
+
+  /** change a background wall cell; recorded like a tile change */
+  setBack(x: number, y: number, v: number): void {
+    if (!this.inBounds(x, y)) return;
+    const i = y * this.w + x;
+    if (this.back[i] === v) return;
+    this.back[i] = v;
+    this.dirty.push(i, BACK_CHANGE + v);
   }
 
   markAnchor(x: number, y: number): void {
@@ -59,7 +75,8 @@ export class Grid {
       const i = changes[k];
       const t = changes[k + 1];
       if (i < 0 || i >= this.tiles.length) continue;
-      this.tiles[i] = t;
+      if (t >= BACK_CHANGE) this.back[i] = t - BACK_CHANGE;
+      else this.tiles[i] = t;
       this.dirty.push(i, t);
     }
   }
@@ -87,6 +104,88 @@ export class Grid {
       return true;
     }
     return false;
+  }
+
+  /**
+   * After an explosion: ladder pieces that no longer touch solid ground or a
+   * platform (directly or through other ladder pieces) break off.
+   */
+  findLooseLadders(cx: number, cy: number, radius: number): { x: number; y: number }[] {
+    const holds = (t: number) => isSolid(t) || isOneWay(t);
+    const seen = new Set<number>();
+    const out: { x: number; y: number }[] = [];
+    for (let y = Math.max(0, cy - radius); y <= Math.min(this.h - 1, cy + radius); y++) {
+      for (let x = Math.max(0, cx - radius); x <= Math.min(this.w - 1, cx + radius); x++) {
+        if (!isLadder(this.get(x, y)) || seen.has(y * this.w + x)) continue;
+        // flood one connected ladder piece and check if anything holds it
+        const part: number[] = [];
+        const stack = [x, y];
+        seen.add(y * this.w + x);
+        let held = false;
+        while (stack.length) {
+          const py = stack.pop()!;
+          const px = stack.pop()!;
+          part.push(px, py);
+          const nb = [px + 1, py, px - 1, py, px, py + 1, px, py - 1];
+          for (let n = 0; n < 8; n += 2) {
+            const nx = nb[n];
+            const ny = nb[n + 1];
+            const t = this.get(nx, ny);
+            if (holds(t)) held = true;
+            else if (isLadder(t) && this.inBounds(nx, ny) && !seen.has(ny * this.w + nx)) {
+              seen.add(ny * this.w + nx);
+              stack.push(nx, ny);
+            }
+          }
+        }
+        if (!held) for (let k = 0; k < part.length; k += 2) out.push({ x: part[k], y: part[k + 1] });
+      }
+    }
+    return out;
+  }
+
+  /**
+   * After an explosion: building back walls that touch no solid terrain any
+   * more (directly or through other back wall cells) are gone with the house.
+   */
+  findLooseBack(cx: number, cy: number, radius: number): { x: number; y: number }[] {
+    const seen = new Set<number>();
+    const out: { x: number; y: number }[] = [];
+    const x0 = Math.max(0, cx - radius);
+    const x1 = Math.min(this.w - 1, cx + radius);
+    const y0 = Math.max(0, cy - radius);
+    const y1 = Math.min(this.h - 1, cy + radius);
+    for (let y = y0; y <= y1; y++) {
+      for (let x = x0; x <= x1; x++) {
+        if (!isBuildingBack(this.getBack(x, y)) || seen.has(y * this.w + x)) continue;
+        const part: number[] = [];
+        const stack = [x, y];
+        seen.add(y * this.w + x);
+        let held = false;
+        while (stack.length) {
+          const py = stack.pop()!;
+          const px = stack.pop()!;
+          part.push(px, py);
+          if (isSolid(this.get(px, py)) || isOneWay(this.get(px, py))) held = true;
+          // a wall piece reaching past the checked box is assumed to still stand
+          if (px <= x0 || px >= x1 || py <= y0 || py >= y1) held = true;
+          if (held) break;
+          const nb = [px + 1, py, px - 1, py, px, py + 1, px, py - 1];
+          for (let n = 0; n < 8; n += 2) {
+            const nx = nb[n];
+            const ny = nb[n + 1];
+            const t = this.get(nx, ny);
+            if (isSolid(t) || isOneWay(t)) held = true;
+            else if (isBuildingBack(this.getBack(nx, ny)) && !seen.has(ny * this.w + nx)) {
+              seen.add(ny * this.w + nx);
+              stack.push(nx, ny);
+            }
+          }
+        }
+        if (!held) for (let k = 0; k < part.length; k += 2) out.push({ x: part[k], y: part[k + 1] });
+      }
+    }
+    return out;
   }
 
   /** line of sight between two points (tile-stepped) */

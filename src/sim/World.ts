@@ -5,7 +5,7 @@ import type { EnemyType } from '../progress/difficulty';
 import { biomeById, type Biome } from '../world/biomes';
 import type { Grid } from '../world/Grid';
 import type { ItemId, Level, PropSpawn } from '../world/LevelGen';
-import { T } from '../world/tiles';
+import { T, isBuildingBack } from '../world/tiles';
 import { makeBody, overlap } from './physics';
 import type { Boss, Debris, Enemy, GameEvent, Owner, Pickup, Player, Projectile, Prop, ProjType, SfxName } from './types';
 import { updatePlayer } from './players';
@@ -56,6 +56,7 @@ export class World {
   constructor(level: Level, defs: PlayerDef[], lives = START_LIVES) {
     this.level = level;
     this.grid = level.grid;
+    if (level.back) this.grid.back = level.back;
     this.biome = biomeById(level.plan.biome);
     this.levelW = this.grid.w * TILE;
     this.levelH = this.grid.h * TILE;
@@ -436,6 +437,12 @@ export class World {
         const d = Math.hypot(tx * TILE + 8 - x, ty * TILE + 8 - y);
         if (d > r) continue;
         const t = this.grid.get(tx, ty);
+        // the blast also tears holes into building back walls
+        const bv = this.grid.getBack(tx, ty);
+        if (d < r * 0.8 && isBuildingBack(bv)) {
+          this.grid.setBack(tx, ty, 0);
+          if ((tx + ty) % 2 === 0) this.emit({ k: 'debris', x: tx * TILE + 8, y: ty * TILE + 8, t: bv === 4 ? T.WOOD : T.BRICK });
+        }
         const amount = dmg * (1 - d / (r + 8)) * 1.3 + 0.6;
         if (this.grid.damage(tx, ty, amount)) {
           destroyed = true;
@@ -448,6 +455,17 @@ export class World {
         this.grid.set(f.x, f.y, T.EMPTY);
         this.debris.push({ id: this.id(), t: f.t, x: f.x * TILE, y: f.y * TILE, vy: 0, dead: false });
       }
+      // ladders hanging in the air break off
+      for (const l of this.grid.findLooseLadders(cx, cy, tr + 9)) {
+        this.grid.set(l.x, l.y, T.EMPTY);
+        this.emit({ k: 'debris', x: l.x * TILE + 8, y: l.y * TILE + 8, t: T.LADDER });
+      }
+    }
+    // back walls of a house that is gone come down with it
+    for (const b of this.grid.findLooseBack(cx, cy, tr + 9)) {
+      const v = this.grid.getBack(b.x, b.y);
+      this.grid.setBack(b.x, b.y, 0);
+      if ((b.x + b.y) % 2 === 0) this.emit({ k: 'debris', x: b.x * TILE + 8, y: b.y * TILE + 8, t: v === 4 ? T.WOOD : T.BRICK });
     }
 
     for (const p of this.players) {

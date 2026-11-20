@@ -14,6 +14,16 @@ export const T = {
 
 export const TILE_TYPES = 11;
 
+/**
+ * Background wall changes travel in the same change list as tiles:
+ * value BACK_CHANGE + v means "background wall of this cell is now v".
+ */
+export const BACK_CHANGE = 64;
+/** background walls of buildings (stone, window, wood); 1 = cave earth stays */
+export function isBuildingBack(v: number): boolean {
+  return v >= 2 && v <= 4;
+}
+
 /** hit points vs. explosion damage; Infinity = indestructible */
 export const TILE_HP: readonly number[] = [0, 3, 6, 2, Infinity, Infinity, 1, 3, 1, 1, 9];
 

@@ -86,7 +86,7 @@ One player picks **Host online game** and shares the 6-letter key. Others pick *
 - **Camera:** follows the group and never scrolls anyone off screen. When the team is spread across the full width, the front player is held at the edge until the last one catches up.
 - **Levels:** generated from a seed out of chunks (hills, pits, bunkers, towers, caves, platforms, trap fields, acid pools) in six biomes. Level 1 is short; each level, and the total time played, pushes the exit further away.
 - **Bosses:** every 5th level has a fixed-length approach and a locked arena: IRON HOG (tank), HORNET GUNSHIP, THE BURROWER (drill worm). Each enrages at half health.
-- **Destruction:** only explosions (rockets, grenades, C4, barrels, mines, boss shells) break terrain. Unsupported chunks fall and crush what is below.
+- **Destruction:** only explosions (rockets, grenades, C4, barrels, mines, boss shells) break terrain. Unsupported chunks fall and crush what is below. Blasts also tear down the back walls of houses, and ladders that lose their hold break off.
 - **Enemies:** grunts, riot shields (block bullets from the front), snipers (laser warning), suicide bombers, dogs, drones, heavies. They alert each other.
 - **Traps:** spikes, landmines, flame jets, saw blades, acid, crushers, crumbling platforms, explosive barrels.
 - **Items:** shotgun, flamer, rocket launcher, minigun, grenades, C4, armor, speed, health, ammo, extra life. Cages hold prisoners: free them for +1 life.
