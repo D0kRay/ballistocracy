@@ -46,11 +46,9 @@ export interface Level {
   arena: { x0: number; x1: number; doorCol: number; floorRow: number } | null;
 }
 
-const H = LEVEL_H_TILES;
-const MIN_G = 10;
-const MAX_G = 16;
+const BASE_H = LEVEL_H_TILES;
 
-type Chunk = 'flat' | 'pit' | 'bunker' | 'tower' | 'hill' | 'cave' | 'platforms' | 'traps' | 'acid' | 'village' | 'temple' | 'ruin' | 'scaffold' | 'bridge' | 'cliff';
+type Chunk = 'flat' | 'pit' | 'bunker' | 'tower' | 'hill' | 'cave' | 'platforms' | 'traps' | 'acid' | 'village' | 'temple' | 'ruin' | 'scaffold' | 'bridge' | 'cliff' | 'islands';
 
 export interface SceneSpawn {
   type: string; // see gfx/scenery
@@ -64,7 +62,13 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
   const plan = planLevel(levelNo, seed, totalPlaySec);
   const rng = new Rng(seed);
   const arenaW = Math.round(VIEW_W / TILE);
-  const W = plan.isBoss ? plan.lengthTiles + arenaW : plan.lengthTiles;
+  const FINALE = 48; // columns for the sky finale
+  const W = plan.isBoss ? plan.lengthTiles + arenaW : plan.lengthTiles + (plan.skyExit ? FINALE - 12 : 0);
+  const H = plan.height ?? BASE_H;
+  const OFF = H - BASE_H; // tall levels keep the ground near the bottom
+  const MIN_G = 10 + OFF;
+  const MAX_G = 16 + OFF;
+  const clampG = (v: number) => Math.max(MIN_G, Math.min(MAX_G, v));
   const grid = new Grid(W, H);
   const back = new Uint8Array(W * H);
   const setBack = (x0: number, y0: number, x1: number, y1: number, v: number) => {
@@ -79,7 +83,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
   const scene = (type: string, col: number, row: number, dx = 0) => scenery.push({ type, x: col * TILE + 8 + dx, y: row * TILE, flip: rng.chance(0.5) });
   const roofStyle = biome === 'snow' ? 'roof_snow' : biome === 'desert' ? 'roof_tent' : 'roof_thatch';
 
-  let g = 14; // current surface row
+  let g = 14 + OFF; // current surface row
 
   const ground = (x: number, surf: number, mat: number = T.DIRT) => {
     for (let y = surf; y < H - 1; y++) grid.init(x, y, mat);
@@ -442,6 +446,23 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
       if (rng.chance(0.5)) enemyAt(x + 2 + Math.floor(gap / 2), g);
       return len;
     },
+    islands: (x, maxW) => {
+      const len = Math.min(maxW, rng.int(13, 17));
+      if (len < 12) return build.flat(x, maxW);
+      ground(x, g);
+      ground(x + 1, g);
+      ground(x + len - 2, g);
+      ground(x + len - 1, g);
+      let ix = x + 3;
+      while (ix + 3 < x + len - 2) {
+        const w = rng.int(3, 4);
+        const iy = clampG(g - rng.int(1, 4));
+        island(ix, iy, w);
+        if (rng.chance(0.4)) enemyAt(ix + 1, iy);
+        ix += w + rng.int(1, 2);
+      }
+      return len;
+    },
     cliff: (x, maxW) => {
       const len = Math.min(maxW, rng.int(9, 12));
       if (len < 9) return build.flat(x, maxW);
@@ -461,13 +482,88 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     },
   };
 
+  /** floating island: grassy dirt on top, tapering rock underneath, anchored core */
+  const island = (x0: number, y: number, w: number) => {
+    for (let i = 0; i < w; i++) {
+      grid.init(x0 + i, y, T.DIRT);
+      grid.init(x0 + i, y + 1, T.DIRT);
+    }
+    for (let i = 1; i < w - 1; i++) grid.init(x0 + i, y + 2, i === 1 || i === w - 2 ? T.DIRT : T.STONE);
+    for (let i = 2; i < w - 2; i++) grid.init(x0 + i, y + 3, T.STONE);
+    grid.markAnchor(x0 + Math.floor(w / 2), y + 1);
+  };
+
+  /** last section: a high-rise and a staircase of floating islands up to the chopper on the roof */
+  const buildSkyFinale = (x0: number) => {
+    for (let cx = x0; cx < W; cx++) ground(cx, g);
+    const tw = 9;
+    const tx0 = W - tw - 3;
+    const tx1 = tx0 + tw - 1;
+    const top = 8; // roof row: the hovering chopper stays on screen
+    const floors: number[] = [];
+    for (let fy = g - 4; fy - 4 >= top; fy -= 4) floors.push(fy);
+    const lastFloor = floors.length ? floors[floors.length - 1] : g;
+    // shell
+    fill(tx0, top, tx0, g - 1, T.BRICK);
+    fill(tx1, top, tx1, g - 1, T.BRICK);
+    setBack(tx0, top, tx1, g - 1, 2);
+    fill(tx0, g - 2, tx0, g - 1, T.EMPTY);
+    fill(tx1, g - 2, tx1, g - 1, T.EMPTY);
+    floors.forEach((fy, k) => {
+      fill(tx0, fy, tx1, fy, T.BRICK);
+      const hole = k % 2 === 0 ? tx1 - 2 : tx0 + 1;
+      fill(hole, fy, hole + 1, fy, T.EMPTY);
+      fill(hole, fy, hole, fy + 3, T.LADDER);
+      for (const wx of [tx0 + 2, tx0 + 5]) back[(fy - 2) * W + wx] = 3;
+      fill(tx0, fy - 2, tx0, fy - 2, T.EMPTY); // gun slits
+      fill(tx1, fy - 2, tx1, fy - 2, T.EMPTY);
+      const types: EnemyType[] = k < 2 ? ['grunt'] : ['grunt', 'sniper', 'heavy', 'shield'].filter((t) => plan.enemyTypes.includes(t as EnemyType)) as EnemyType[];
+      enemyAt(rng.int(tx0 + 2, tx1 - 2), fy, rng.pick(types.length ? types : ['grunt']));
+      if (rng.chance(0.5)) enemyAt(rng.int(tx0 + 2, tx1 - 2), fy);
+      if (rng.chance(0.35)) propAt('barrel', rng.int(tx0 + 2, tx1 - 2), fy);
+    });
+    enemyAt(tx0 + 3, g);
+    // roof with a hatch from the top floor
+    fill(tx0 - 1, top, tx1 + 1, top, T.BRICK);
+    const hatch = floors.length % 2 === 0 ? tx1 - 2 : tx0 + 1;
+    fill(hatch, top, hatch, lastFloor - 1, T.LADDER);
+    grid.init(tx0 - 1, top - 1, T.SANDBAG);
+    grid.init(tx1 + 1, top - 1, T.SANDBAG);
+    scene('enemyflag', tx1, top);
+    enemyAt(tx0 + 2, top, plan.enemyTypes.includes('sniper') ? 'sniper' : 'grunt');
+    props.push({ type: 'exit', variant: 'chopper', x: (tx0 + 4) * TILE - 4, y: top * TILE - 48, w: 24, h: 48 });
+    // floating islands climbing towards the roof (an alternative, riskier route)
+    let ix = x0 + 2;
+    let iy = g - 4;
+    let lastIsland: [number, number, number] | null = null;
+    while (iy > top + 1 && ix < tx0 - 6) {
+      const w = rng.int(4, 6);
+      island(ix, iy, w);
+      if (rng.chance(0.55)) enemyAt(ix + Math.floor(w / 2), iy, rng.chance(0.25) && plan.enemyTypes.includes('dog') ? 'dog' : 'grunt');
+      if (rng.chance(0.25)) propAt(rng.chance(0.5) ? 'crate' : 'barrel', ix + 1, iy, { item: randomItem(rng) });
+      if (rng.chance(0.3)) scene(biome === 'snow' ? 'pine_small' : biome === 'desert' ? 'cactus' : biome === 'city' || biome === 'industrial' ? 'lamp' : 'palm', ix + w - 2, iy);
+      lastIsland = [ix, iy, w];
+      ix += w + rng.int(1, 2);
+      iy -= rng.int(2, 3);
+    }
+    // bridge from the highest island over to the roof
+    if (lastIsland) {
+      const [lx, ly, lw] = lastIsland;
+      const by = Math.max(top, ly);
+      fill(lx + lw, by, tx0 - 2, by, T.PLATFORM);
+      if (by > top) fill(tx0 - 2, top, tx0 - 2, by - 1, T.LADDER);
+    }
+    // a drone or two guarding the sky
+    if (plan.enemyTypes.includes('drone')) enemyAt(x0 + 14, top + 2, 'drone');
+  };
+
   // ---------- assemble ----------
   const startLen = 8;
   for (let i = 0; i < startLen; i++) ground(i, g);
   const spawn = { x: 3 * TILE, y: (g - 1) * TILE - 4 };
   propAt('crate', 6, g, { item: 'grenade' });
 
-  const runEnd = plan.isBoss ? plan.lengthTiles - 4 : W - 12;
+  const runEnd = plan.isBoss ? plan.lengthTiles - 4 : plan.skyExit ? W - FINALE : W - 12;
   let x = startLen;
   const weights: (readonly [Chunk, number])[] = [
     ['flat', 2.2],
@@ -485,6 +581,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     ['scaffold', biome === 'industrial' ? 3 : biome === 'city' ? 0.8 : 0],
     ['bridge', biome === 'jungle' || biome === 'snow' || biome === 'volcano' ? 1.2 : 0.5],
     ['cliff', 1.8],
+    ['islands', plan.skyExit ? 1.6 : 0.8],
   ];
   let last: Chunk | null = null;
   while (x < runEnd) {
@@ -504,7 +601,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     // approach + arena with metal walls; door gets sealed when the fight starts
     for (; x < plan.lengthTiles; x++) ground(x, g);
     const a0 = plan.lengthTiles;
-    const floor = plan.bossType === 'drill' ? 12 : 14;
+    const floor = (plan.bossType === 'drill' ? 12 : 14) + OFF;
     for (let i = 0; i < arenaW; i++) ground(a0 + i, floor);
     const doorCol = a0 - 1;
     // metal wall above a 3-tile door; rows g-3..g-1 get sealed when the fight starts
@@ -512,6 +609,8 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     arena = { x0: a0 * TILE, x1: (a0 + arenaW) * TILE, doorCol, floorRow: g };
     pickups.push({ item: 'rocket', x: (a0 - 5) * TILE, y: (g - 1) * TILE });
     pickups.push({ item: 'armor', x: (a0 - 7) * TILE, y: (g - 1) * TILE });
+  } else if (plan.skyExit) {
+    buildSkyFinale(x);
   } else {
     for (; x < W; x++) ground(x, g);
     // extraction vehicle: everybody has to get on board
@@ -615,9 +714,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
   return { plan, grid, back, spawn, enemies, props, pickups, scenery, arena };
 }
 
-function clampG(v: number): number {
-  return Math.max(MIN_G, Math.min(MAX_G, v));
-}
+
 
 export function randomItem(rng: Rng): ItemId {
   return rng.weighted<ItemId>([

@@ -7,6 +7,8 @@ export class Grid {
   readonly h: number;
   readonly tiles: Uint8Array;
   readonly dmg: Float32Array;
+  /** cells that hold the terrain around them up (floating islands' hidden cores) */
+  readonly anchors: Uint8Array;
   private dirty: number[] = [];
 
   constructor(w: number, h: number) {
@@ -14,6 +16,11 @@ export class Grid {
     this.h = h;
     this.tiles = new Uint8Array(w * h);
     this.dmg = new Float32Array(w * h);
+    this.anchors = new Uint8Array(w * h);
+  }
+
+  markAnchor(x: number, y: number): void {
+    if (this.inBounds(x, y)) this.anchors[y * this.w + x] = 1;
   }
 
   inBounds(x: number, y: number): boolean {
@@ -124,7 +131,7 @@ export class Grid {
       for (let x = x0; x <= x1; x++) {
         if (!filled(x, y)) continue;
         const border = (x === x0 && x0 > 0) || (x === x1 && x1 < this.w - 1) || y === y0 || y === y1;
-        if (border || isAnchor(this.get(x, y))) {
+        if (border || isAnchor(this.get(x, y)) || this.anchors[y * this.w + x]) {
           const k = (y - y0) * bw + (x - x0);
           if (!seen[k]) {
             seen[k] = 1;

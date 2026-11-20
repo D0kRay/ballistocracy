@@ -180,7 +180,7 @@ export class EditorScene extends Phaser.Scene {
     if (p.y > VIEW_H - BAR_H) return null;
     const cx = Math.floor((p.x + this.world.cam.x) / TILE);
     const cy = Math.floor((p.y + this.world.cam.y) / TILE);
-    if (cx < 0 || cy < 0 || cx >= this.file.width || cy >= LEVEL_H_TILES) return null;
+    if (cx < 0 || cy < 0 || cx >= this.file.width || cy >= this.file.height) return null;
     return { cx, cy };
   }
 
@@ -382,7 +382,7 @@ export class EditorScene extends Phaser.Scene {
     const f = this.serialize();
     const old = f.width;
     if (w === old) return;
-    f.tiles = f.tiles.map((r, y) => (w > old ? r + (y === LEVEL_H_TILES - 1 ? 'x' : r[old - 1] === '.' ? '.' : r[old - 1]).repeat(w - old) : r.slice(0, w)));
+    f.tiles = f.tiles.map((r, y) => (w > old ? r + (y === f.height - 1 ? 'x' : r[old - 1] === '.' ? '.' : r[old - 1]).repeat(w - old) : r.slice(0, w)));
     f.back = (f.back ?? []).map((r) => (w > old ? r + r[old - 1].repeat(w - old) : r.slice(0, w)));
     f.width = w;
     f.entities = f.entities.filter((e) => e.x < w);

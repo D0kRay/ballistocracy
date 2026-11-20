@@ -27,7 +27,9 @@ Every file there shows up in the game under **Community levels**.
 4. Open a pull request. CI runs the same checks.
 
 ## Level rules
-- Height is fixed at 20 tiles, width 40 to 1000.
+- Height 20 to 48 tiles (taller levels allow sky finales: high-rises, floating islands), width 40 to 1000.
+- Floating terrain collapses when hit by explosions unless it has an anchor: list cells in `"anchors": [[x, y], ...]`. If the anchor tile is destroyed, the island falls.
+- A chopper exit must sit at row 6 or lower (it hovers above its spot).
 - The player spawns on a solid tile with two free tiles above it.
 - Normal levels need exactly one exit vehicle. Boss levels need width >= 60 and get their extraction automatically.
 - Keep at least the bottom row as bedrock (`x`) where there is ground, otherwise players can dig out of the map.
@@ -40,7 +42,7 @@ Every file there shows up in the game under **Community levels**.
   "name": "BURNING BRIDGE", "author": "you", "description": "optional",
   "biome": "jungle",            // jungle | desert | snow | city | industrial | volcano
   "tod": "dusk",                // day | dusk | night
-  "width": 120, "height": 20,
+  "width": 120, "height": 20,   // height 20..48
   "tiles": ["....", "..."],     // 20 rows; . empty d dirt s rock b block w wood m metal x bedrock l ladder g sandbag p platform c crumbling
   "back":  ["....", "..."],     // optional: . sky d earth wall s stone wall W window w wood wall
   "spawn": { "x": 3, "y": 14 }, // tile column, ground row under the player

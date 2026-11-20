@@ -19,6 +19,8 @@ export interface LevelPlan {
   trapRate: number; // 0..1
   tod: TimeOfDay;
   name?: string; // set for hand-made levels
+  height: number; // tiles
+  skyExit: boolean; // finale: climb a high-rise / floating islands to a chopper on the roof
 }
 
 export const BOSS_ORDER: readonly BossType[] = ['tank', 'gunship', 'drill'];
@@ -47,7 +49,7 @@ export function planLevel(level: number, seed: number, totalPlaySec: number): Le
   if (level >= 7) types.push('heavy');
 
   const biome = level === 1 ? 'jungle' : rng.pick(BIOMES).id;
-  return {
+  const plan: LevelPlan = {
     level,
     seed,
     biome,
@@ -58,8 +60,15 @@ export function planLevel(level: number, seed: number, totalPlaySec: number): Le
     enemyTypes: types,
     enemyDensity: Math.min(4.5, 0.9 + level * 0.28),
     trapRate: Math.min(0.75, 0.08 + level * 0.06),
+    height: 20,
+    skyExit: false,
     tod: level === 1 ? 'day' : rng.weighted<TimeOfDay>(
       biome === 'city' || biome === 'volcano' ? [['day', 1], ['dusk', 2], ['night', 3]] : [['day', 3], ['dusk', 2], ['night', 1.5]],
     ),
   };
+  if (!isBoss && level >= 2 && rng.chance(0.45)) {
+    plan.skyExit = true;
+    plan.height = 34;
+  }
+  return plan;
 }

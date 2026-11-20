@@ -59,6 +59,7 @@ export interface LevelFile {
   exit: { x: number; y: number; vehicle: (typeof VEHICLES)[number] } | null;
   boss: { type: BossType } | null; // arena = the last ARENA_W columns
   entities: LevelEntity[];
+  anchors?: [number, number][]; // cells that keep floating terrain from collapsing
 }
 
 const TOD: readonly TimeOfDay[] = ['day', 'dusk', 'night'];
@@ -88,10 +89,11 @@ export function validateLevel(raw: unknown): Validation {
   if (!TOD.includes(d.tod as TimeOfDay)) fail('tod must be day, dusk or night');
   const W = d.width ?? 0;
   if (!Number.isInteger(W) || W < 40 || W > 1000) fail('width: integer 40..1000');
-  if (d.height !== LEVEL_H_TILES) fail(`height must be ${LEVEL_H_TILES}`);
+  const HH = d.height ?? 0;
+  if (!Number.isInteger(HH) || HH < LEVEL_H_TILES || HH > 48) fail(`height: integer ${LEVEL_H_TILES}..48`);
   const rowsOk = (rows: unknown, chars: Record<string, number>, label: string) => {
-    if (!Array.isArray(rows) || rows.length !== LEVEL_H_TILES) {
-      fail(`${label}: needs ${LEVEL_H_TILES} rows`);
+    if (!Array.isArray(rows) || rows.length !== HH) {
+      fail(`${label}: needs ${HH} rows (= height)`);
       return false;
     }
     let ok = true;
@@ -113,9 +115,9 @@ export function validateLevel(raw: unknown): Validation {
   if (d.back !== undefined) rowsOk(d.back, BACK_CHARS, 'back');
   if (errors.length) return { ok: false, errors, warnings };
 
-  const tile = (x: number, y: number) => (x < 0 || x >= W ? T.METAL : y < 0 || y >= LEVEL_H_TILES ? T.EMPTY : TILE_CHARS[d.tiles![y][x]]);
+  const tile = (x: number, y: number) => (x < 0 || x >= W ? T.METAL : y < 0 || y >= HH ? T.EMPTY : TILE_CHARS[d.tiles![y][x]]);
   const standable = (x: number, y: number) => isSolid(tile(x, y)) || isOneWay(tile(x, y));
-  const inB = (x: number, y: number) => Number.isFinite(x) && Number.isFinite(y) && x >= 0 && x < W && y >= 0 && y <= LEVEL_H_TILES;
+  const inB = (x: number, y: number) => Number.isFinite(x) && Number.isFinite(y) && x >= 0 && x < W && y >= 0 && y <= HH;
 
   const sp = d.spawn;
   if (!sp || !inB(sp.x, sp.y)) fail('spawn: missing or out of bounds');
@@ -137,8 +139,10 @@ export function validateLevel(raw: unknown): Validation {
       else if (!standable(ex.x, ex.y)) fail('exit: must stand on ground');
       const span = ex.vehicle === 'plane' ? 8 : ex.vehicle === 'truck' ? 4 : 1;
       if (ex.x + span > W) fail('exit: vehicle does not fit inside the level');
+      if (ex.vehicle === 'chopper' && ex.y < 6) fail('exit: a chopper needs to sit at row 6 or lower (it hovers above)');
     }
   }
+  if (d.anchors !== undefined && (!Array.isArray(d.anchors) || d.anchors.some((a) => !Array.isArray(a) || !inB(a[0], a[1])))) fail('anchors: list of [x, y] inside the level');
   if (!Array.isArray(d.entities)) fail('entities: must be an array');
   else {
     if (d.entities.length > 800) fail('entities: at most 800');
@@ -165,7 +169,7 @@ export function validateLevel(raw: unknown): Validation {
   }
   if (tilesOk) {
     let noFloor = 0;
-    for (let x = 0; x < W; x++) if (tile(x, LEVEL_H_TILES - 1) !== T.BEDROCK && tile(x, LEVEL_H_TILES - 1) !== T.METAL) noFloor++;
+    for (let x = 0; x < W; x++) if (tile(x, HH - 1) !== T.BEDROCK && tile(x, HH - 1) !== T.METAL) noFloor++;
     if (noFloor > W * 0.4) warnings.push(`${noFloor} columns have no bedrock floor (pits are fine, but players can dig through)`);
   }
   return { ok: errors.length === 0, errors, warnings };
@@ -181,11 +185,12 @@ function hashString(s: string): number {
 /** turn a (validated) level file into the runtime Level used by the simulation */
 export function levelFromFile(f: LevelFile): Level {
   const W = f.width;
-  const H = LEVEL_H_TILES;
+  const H = f.height;
   const grid = new Grid(W, H);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) grid.init(x, y, TILE_CHARS[f.tiles[y][x]] ?? T.EMPTY);
   const back = new Uint8Array(W * H);
   if (f.back) for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) back[y * W + x] = BACK_CHARS[f.back[y][x]] ?? 0;
+  for (const [ax, ay] of f.anchors ?? []) grid.markAnchor(ax, ay);
 
   const plan: LevelPlan = {
     level: 0,
@@ -200,6 +205,8 @@ export function levelFromFile(f: LevelFile): Level {
     trapRate: 0,
     tod: f.tod,
     name: f.name,
+    height: H,
+    skyExit: false,
   };
   const level: Level = {
     plan,
@@ -281,6 +288,8 @@ export function levelToFile(level: Level, meta: { name: string; author: string }
     if (s.h) e.h = s.h / TILE;
     entities.push(e);
   }
+  const anchors: [number, number][] = [];
+  for (let i = 0; i < g.anchors.length; i++) if (g.anchors[i]) anchors.push([i % g.w, Math.floor(i / g.w)]);
   for (const e of entities) {
     e.x = Math.max(0, Math.min(g.w - 1, e.x));
     e.y = Math.max(1, Math.min(g.h, e.y));
@@ -300,6 +309,7 @@ export function levelToFile(level: Level, meta: { name: string; author: string }
     exit: level.arena ? null : exit,
     boss: level.plan.bossType ? { type: level.plan.bossType } : null,
     entities,
+    ...(anchors.length ? { anchors } : {}),
   };
 }
 

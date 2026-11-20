@@ -65,14 +65,19 @@ export function computeCamera(
     const target = (minPY + maxPY) / 2 - viewH * 0.55;
     if (lo <= hi) {
       y = prev.y + (clamp(target, lo, hi) - prev.y) * 0.12;
+      y = clamp(y, lo, hi); // never let a climber leave the top of the screen
     }
   }
   y = clamp(y, 0, maxY);
   return { x, y };
 }
 
-/** keep a player body horizontally inside the camera view */
-export function clampToView(p: Box & { vx: number }, cam: Cam, viewW: number): void {
+/** keep a player body inside the camera view (sides and top; falling out of the bottom is allowed) */
+export function clampToView(p: Box & { vx: number; vy?: number }, cam: Cam, viewW: number): void {
+  if (p.y < cam.y + 2 && cam.y > 0) {
+    p.y = cam.y + 2;
+    if (p.vy !== undefined && p.vy < 0) p.vy = 0;
+  }
   const left = cam.x + 2;
   const right = cam.x + viewW - 2 - p.w;
   if (p.x < left) {

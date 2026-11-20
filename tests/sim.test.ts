@@ -215,3 +215,27 @@ describe('intro and extraction', () => {
     expect(w.status).toBe('complete');
   });
 });
+
+describe('sky finale', () => {
+  it('tall levels end with a chopper on a high roof and anchored floating islands', () => {
+    let found = 0;
+    for (let seed = 1; seed < 200 && found < 3; seed++) {
+      const lvl = generateLevel(4, seed, 0);
+      if (!lvl.plan.skyExit) continue;
+      found++;
+      expect(lvl.grid.h).toBe(34);
+      const exit = lvl.props.find((p) => p.type === 'exit')!;
+      expect(exit.variant).toBe('chopper');
+      expect((exit.y + exit.h) / TILE).toBeLessThan(12); // up in the sky
+      expect(Array.from(lvl.grid.anchors).some((a) => a === 1)).toBe(true);
+      // an explosion next to an island must not drop the whole island
+      const w = skipIntro(new World(lvl, [{ pid: 0, hero: 0, name: 'A' }]));
+      const i = Array.from(lvl.grid.anchors).indexOf(1);
+      const ax = i % lvl.grid.w;
+      const ay = Math.floor(i / lvl.grid.w);
+      w.explode((ax - 2) * TILE, (ay - 2) * TILE, 14, 1, 'p');
+      expect(w.grid.get(ax, ay)).not.toBe(T.EMPTY);
+    }
+    expect(found).toBeGreaterThan(0);
+  });
+});
