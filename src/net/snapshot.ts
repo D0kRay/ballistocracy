@@ -59,7 +59,7 @@ export function makeSnapshot(w: World, events: GameEvent[], tiles: number[], ack
       p.id, p.pid, p.hero, r1(p.x), r1(p.y), r1(p.vx), r1(p.vy), p.facing,
       (p.alive ? 1 : 0) | (p.onGround ? 2 : 0) | (p.climbing ? 4 : 0) | (p.connected ? 8 : 0) | (p.inVehicle ? 16 : 0),
       p.hp, p.armor, r1(p.inv), WEAPON_IDS.indexOf(p.weapon), Number.isFinite(p.ammo) ? p.ammo : -1,
-      SPECIAL_IDS.indexOf(p.special), p.specialCount, Number.isFinite(p.respawnT) ? r1(p.respawnT) : -1, r1(p.speedT),
+      SPECIAL_IDS.indexOf(p.special), p.specialCount, Number.isFinite(p.respawnT) ? r1(p.respawnT) : -1, r1(p.speedT), Math.round(p.aim * 100) / 100,
     ]),
     e: w.enemies.filter((e) => near(e.x)).map((e) => [
       e.id, ENEMY_IDS.indexOf(e.type), r1(e.x), r1(e.y), r1(e.vx), e.facing, ESTATES.indexOf(e.state), e.hurtT > 0 ? 1 : 0, e.onGround ? 1 : 0, e.w, e.h,
@@ -97,7 +97,7 @@ export function applySnapshot(w: World, s: Snap): void {
     p.alive = (a[8] & 1) !== 0; p.onGround = (a[8] & 2) !== 0; p.climbing = (a[8] & 4) !== 0; p.connected = (a[8] & 8) !== 0; p.inVehicle = (a[8] & 16) !== 0;
     p.hp = a[9]; p.armor = a[10]; p.inv = a[11]; p.weapon = WEAPON_IDS[a[12]] ?? 'rifle'; p.ammo = a[13] < 0 ? Infinity : a[13];
     p.special = SPECIAL_IDS[a[14]] ?? 'grenade'; p.specialCount = a[15];
-    p.base = HERO_LOADOUT[p.hero % 4].weapon; p.respawnT = a[16] < 0 ? Infinity : a[16]; p.speedT = a[17];
+    p.base = HERO_LOADOUT[p.hero % 4].weapon; p.respawnT = a[16] < 0 ? Infinity : a[16]; p.speedT = a[17]; p.aim = a[18] ?? 0;
     if (Math.abs(p.x - prevX) > 0.01) p.animT += 0.05;
     return p;
   });

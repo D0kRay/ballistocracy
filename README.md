@@ -25,6 +25,10 @@ npm run build    # static build in dist/
 
 `Esc` pause/quit, `P` pause, `M` music, `N` mute. Down+Jump drops through wooden platforms.
 
+**Mouse:** the keyboard player (Keyboard A, else B) aims with the mouse: left click fires, right click throws a grenade toward the cursor, middle click picks up or throws a weapon. Pressing the keyboard fire key switches back to keyboard aiming.
+
+**Saving:** progress is stored in your browser (localStorage). After each cleared level the menu offers **Continue level N** and **Host online level N**. Online guests save the level they reached too, as long as it is beyond their own progress.
+
 ### Local co-op
 Start a mission, then every player presses Jump/Fire on their own keyboard half or gamepad in the lobby. Enter/Start deploys.
 

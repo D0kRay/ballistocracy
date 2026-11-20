@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { computeCamera, clampToView } from '../src/camera/coopCamera';
 import { DT, TILE, VIEW_H, VIEW_W } from '../src/config';
-import { IN } from '../src/core/input';
+import { IN, aimAngle, withAim } from '../src/core/input';
 import { Rng } from '../src/core/rng';
 import { planLevel, targetSeconds } from '../src/progress/difficulty';
 import { World } from '../src/sim/World';
@@ -237,5 +237,33 @@ describe('sky finale', () => {
       expect(w.grid.get(ax, ay)).not.toBe(T.EMPTY);
     }
     expect(found).toBeGreaterThan(0);
+  });
+});
+
+describe('mouse aim', () => {
+  it('encodes the angle in the input bits', () => {
+    expect(aimAngle(IN.FIRE)).toBeNull();
+    for (const a of [0, 1, -1, 2.5, -2.5]) {
+      const b = withAim(IN.FIRE | IN.LEFT, a);
+      expect(b & IN.FIRE).toBeTruthy();
+      expect(b & IN.LEFT).toBeTruthy();
+      const back = aimAngle(b)!;
+      expect(Math.abs(Math.atan2(Math.sin(back - a), Math.cos(back - a)))).toBeLessThan(0.03);
+    }
+  });
+
+  it('shoots where the mouse points and turns the player', () => {
+    const lvl = generateLevel(1, 5, 0);
+    const w = skipIntro(new World(lvl, [{ pid: 0, hero: 0, name: 'A' }], 9));
+    for (let i = 0; i < 30; i++) w.step(DT, new Map([[0, 0]]));
+    const p = w.players[0];
+    const before = new Set(w.projectiles.map((x) => x.id));
+    // aim up-left (screen y grows downwards)
+    w.step(DT, new Map([[0, withAim(IN.FIRE, Math.atan2(-1, -1))]]));
+    expect(p.facing).toBe(-1);
+    const shot = w.projectiles.find((x) => !before.has(x.id) && x.ownerId === p.id)!;
+    expect(shot).toBeTruthy();
+    expect(shot.vx).toBeLessThan(0);
+    expect(shot.vy).toBeLessThan(0);
   });
 });

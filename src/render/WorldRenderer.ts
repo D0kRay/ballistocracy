@@ -415,7 +415,7 @@ export class WorldRenderer {
         this.lights.push({ x: e.x, y: e.y, r: 14, c: 0xffe0a0, a: 0.5 });
         break;
       case 'muzzle': {
-        const m = this.scene.add.sprite(e.x + e.d * 3, e.y, 'muzzle', Math.random() < 0.5 ? 0 : 1).setDepth(15).setFlipX(e.d < 0);
+        const m = this.scene.add.sprite(e.x + e.d * 3, e.y, 'muzzle', Math.random() < 0.5 ? 0 : 1).setDepth(15).setFlipX(e.d < 0).setRotation((e.r ?? 0) * e.d);
         this.scene.time.delayedCall(40, () => m.destroy());
         this.lights.push({ x: e.x + e.d * 4, y: e.y, r: 34, c: 0xffd070, a: 0.8 });
         this.parts.push({ x: e.x - e.d * 6, y: e.y - 1, vx: -e.d * 50, vy: -80, life: 0.6, max: 0.6, c: 0xd8b040, s: 1, g: 520, grow: 0 });
@@ -652,7 +652,7 @@ export class WorldRenderer {
     }
   }
 
-  private weaponSprite(id: number, name: string, bodyX: number, bodyY: number, frame: number, facing: number, depth: number, recoil: number): void {
+  private weaponSprite(id: number, name: string, bodyX: number, bodyY: number, frame: number, facing: number, depth: number, recoil: number, pitch = 0): void {
     const hand = HAND[frame];
     const key = `w_${name}`;
     const a = WEAPON_ANCHOR[name];
@@ -663,6 +663,7 @@ export class WorldRenderer {
     const hy = hand.y - CHAR_H;
     ws.setOrigin(facing > 0 ? a.gx / a.w : 1 - a.gx / a.w, a.gy / a.h);
     ws.setFlipX(facing < 0).setPosition(Math.round(bodyX + hx - recoil * facing), Math.round(bodyY + hy));
+    ws.setRotation(pitch * facing);
   }
 
   private drawEnemies(dt: number, remote: boolean): void {
@@ -772,7 +773,7 @@ export class WorldRenderer {
       if (p.armor > 0) s.setTint(0xb0c8ff);
       else if (p.speedT > 0) s.setTint(0xb0ffff);
       else s.clearTint();
-      this.weaponSprite(p.id * 1000 + 1, p.weapon, bx, by, f, facing, 12.5, p.firingT > 0.08 ? 1 : 0);
+      this.weaponSprite(p.id * 1000 + 1, p.weapon, bx, by, f, facing, 12.5, p.firingT > 0.08 ? 1 : 0, p.climbing || wallCling ? 0 : p.aim);
       const ws = this.sprites.get(p.id * 1000 + 1);
       if (ws) ws.setVisible(visible);
       let lb = this.labels.get(p.id);

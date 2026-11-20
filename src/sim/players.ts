@@ -1,6 +1,6 @@
 import { CLIMB_SPEED, GRAVITY, JUMP_VEL, MAX_FALL, RUN_SPEED, TILE, WALL_SLIDE } from '../config';
 import type { ItemId } from '../world/LevelGen';
-import { IN, has, pressed } from '../core/input';
+import { IN, aimAngle, has, pressed } from '../core/input';
 import { T, isOneWay } from '../world/tiles';
 import { moveBody, overlap } from './physics';
 import type { Player } from './types';
@@ -93,6 +93,15 @@ function steer(w: World, p: Player, dt: number, fx: boolean): boolean {
     if (!has(b, IN.JUMP) && p.vy < -140 && !touchingWall) p.vy *= 0.6; // variable jump height
   }
   if (move !== 0 && p.wallJumpT <= 0) p.facing = move;
+  // mouse aim: face the cursor, weapon pitch follows it
+  const a = aimAngle(b);
+  if (a === null) p.aim = 0;
+  else {
+    const cx = Math.cos(a);
+    const sy = Math.sin(a);
+    if (Math.abs(cx) > 0.05) p.facing = cx > 0 ? 1 : -1;
+    p.aim = Math.atan2(sy, Math.abs(cx));
+  }
   return dropThrough;
 }
 
@@ -107,18 +116,21 @@ function actions(w: World, p: Player): void {
   if (has(b, IN.FIRE) && p.fireCd <= 0 && !p.climbing) {
     p.fireCd = wd.rate;
     p.firingT = 0.15;
-    const mx = p.x + p.w / 2 + p.facing * 8;
-    const my = p.y + 7;
+    const mx = p.x + p.w / 2 + p.facing * Math.cos(p.aim) * 8;
+    const my = p.y + 7 + Math.sin(p.aim) * 8;
     for (let i = 0; i < wd.pellets; i++) {
-      const a = (w.rng.next() - 0.5) * wd.spread * 2;
+      const a = p.aim + (w.rng.next() - 0.5) * wd.spread * 2;
       const sp = wd.speed * (wd.pellets > 1 ? w.rng.range(0.8, 1.1) : 1);
       const vx = Math.cos(a) * sp * p.facing;
       const vy = Math.sin(a) * sp;
       w.spawnProjectile(wd.proj, mx, my, vx, vy, 'p', p.id, wd.dmg, wd.life * (wd.proj === 'flame' ? w.rng.range(0.8, 1.2) : 1));
     }
-    if (wd.proj !== 'flame') w.emit({ k: 'muzzle', x: mx, y: my, d: p.facing });
+    if (wd.proj !== 'flame') w.emit({ k: 'muzzle', x: mx, y: my, d: p.facing, r: p.aim });
     w.sfx(wd.sfx, p.x);
-    if (wd.kick && !p.onGround) p.vx -= p.facing * wd.kick;
+    if (wd.kick && !p.onGround) {
+      p.vx -= p.facing * Math.cos(p.aim) * wd.kick;
+      if (p.aim > 0.6) p.vy -= Math.sin(p.aim) * wd.kick; // rocket-jump when firing down
+    }
     else if (wd.kick) p.x -= p.facing * wd.kick * 0.02;
     if (Number.isFinite(p.ammo) && p.weapon !== p.base) {
       p.ammo--;
@@ -138,8 +150,9 @@ function actions(w: World, p: Player): void {
       w.sfx('beep', p.x);
     } else if (p.specialCount > 0) {
       p.specialCount--;
-      const throwVx = p.facing * (down ? 60 : 180) + p.vx * 0.4;
-      const throwVy = down ? -60 : up ? -300 : -190;
+      const aimed = aimAngle(b) !== null;
+      const throwVx = aimed ? p.facing * Math.cos(p.aim) * 230 + p.vx * 0.4 : p.facing * (down ? 60 : 180) + p.vx * 0.4;
+      const throwVy = aimed ? Math.sin(p.aim) * 230 - 90 : down ? -60 : up ? -300 : -190;
       if (p.special === 'grenade') {
         w.spawnProjectile('grenade', p.x + p.w / 2, p.y + 4, throwVx, throwVy, 'p', p.id, 5, 1.6);
       } else {
@@ -168,7 +181,7 @@ function actions(w: World, p: Player): void {
       w.sfx('pickup', p.x);
       w.text(p.x - 10, p.y - 8, ITEM_NAMES[pk.item], '#ffe040');
     } else if (p.weapon !== p.base) {
-      const t = w.spawnProjectile('thrown', p.x + p.w / 2, p.y + 4, p.facing * 260, -120, 'p', p.id, 4, 2);
+      const t = w.spawnProjectile('thrown', p.x + p.w / 2, p.y + 4, p.facing * Math.cos(p.aim) * 260, Math.sin(p.aim) * 260 - 120, 'p', p.id, 4, 2);
       t.item = p.weapon as ItemId;
       p.weapon = p.base;
       p.ammo = Infinity;

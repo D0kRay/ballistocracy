@@ -4,7 +4,10 @@ import { IN } from '../core/input';
 // action buttons on the right, plus START and PAUSE. Multi-touch via pointer events.
 
 export function isTouchDevice(): boolean {
-  return typeof window !== 'undefined' && (navigator.maxTouchPoints > 0 || 'ontouchstart' in window);
+  if (typeof window === 'undefined') return false;
+  // primary pointer decides: touchscreen laptops with a mouse keep the desktop controls
+  if (window.matchMedia) return window.matchMedia('(pointer: coarse)').matches;
+  return navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
 }
 
 interface Btn {

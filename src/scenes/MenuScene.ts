@@ -53,7 +53,7 @@ export class MenuScene extends Phaser.Scene {
     this.items = [
       { label: save.level > 1 ? `CONTINUE  LEVEL ${save.level}` : 'START MISSION', action: () => this.go('local', save.level) },
       { label: 'NEW CAMPAIGN', action: () => this.go('local', resetSave().level) },
-      { label: 'HOST ONLINE GAME', action: () => this.go('host', save.level) },
+      { label: save.level > 1 ? `HOST ONLINE  LEVEL ${save.level}` : 'HOST ONLINE GAME', action: () => this.go('host', save.level) },
       { label: 'JOIN ONLINE GAME', action: () => this.go('guest', 1) },
       { label: 'COMMUNITY LEVELS', action: () => this.scene.start('Levels') },
       { label: 'LEVEL EDITOR', action: () => this.scene.start('Editor', {}) },

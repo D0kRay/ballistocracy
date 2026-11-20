@@ -119,6 +119,7 @@ export class World {
       wallJumpT: 0,
       speedT: 0,
       firingT: 0,
+      aim: 0,
       animT: 0,
       bits: 0,
       prev: 0,

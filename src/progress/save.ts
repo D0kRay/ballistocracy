@@ -32,3 +32,9 @@ export function resetSave(): SaveData {
   writeSave(d);
   return d;
 }
+
+/** store the next campaign level reached (local, host and online guests) */
+export function recordProgress(level: number, total: number): void {
+  const s = loadSave();
+  writeSave({ level, best: Math.max(s.best, level), total });
+}

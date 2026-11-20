@@ -1,13 +1,13 @@
 import Phaser from 'phaser';
-import { DT, NET_SNAPSHOT_EVERY, VIEW_W } from '../config';
+import { DT, NET_SNAPSHOT_EVERY, VIEW_H, VIEW_W } from '../config';
 import { music } from '../audio/Music';
 import { playSfx, toggleMute } from '../audio/Sfx';
 import { getInput } from '../input/InputManager';
-import { IN } from '../core/input';
+import { IN, withAim } from '../core/input';
 import { getNet, setNet, type NetSession } from '../net/NetSession';
 import type { LobbyPlayer, Msg, StartData } from '../net/protocol';
 import { applySnapshot, makeSnapshot, type Snap } from '../net/snapshot';
-import { loadSave, writeSave } from '../progress/save';
+import { loadSave, recordProgress, writeSave } from '../progress/save';
 import { Hud } from '../render/Hud';
 import { WorldRenderer } from '../render/WorldRenderer';
 import type { GameEvent } from '../sim/types';
@@ -47,6 +47,8 @@ export class GameScene extends Phaser.Scene {
   private history: { seq: number; b: [number, number][] }[] = [];
   private acks = new Map<number, number>();
   private lastSnapAt = 0;
+  private mouseDevice: string | null = null;
+  private crosshair!: Phaser.GameObjects.Graphics;
 
   constructor() {
     super('Game');
@@ -108,8 +110,19 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    getInput().touch?.setVisible(true);
-    this.events.once('shutdown', () => getInput().touch?.setVisible(false));
+    const inp = getInput();
+    inp.touch?.setVisible(true);
+    // the mouse aims and shoots for the local keyboard player (keys A first, else keys B)
+    this.mouseDevice = this.localMap.some((l) => l.device === 'kbA') ? 'kbA' : this.localMap.some((l) => l.device === 'kbB') ? 'kbB' : null;
+    inp.mouseEnabled = !!this.mouseDevice;
+    this.crosshair = this.add.graphics().setScrollFactor(0).setDepth(210);
+    const canvas = this.game.canvas;
+    this.events.once('shutdown', () => {
+      inp.touch?.setVisible(false);
+      inp.mouseEnabled = false;
+      inp.mouseActive = false;
+      canvas.style.cursor = '';
+    });
     this.cameras.main.fadeIn(300);
     music.play(level.plan.isBoss ? 'boss' : 'level');
     this.hud.handle({
@@ -135,7 +148,11 @@ export class GameScene extends Phaser.Scene {
 
   private onGuestMsg(m: Msg): void {
     if (m.t === 'snap') this.snaps.push(m.s);
-    else if (m.t === 'start') this.scene.restart({ mode: 'guest', ...m.d });
+    else if (m.t === 'start') {
+      // guests keep the campaign progress too, so they can continue or host from there later
+      if (!m.d.custom && m.d.level > this.data0.level && m.d.level > loadSave().level) recordProgress(m.d.level, m.d.total);
+      this.scene.restart({ mode: 'guest', ...m.d });
+    }
     else if (m.t === 'gameover') this.scene.start('GameOver', { mode: 'guest', ...m.d, kills: this.world.kills, time: this.world.time });
     else if (m.t === 'menu') this.scene.start('Menu');
   }
@@ -164,7 +181,7 @@ export class GameScene extends Phaser.Scene {
       while (this.acc >= DT) {
         this.acc -= DT;
         this.seq++;
-        const b = this.localMap.map((l) => [l.pid, inp.bits(l.device)] as [number, number]);
+        const b = this.localMap.map((l) => [l.pid, this.devBits(l.device, l.pid)] as [number, number]);
         this.history.push({ seq: this.seq, b });
         if (this.history.length > 240) this.history.shift();
         this.net?.send({ t: 'in', s: this.seq, b });
@@ -185,7 +202,7 @@ export class GameScene extends Phaser.Scene {
       while (this.acc >= DT) {
         this.acc -= DT;
         const inputs = new Map<number, number>(this.remoteInputs);
-        for (const l of this.localMap) inputs.set(l.pid, inp.bits(l.device));
+        for (const l of this.localMap) inputs.set(l.pid, this.devBits(l.device, l.pid));
         this.world.step(DT, inputs);
         this.steps++;
         const evs = this.world.events;
@@ -207,8 +224,47 @@ export class GameScene extends Phaser.Scene {
       if (mode === 'host') this.hud.setStatus(`ONLINE  KEY ${this.net?.key ?? ''}  PEERS ${this.net?.peerCount ?? 0}`);
     }
 
+    this.drawCrosshair();
     this.view.update(dt, mode === 'guest', this.localPidSet);
     this.hud.update(this.world, dt);
+  }
+
+  /** device input plus mouse buttons and aim for the keyboard player */
+  private devBits(device: string, pid: number): number {
+    const inp = getInput();
+    let b = inp.bits(device);
+    if (device !== this.mouseDevice || !inp.mouseActive || this.paused) return b;
+    b |= inp.mouseBits();
+    const m = inp.mouseView(VIEW_W, VIEW_H);
+    const p = this.world.players.find((pl) => pl.pid === pid);
+    if (m && p && p.alive) {
+      const px = p.x + p.w / 2 - this.world.cam.x;
+      const py = p.y + 7 - this.world.cam.y;
+      b = withAim(b, Math.atan2(m.y - py, m.x - px));
+    }
+    return b;
+  }
+
+  private drawCrosshair(): void {
+    const inp = getInput();
+    const g = this.crosshair;
+    g.clear();
+    const on = !!this.mouseDevice && inp.mouseActive && !this.paused;
+    this.game.canvas.style.cursor = on ? 'none' : '';
+    if (!on) return;
+    const m = inp.mouseView(VIEW_W, VIEW_H);
+    if (!m) return;
+    const x = Math.round(m.x);
+    const y = Math.round(m.y);
+    const firing = (inp.mouseBits() & IN.FIRE) !== 0;
+    for (const [c, w] of [[0x000000, 3], [firing ? 0xff5030 : 0xffe040, 1]] as const) {
+      g.lineStyle(w, c, 1);
+      g.lineBetween(x - 6, y, x - 2, y);
+      g.lineBetween(x + 2, y, x + 6, y);
+      g.lineBetween(x, y - 6, x, y - 2);
+      g.lineBetween(x, y + 2, x, y + 6);
+    }
+    g.fillStyle(0xffffff, 1).fillRect(x, y, 1, 1);
   }
 
   private get localPidSet(): Set<number> {
@@ -321,10 +377,10 @@ export class GameScene extends Phaser.Scene {
       });
     } else if (w.status === 'complete' && w.statusT > 3) {
       this.ended = true;
-      const save = loadSave();
       const total = d.total + w.time;
       const nextLevel = d.level + 1;
-      writeSave({ level: nextLevel, best: Math.max(save.best, nextLevel), total });
+      recordProgress(nextLevel, total);
+      this.handleEvent({ k: 'text', x: w.cam.x + VIEW_W / 2 - 34, y: w.cam.y + 100, s: 'PROGRESS SAVED', c: '#a0ffa0' });
       const next: StartData = { level: nextLevel, seed: randomSeed(), total, lives: w.lives + 1, players: d.players };
       if (d.mode === 'host') this.net?.send({ t: 'start', d: next });
       this.cameras.main.fadeOut(300);

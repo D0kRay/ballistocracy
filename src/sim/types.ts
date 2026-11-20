@@ -19,7 +19,7 @@ export type GameEvent =
   | { k: 'sfx'; n: SfxName; x: number }
   | { k: 'blood'; x: number; y: number; c: string; n: number }
   | { k: 'spark'; x: number; y: number }
-  | { k: 'muzzle'; x: number; y: number; d: number }
+  | { k: 'muzzle'; x: number; y: number; d: number; r?: number }
   | { k: 'debris'; x: number; y: number; t: number }
   | { k: 'text'; x: number; y: number; s: string; c: string }
   | { k: 'shake'; a: number }
@@ -46,6 +46,8 @@ export interface Player extends Body {
   wallJumpT: number;
   speedT: number;
   firingT: number;
+  /** weapon pitch relative to facing (radians, + = down); 0 without mouse aim */
+  aim: number;
   animT: number;
   bits: number;
   prev: number;
