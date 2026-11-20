@@ -91,6 +91,17 @@ One player picks **Host online game** and shares the 6-letter key. Others pick *
 - **Traps:** spikes, landmines, flame jets, saw blades, acid, crushers, crumbling platforms, explosive barrels.
 - **Items:** shotgun, flamer, rocket launcher, minigun, grenades, C4, armor, speed, health, ammo, extra life. Cages hold prisoners: free them for +1 life.
 
+## Cheat: the ILTI wagon
+In a level, enter **Up, Up, Down, Down, Left, Right, Left, Right, Grab** (keyboard A: `W W S S A D A D E`; touch: the stick and GRAB) quickly, one after another. A red ILTI station wagon with a minigun on the hood drops from the sky.
+
+- Jump onto the roof to take the wheel. Other players who jump on it bounce off the roof.
+- Left/Right drive, Jump jumps, Fire shoots the hood minigun (Up or mouse/drag aim tilts it).
+- Drive against a wall, or hold Down plus a direction, for a burnout.
+- Grab (or Down + Jump) gets you out.
+- Ramming at speed knocks enemies over and smashes crates.
+- Enemy bullets bounce off. Enemy rockets, bombs, shells and mines damage the wagon, and enough of them wreck it. The driver is thrown out alive.
+- Up to 3 wagons at once. Works in online games too: the host spawns it for whoever entered the code.
+
 ## Make your own levels
 The game has a built-in level editor (main menu, **Level editor**). Levels are JSON files in `levels/` and appear under **Community levels**. See [CONTRIBUTING.md](CONTRIBUTING.md) to add yours to the game.
 

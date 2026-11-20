@@ -7,8 +7,9 @@ import type { Grid } from '../world/Grid';
 import type { ItemId, Level, PropSpawn } from '../world/LevelGen';
 import { T, isBuildingBack } from '../world/tiles';
 import { makeBody, overlap } from './physics';
-import type { Boss, Debris, Enemy, GameEvent, Owner, Pickup, Player, Projectile, Prop, ProjType, SfxName } from './types';
+import type { Boss, Car, Debris, Enemy, GameEvent, Owner, Pickup, Player, Projectile, Prop, ProjType, SfxName } from './types';
 import { updatePlayer } from './players';
+import { checkCheat, damageCar, seatDriver, spawnCar, updateCars } from './cars';
 import { HERO_LOADOUT } from './weapons';
 import { ENEMY_DEFS, updateEnemies } from './enemies';
 import { updateProjectiles } from './projectiles';
@@ -50,6 +51,9 @@ export class World {
   bossDefeated = false;
   kills = 0;
   crumbles = new Map<number, number>();
+  cars: Car[] = [];
+  /** cheat code progress per player pid */
+  cheat = new Map<number, { i: number; t: number }>();
   /** intro helicopter that drops the squad at the level start */
   intro: { t: number; x: number; y: number; dropped: number; x0: number } | null = null;
 
@@ -126,6 +130,7 @@ export class World {
       prev: 0,
       connected: true,
       inVehicle: false,
+      car: -1,
     };
   }
 
@@ -243,7 +248,9 @@ export class World {
     }
 
     this.updateIntro(dt);
-    for (const p of this.players) if (!p.inVehicle) updatePlayer(this, p, dt);
+    for (const p of checkCheat(this)) spawnCar(this, p);
+    for (const p of this.players) if (!p.inVehicle && p.car < 0) updatePlayer(this, p, dt);
+    updateCars(this, dt);
     updateEnemies(this, dt);
     if (this.boss) updateBoss(this, this.boss, dt);
     updateProjectiles(this, dt);
@@ -257,7 +264,15 @@ export class World {
     const alive = this.alivePlayers();
     this.cam = computeCamera(this.cam, alive, this.levelW, this.levelH, VIEW_W, VIEW_H, CAMERA_MARGIN, this.arenaLocked && this.level.arena ? this.level.arena.x0 : null);
     if (this.arenaLocked) this.cam.y = Math.max(0, this.levelH - VIEW_H);
-    for (const p of alive) clampToView(p, this.cam, VIEW_W);
+    for (const p of alive) {
+      const car = p.car >= 0 ? this.cars.find((c) => c.id === p.car) : undefined;
+      if (!car) clampToView(p, this.cam, VIEW_W);
+      else {
+        // the wagon is wider than a hero: keep the whole car on screen
+        car.x = Math.max(this.cam.x, Math.min(this.cam.x + VIEW_W - car.w, car.x));
+        seatDriver(this, car);
+      }
+    }
 
     // cleanup
     this.enemies = this.enemies.filter((e) => !e.dead);
@@ -332,7 +347,7 @@ export class World {
 
   // ------------------------------------------------------------------
   hurtPlayer(p: Player, n: number, fromX?: number): void {
-    if (!p.alive || p.inv > 0 || p.inVehicle) return;
+    if (!p.alive || p.inv > 0 || p.inVehicle || p.car >= 0) return; // the wagon shields its driver
     if (p.armor > 0) {
       p.armor--;
       p.inv = 1;
@@ -468,8 +483,18 @@ export class World {
       if ((b.x + b.y) % 2 === 0) this.emit({ k: 'debris', x: b.x * TILE + 8, y: b.y * TILE + 8, t: v === 4 ? T.WOOD : T.BRICK });
     }
 
+    // only enemy blasts (rockets, bombs, shells, mines) hurt the ILTI wagon
+    for (const c of this.cars) {
+      if (c.dead) continue;
+      const d = Math.max(0, Math.hypot(c.x + c.w / 2 - x, c.y + c.h / 2 - y) - c.w / 3);
+      if (d > r + 6) continue;
+      const k = 1 - d / (r + 6);
+      c.vy -= 160 * k;
+      c.vx += Math.sign(c.x + c.w / 2 - x || 1) * 80 * k;
+      if (owner !== 'p') damageCar(this, c, Math.ceil(dmg * k + 1));
+    }
     for (const p of this.players) {
-      if (!p.alive || p.inVehicle) continue;
+      if (!p.alive || p.inVehicle || p.car >= 0) continue;
       const d = Math.hypot(p.x + p.w / 2 - x, p.y + p.h / 2 - y);
       if (d > r + 6) continue;
       const k = 1 - d / (r + 6);

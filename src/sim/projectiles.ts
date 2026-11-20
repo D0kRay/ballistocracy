@@ -158,6 +158,14 @@ function hitEntities(w: World, pr: Projectile): void {
       }
     }
   } else {
+    // enemy fire hits the wagon body first: bullets ping off, explosives go off
+    for (const c of w.cars) {
+      if (c.dead || !pointIn(pr.x, pr.y, c)) continue;
+      if (explosive) return detonate(w, pr);
+      w.emit({ k: 'spark', x: pr.x, y: pr.y });
+      pr.dead = true;
+      return;
+    }
     for (const p of w.players) {
       if (!p.alive || !pointIn(pr.x, pr.y, p)) continue;
       if (explosive) return detonate(w, pr);

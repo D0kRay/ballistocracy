@@ -12,7 +12,7 @@ export type Owner = 'p' | 'e' | 'n';
 export type SfxName =
   | 'shoot' | 'shotgun' | 'flame' | 'rocket' | 'minigun' | 'eshoot' | 'snipe'
   | 'boom' | 'bigboom' | 'jump' | 'pickup' | 'hurt' | 'die' | 'edie' | 'alert'
-  | 'throw' | 'beep' | 'clink' | 'rescue' | 'boss' | 'clear' | 'door' | 'crush' | 'saw';
+  | 'throw' | 'beep' | 'clink' | 'rescue' | 'boss' | 'clear' | 'door' | 'crush' | 'saw' | 'screech' | 'horn';
 
 export type GameEvent =
   | { k: 'boom'; x: number; y: number; r: number }
@@ -54,6 +54,22 @@ export interface Player extends Body {
   connected: boolean;
   base: WeaponId; // signature weapon (unlimited ammo)
   inVehicle: boolean; // riding the intro helicopter or boarded the extraction vehicle
+  car: number; // id of the ILTI wagon this player drives, -1 when on foot
+}
+
+/** drivable station wagon (cheat code) */
+export interface Car extends Body {
+  id: number;
+  hp: number;
+  facing: number;
+  driver: number; // player id, -1 = empty
+  fireCd: number;
+  firingT: number;
+  burnT: number; // > 0 while the wheels spin (burnout)
+  hurtT: number;
+  enterCd: number;
+  aim: number; // gun pitch, + = down
+  dead: boolean;
 }
 
 export interface Enemy extends Body {

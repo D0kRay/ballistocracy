@@ -108,7 +108,85 @@ export function makeFx(scene: Phaser.Scene): void {
   });
 }
 
+/** 3x5 pixel letters for vehicle lettering */
+const LETTERS: Record<string, string[]> = {
+  I: ['###', '.#.', '.#.', '.#.', '###'],
+  L: ['#..', '#..', '#..', '#..', '###'],
+  T: ['###', '.#.', '.#.', '.#.', '.#.'],
+};
+
+/** ILTI wagon: red station wagon. Frames 0-1 face right, 2-3 face left (own frames so the lettering stays readable); plus its hood minigun */
+export function makeWagon(scene: Phaser.Scene): void {
+  const W = 52;
+  tex(scene, 'wagon', W, 26, 4, (c, f, ox) => {
+    const left = f >= 2;
+    const spin = f % 2;
+    // draw in "facing right" coordinates, mirrored for the left frames
+    const R = (x: number, y: number, w: number, h: number, col: string) => {
+      c.fillStyle = col;
+      c.fillRect(ox + (left ? W - x - w : x), y, w, h);
+    };
+    const clear = (x: number, y: number, w: number, h: number) => c.clearRect(ox + (left ? W - x - w : x), y, w, h);
+    const red = '#c81c1c';
+    const lt = '#f04a3a';
+    const dk = '#861010';
+    const glass = 'rgba(150,210,240,0.45)';
+    // long roof of the combi (rear) down to the windshield
+    R(5, 2, 31, 2, OUT); R(3, 3, 3, 12, OUT); R(36, 3, 2, 2, OUT);
+    for (let i = 0; i < 6; i++) R(37 + i, 4 + i, 2, 1, OUT); // windshield slope
+    R(6, 4, 30, 1, lt);
+    R(6, 2, 28, 1, '#3a3a40'); // roof rails
+    // body
+    R(1, 10, 50, 11, OUT);
+    R(2, 11, 48, 9, red);
+    R(2, 11, 48, 1, lt);
+    R(2, 18, 48, 2, dk);
+    R(43, 10, 7, 2, lt); // hood
+    // windows (see-through so the driver shows)
+    R(4, 5, 34, 6, OUT);
+    clear(5, 5, 33, 5);
+    R(5, 5, 8, 5, glass); R(14, 5, 10, 5, glass); R(25, 5, 10, 5, glass);
+    for (let i = 0; i < 5; i++) R(35 + i, 5 + i, 1, 1, glass);
+    R(13, 5, 1, 6, red); R(24, 5, 1, 6, red); R(35, 5, 1, 6, red); // pillars
+    clear(36, 5, 3, 1);
+    // rear door line, front door line + handle
+    R(14, 11, 1, 7, dk); R(36, 11, 1, 7, dk); R(33, 12, 2, 1, '#e0e0e0');
+    // lights and bumpers
+    R(49, 12, 2, 3, '#ffe880'); R(1, 11, 2, 3, '#ff3020');
+    R(0, 18, 4, 2, '#b8b8c0'); R(48, 18, 4, 2, '#b8b8c0');
+    // round wheels in arches
+    for (const wx of [11, 41]) {
+      R(wx - 6, 16, 13, 3, OUT);
+      R(wx - 3, 17, 7, 9, OUT); R(wx - 5, 19, 11, 5, OUT); R(wx - 4, 18, 9, 7, OUT);
+      R(wx - 2, 18, 5, 7, '#242428'); R(wx - 4, 20, 9, 3, '#242428'); R(wx - 3, 19, 7, 5, '#242428');
+      R(wx - 1, 20, 3, 3, '#9a9aa4');
+      if (spin) R(wx, 18, 1, 7, '#45454c');
+      else R(wx - 4, 21, 9, 1, '#45454c');
+      R(wx, 21, 1, 1, '#2a2a30');
+    }
+    // company lettering ILTI, always readable, centred between the door lines
+    c.fillStyle = '#ffffff';
+    let lx = 17;
+    for (const ch of 'ILTI') {
+      const g = LETTERS[ch];
+      for (let y = 0; y < 5; y++) for (let x = 0; x < 3; x++) if (g[y][x] === '#') c.fillRect(ox + lx + x, 12 + y, 1, 1);
+      lx += 4;
+    }
+  });
+  // hood minigun, pivot on the left end
+  tex(scene, 'wagongun', 18, 7, 1, (c) => {
+    const R = (x: number, y: number, w: number, h: number, col: string) => {
+      c.fillStyle = col;
+      c.fillRect(x, y, w, h);
+    };
+    R(0, 1, 7, 6, OUT); R(1, 2, 5, 4, '#4a4a52');
+    R(6, 1, 12, 5, OUT); R(7, 2, 11, 1, '#9a9aa4'); R(7, 4, 11, 1, '#6a6a74'); R(7, 3, 11, 1, '#2a2a30');
+    R(15, 1, 2, 5, '#3a3a40');
+  });
+}
+
 export function makeVehicles(scene: Phaser.Scene): void {
+  makeWagon(scene);
   // military truck (faces right, open cargo bed at the back), 2 frames for wheels
   tex(scene, 'truck', 66, 32, 2, (c, f, ox) => {
     const R = (x: number, y: number, w: number, h: number, col: string) => {

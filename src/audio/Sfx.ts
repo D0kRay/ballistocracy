@@ -117,5 +117,7 @@ export function playSfx(n: SfxName, pan = 0): void {
     case 'door': tone('square', 120, 60, 0.4, 0.2); noise(0.4, 0.3, 800, 100); break;
     case 'crush': noise(0.4, 0.4, 900, 80, 0, pan); tone('square', 80, 40, 0.3, 0.18, 0, pan); break;
     case 'saw': tone('sawtooth', 600, 650, 0.1, 0.05, 0, pan); break;
+    case 'screech': noise(0.3, 0.12, 5000, 2500, 0, pan); tone('sawtooth', 1300, 900, 0.28, 0.04, 0, pan); break;
+    case 'horn': tone('square', 392, 392, 0.14, 0.12, 0, pan); tone('square', 494, 494, 0.14, 0.1, 0, pan); tone('square', 392, 392, 0.22, 0.12, 0.2, pan); tone('square', 494, 494, 0.22, 0.1, 0.2, pan); break;
   }
 }

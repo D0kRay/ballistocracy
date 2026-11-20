@@ -480,6 +480,7 @@ export class WorldRenderer {
     this.drawEnemies(dt, remote);
     this.drawBoss(dt, remote);
     this.drawPlayers(dt, remote, localPids);
+    this.drawCars(dt, remote);
     this.drawProjectiles();
 
     for (const [id, s] of this.sprites) {
@@ -747,10 +748,49 @@ export class WorldRenderer {
     else s.clearTint();
   }
 
+  /** ILTI wagons: body, hood minigun, the driver behind the glass, burnout smoke */
+  private drawCars(dt: number, remote: boolean): void {
+    for (const c of this.world.cars) {
+      const pos = this.smoothPos(c.id, c.x, c.y, remote, dt, 18);
+      const spin = c.burnT > 0 || Math.abs(c.vx) > 5;
+      const jit = c.burnT > 0 ? (Math.floor(this.time * 30) % 2) : 0;
+      const cx = Math.round(pos.x + c.w / 2) + jit;
+      const by = Math.round(pos.y + c.h + 2);
+      const body = this.spr(c.id, 'wagon', 12.2);
+      body.setOrigin(0.5, 1).setPosition(cx, by)
+        .setFrame((c.facing < 0 ? 2 : 0) + (spin ? Math.floor(this.time * (c.burnT > 0 ? 30 : 4 + Math.abs(c.vx) / 12)) % 2 : 0));
+      if (c.hurtT > 0) body.setTintFill(0xffffff);
+      else body.clearTint();
+      // driver sits behind the glass
+      const d = c.driver >= 0 ? this.world.players.find((p) => p.id === c.driver) : undefined;
+      if (d) {
+        const ds = this.spr(c.id * 1000 + 3, `hero${d.hero % 4}`, 12.1);
+        ds.setOrigin(0.5, 1).setPosition(cx + c.facing * 5, by - 4).setFrame(FRAME.idle).setFlipX(c.facing < 0).clearTint().setVisible(true);
+      }
+      // hood minigun pivots on its mount
+      const gun = this.spr(c.id * 1000 + 4, 'wagongun', 12.3);
+      gun.setOrigin(c.facing > 0 ? 0.15 : 0.85, 0.6).setFlipX(c.facing < 0)
+        .setPosition(cx + c.facing * 16 - (c.firingT > 0 ? c.facing * (Math.floor(this.time * 40) % 2) : 0), by - 17)
+        .setRotation(c.aim * c.facing);
+      // burnout: smoke and sparks from the rear wheel
+      if (c.burnT > 0) {
+        const rx = cx - c.facing * 14;
+        for (let i = 0; i < 2; i++)
+          this.parts.push({ x: rx + (Math.random() - 0.5) * 6, y: by - 3, vx: -c.facing * (20 + Math.random() * 40), vy: -10 - Math.random() * 25, life: 0.9, max: 0.9, c: Math.random() < 0.5 ? 0xd8d8d8 : 0xa8a8a8, s: 3, g: -15, grow: 9, round: true, fade: true });
+        if (Math.random() < 0.3) this.parts.push({ x: rx, y: by - 2, vx: -c.facing * 90, vy: -60, life: 0.3, max: 0.3, c: 0xffd040, s: 1, g: 300, grow: 0 });
+      } else if (Math.abs(c.vx) > 60 && c.onGround && Math.random() < 0.3) {
+        this.parts.push({ x: cx - c.facing * 26, y: by - 5, vx: -c.facing * 20, vy: -12, life: 0.5, max: 0.5, c: 0x6a6466, s: 2, g: -10, grow: 4, round: true, fade: true });
+      }
+      // a beaten-up wagon smokes from the hood
+      if (c.hp <= 4 && Math.random() < 0.25) this.parts.push({ x: cx + c.facing * 18, y: by - 14, vx: 0, vy: -25, life: 1, max: 1, c: 0x3a3436, s: 3, g: -10, grow: 6, round: true, fade: true });
+      this.lights.push({ x: cx + c.facing * 30, y: by - 10, r: 22, c: 0xfff0a0, a: 0.35 });
+    }
+  }
+
   private drawPlayers(dt: number, remote: boolean, localPids: Set<number>): void {
     const w = this.world;
     for (const p of w.players) {
-      if (!p.alive || p.inVehicle) continue;
+      if (!p.alive || p.inVehicle || p.car >= 0) continue;
       const s = this.spr(p.id, `hero${p.hero % 4}`, 12);
       const pos = this.smoothPos(p.id, p.x, p.y, remote, dt, localPids.has(p.pid) ? 35 : 18);
       const bx = Math.round(pos.x + p.w / 2);
