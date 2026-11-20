@@ -5,6 +5,7 @@ import { randomSeed } from '../core/rng';
 import { playSfx } from '../audio/Sfx';
 import { HERO_COLORS } from '../gfx/SpriteForge';
 import { deviceLabel, getInput, type DeviceId } from '../input/InputManager';
+import type { TouchLabels } from '../input/TouchControls';
 import { NetSession, getNet, setNet } from '../net/NetSession';
 import type { LobbyPlayer, Msg, StartData } from '../net/protocol';
 import { loadSave } from '../progress/save';
@@ -60,9 +61,12 @@ export class LobbyScene extends Phaser.Scene {
       const txt = this.add.bitmapText(x + 36, 106, 'pix', '', undefined, 1).setOrigin(0.5, 0);
       this.slots.push({ box, spr, txt });
     }
-    this.add.bitmapText(VIEW_W / 2, VIEW_H - 22, 'pix', 'PRESS JUMP OR FIRE ON ANY KEYBOARD/GAMEPAD/TOUCH TO JOIN\nGRENADE BUTTON TO LEAVE   ESC/II BACK   START TO DEPLOY', undefined, 1).setOrigin(0.5, 0).setTint(0xa0a0a0);
+    const help = getInput().touch
+      ? 'TAP JOIN TO PLAY, THEN START TO DEPLOY\nLEAVE / BACK: GRENADE BUTTON'
+      : 'PRESS JUMP OR FIRE ON ANY KEYBOARD/GAMEPAD TO JOIN\nGRENADE BUTTON TO LEAVE   ESC BACK   ENTER/START TO DEPLOY';
+    this.add.bitmapText(VIEW_W / 2, VIEW_H - 22, 'pix', help, undefined, 1).setOrigin(0.5, 0).setTint(0xa0a0a0);
 
-    getInput().touch?.setVisible(true, this.mode !== 'guest');
+    getInput().touch?.setVisible(true, this.touchLabels());
     this.events.once('shutdown', () => getInput().touch?.setVisible(false));
     if (this.mode === 'host') this.startHost();
     else if (this.mode === 'guest') this.showJoin();
@@ -171,15 +175,23 @@ export class LobbyScene extends Phaser.Scene {
     const inp = getInput();
     inp.poll();
 
-    if (inp.keyDown('Escape')) {
+    // touch: the four buttons double as lobby controls (JOIN/START, BACK/LEAVE)
+    const touchMine = this.isMine('touch');
+    const touchBack = !!inp.touch && !touchMine && inp.justPressed('touch', IN.SPECIAL);
+    if (inp.keyDown('Escape') || touchBack) {
       setNet(null);
       this.scene.start('Menu');
       return;
     }
+    if (touchMine && this.mode !== 'guest' && inp.justPressed('touch', IN.JUMP)) {
+      this.start();
+      return;
+    }
+    inp.touch?.setLabels(this.touchLabels());
 
     if (this.connected) {
       for (const d of inp.devices()) {
-        const isMine = this.mode === 'guest' ? this.myDevices.includes(d) : this.players.some((p) => p.owner === 'host' && p.device === d);
+        const isMine = this.isMine(d);
         if (!isMine && (inp.justPressed(d, IN.JUMP) || inp.justPressed(d, IN.FIRE))) {
           if (this.mode === 'guest') {
             if (this.myDevices.length < 4) {
@@ -210,9 +222,19 @@ export class LobbyScene extends Phaser.Scene {
     this.draw();
   }
 
+  private isMine(d: DeviceId): boolean {
+    return this.mode === 'guest' ? this.myDevices.includes(d) : this.players.some((p) => p.owner === 'host' && p.device === d);
+  }
+
+  private touchLabels(): TouchLabels {
+    if (!this.connected) return { jump: null, fire: null, special: 'BACK', interact: null };
+    if (!this.isMine('touch')) return { jump: 'JOIN', fire: null, special: 'BACK', interact: null };
+    return { jump: this.mode === 'guest' ? null : 'START', fire: null, special: 'LEAVE', interact: null };
+  }
+
   private draw(): void {
     const lvl = this.customName ? `CUSTOM LEVEL: ${this.customName}` : `LEVEL ${this.level}${this.level % 5 === 0 ? '  (BOSS)' : ''}`;
-    const startHint = this.mode === 'guest' ? 'WAITING FOR HOST TO START' : this.players.length ? 'PRESS ENTER / START TO DEPLOY' : '';
+    const startHint = this.mode === 'guest' ? 'WAITING FOR HOST TO START' : this.players.length ? (getInput().touch ? 'TAP START TO DEPLOY' : 'PRESS ENTER / START TO DEPLOY') : '';
     this.info.setText(`${lvl}\n${this.status}\n${startHint}`);
     this.slots.forEach((s, i) => {
       const p = this.players.find((pl) => pl.pid === i);

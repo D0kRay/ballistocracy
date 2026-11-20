@@ -3,6 +3,7 @@ import { DT, NET_SNAPSHOT_EVERY, VIEW_H, VIEW_W } from '../config';
 import { music } from '../audio/Music';
 import { playSfx, toggleMute } from '../audio/Sfx';
 import { getInput } from '../input/InputManager';
+import { GAME_LABELS } from '../input/TouchControls';
 import { IN, withAim } from '../core/input';
 import { getNet, setNet, type NetSession } from '../net/NetSession';
 import type { LobbyPlayer, Msg, StartData } from '../net/protocol';
@@ -48,6 +49,11 @@ export class GameScene extends Phaser.Scene {
   private acks = new Map<number, number>();
   private lastSnapAt = 0;
   private mouseDevice: string | null = null;
+  /** touch pause/leave menu (GRAB + BOOM together); the four buttons get menu labels */
+  private touchMenu = false;
+  private touchMenuAt = 0;
+  /** after closing the menu, ignore touch input until every finger is up (no jump on RESUME) */
+  private touchHold = false;
   private crosshair!: Phaser.GameObjects.Graphics;
 
   constructor() {
@@ -68,6 +74,7 @@ export class GameScene extends Phaser.Scene {
     this.seq = 0;
     this.paused = false;
     this.escArm = 0;
+    this.touchMenu = false;
   }
 
   create(): void {
@@ -117,6 +124,18 @@ export class GameScene extends Phaser.Scene {
     inp.mouseEnabled = !!this.mouseDevice;
     this.crosshair = this.add.graphics().setScrollFactor(0).setDepth(210);
     const canvas = this.game.canvas;
+    // phone call / app switch: pause a local game
+    const onHide = () => {
+      if (document.hidden && this.data0.mode === 'local' && !this.paused && !this.ended) {
+        if (inp.touch) this.openTouchMenu();
+        else {
+          this.paused = true;
+          this.pauseText.setText('PAUSED\n\nESC: QUIT TO MENU\nP: RESUME').setVisible(true);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', onHide);
+    this.events.once('shutdown', () => document.removeEventListener('visibilitychange', onHide));
     this.events.once('shutdown', () => {
       inp.touch?.setVisible(false);
       inp.mouseEnabled = false;
@@ -233,6 +252,8 @@ export class GameScene extends Phaser.Scene {
   private devBits(device: string, pid: number): number {
     const inp = getInput();
     let b = inp.bits(device);
+    if (device === 'touch' && this.touchHold && (b & 511) === 0) // 511 = all move/button bits, aim bits ignored this.touchHold = false;
+    if (device === 'touch' && (this.touchMenu || this.touchHold)) return 0;
     if (device !== this.mouseDevice || !inp.mouseActive || this.paused) return b;
     b |= inp.mouseBits();
     const m = inp.mouseView(VIEW_W, VIEW_H);
@@ -326,21 +347,45 @@ export class GameScene extends Phaser.Scene {
       }
       if (this.data0.mode === 'local') this.paused = true;
       this.escArm = this.time.now + 2500;
-      const t = !!inp.touch;
-      this.pauseText
-        .setText(this.data0.mode === 'local' ? (t ? 'PAUSED\n\nPAUSE AGAIN: QUIT TO MENU\nJUMP: RESUME' : 'PAUSED\n\nESC AGAIN: QUIT TO MENU\nP: RESUME') : t ? 'PAUSE AGAIN TO LEAVE THE ONLINE GAME' : 'ESC AGAIN TO LEAVE THE ONLINE GAME')
-        .setVisible(true);
+      this.pauseText.setText(this.data0.mode === 'local' ? 'PAUSED\n\nESC AGAIN: QUIT TO MENU\nP: RESUME' : 'ESC AGAIN TO LEAVE THE ONLINE GAME').setVisible(true);
     }
     if (tap('KeyP') && this.data0.mode === 'local') {
       this.paused = !this.paused;
       this.pauseText.setText('PAUSED\n\nESC: QUIT TO MENU\nP: RESUME').setVisible(this.paused);
     }
-    // touch players have no P key: JUMP resumes
-    if (this.paused && inp.touch && inp.justPressed('touch', IN.JUMP)) {
-      this.paused = false;
-      this.pauseText.setVisible(false);
+    // touch: GRAB + BOOM together opens the pause (local) or leave (online) menu
+    if (inp.touch) {
+      const tb = inp.bits('touch');
+      const combo = (tb & IN.INTERACT) !== 0 && (tb & IN.SPECIAL) !== 0 && (inp.justPressed('touch', IN.INTERACT) || inp.justPressed('touch', IN.SPECIAL));
+      if (!this.touchMenu && combo && !this.ended) this.openTouchMenu();
+      else if (this.touchMenu && this.time.now - this.touchMenuAt > 250) {
+        if (inp.justPressed('touch', IN.SPECIAL)) {
+          this.quit();
+          return;
+        }
+        if (inp.justPressed('touch', IN.JUMP)) this.closeTouchMenu();
+      }
+      // keyboard P on a touch device (tablet with keys) resumed underneath
+      if (this.touchMenu && this.data0.mode === 'local' && !this.paused) this.closeTouchMenu();
     }
-    if (!this.paused && this.escArm < this.time.now) this.pauseText.setVisible(false);
+    if (!this.paused && !this.touchMenu && this.escArm < this.time.now) this.pauseText.setVisible(false);
+  }
+
+  private openTouchMenu(): void {
+    this.touchMenu = true;
+    this.touchMenuAt = this.time.now;
+    const local = this.data0.mode === 'local';
+    if (local) this.paused = true;
+    this.pauseText.setText(local ? 'PAUSED' : 'LEAVE THE ONLINE GAME?').setVisible(true);
+    getInput().touch?.setLabels({ jump: local ? 'RESUME' : 'STAY', fire: null, special: local ? 'QUIT' : 'LEAVE', interact: null });
+  }
+
+  private closeTouchMenu(): void {
+    this.touchMenu = false;
+    this.touchHold = true;
+    this.paused = false;
+    this.pauseText.setVisible(false);
+    getInput().touch?.setLabels(GAME_LABELS);
   }
 
   private quit(): void {

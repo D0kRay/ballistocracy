@@ -23,14 +23,15 @@ export class GameOverScene extends Phaser.Scene {
     this.t = 0;
   }
   create(): void {
-    getInput().touch?.setVisible(true, this.d.mode !== 'guest');
+    getInput().touch?.setVisible(true, { jump: this.d.mode === 'guest' ? null : 'RETRY', fire: null, special: 'MENU', interact: null });
     this.events.once('shutdown', () => getInput().touch?.setVisible(false));
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x100406).setOrigin(0);
     this.add.bitmapText(VIEW_W / 2, 50, 'pix', 'GAME OVER').setOrigin(0.5).setScale(5).setTint(0xe02020);
     const m = Math.floor(this.d.time / 60);
     const s = Math.floor(this.d.time % 60).toString().padStart(2, '0');
     this.add.bitmapText(VIEW_W / 2, 95, 'pix', `LEVEL ${this.d.level}\nKILLS ${this.d.kills}\nTIME ${m}:${s}`, undefined, 1).setOrigin(0.5, 0).setScale(2);
-    const hint = this.d.mode === 'guest' ? 'WAITING FOR HOST...   ESC MENU' : 'ENTER / START: RETRY LEVEL   ESC: MENU';
+    const touch = !!getInput().touch;
+    const hint = this.d.mode === 'guest' ? (touch ? 'WAITING FOR HOST...' : 'WAITING FOR HOST...   ESC MENU') : touch ? 'RETRY OR BACK TO MENU' : 'ENTER / START: RETRY LEVEL   ESC: MENU';
     this.add.bitmapText(VIEW_W / 2, 170, 'pix', hint).setOrigin(0.5).setTint(0xffe040);
     const net = getNet();
     if (net && this.d.mode === 'guest') {
@@ -44,7 +45,7 @@ export class GameOverScene extends Phaser.Scene {
     this.t += delta / 1000;
     const inp = getInput();
     inp.poll();
-    if (inp.keyDown('Escape')) {
+    if (inp.keyDown('Escape') || inp.justPressed('touch', IN.SPECIAL)) {
       if (this.d.mode === 'host') getNet()?.send({ t: 'menu' });
       setNet(null);
       if (this.d.returnTo) this.scene.start(this.d.returnTo.scene, this.d.returnTo.data as object);

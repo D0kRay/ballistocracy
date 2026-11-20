@@ -1,7 +1,13 @@
 import { IN, withAim } from '../core/input';
 
-// On-screen controls for phones/tablets: a floating stick on the left half,
-// action buttons on the right, plus START and PAUSE. Multi-touch via pointer events.
+// On-screen controls for phones/tablets: a floating stick on the left half and four
+// action buttons on the right whose labels change per screen (lobby, pause, game over).
+// Multi-touch via pointer events.
+
+export type TouchButton = 'jump' | 'fire' | 'special' | 'interact';
+/** label per button; null hides it */
+export type TouchLabels = Record<TouchButton, string | null>;
+export const GAME_LABELS: TouchLabels = { jump: 'JUMP', fire: 'FIRE', special: 'BOOM', interact: 'GRAB' };
 
 export function isTouchDevice(): boolean {
   if (typeof window === 'undefined') return false;
@@ -32,6 +38,8 @@ export class TouchControls {
   private fireAim: number | null = null;
   private fireArrow!: HTMLElement;
   private onKey: (code: string) => void;
+  private byName = new Map<string, Btn>();
+  private labels = '';
   visible = false;
 
   constructor(onVirtualKey: (code: string) => void) {
@@ -42,14 +50,12 @@ export class TouchControls {
       <div class="zone-left"></div>
       <div class="stick-base"><div class="stick-knob"></div></div>
       <div class="btns">
-        <button data-b="special" class="b-special">BOOM</button>
-        <button data-b="interact" class="b-interact">GRAB</button>
-        <button data-b="fire" class="b-fire">FIRE<span class="aim-arrow"></span></button>
-        <button data-b="jump" class="b-jump">JUMP</button>
+        <button data-b="special" class="b-special"><span class="lbl">BOOM</span></button>
+        <button data-b="interact" class="b-interact"><span class="lbl">GRAB</span></button>
+        <button data-b="fire" class="b-fire"><span class="lbl">FIRE</span><span class="aim-arrow"></span></button>
+        <button data-b="jump" class="b-jump"><span class="lbl">JUMP</span></button>
       </div>
-      <button data-b="start" class="b-start">START</button>
       <div class="sys">
-        <button data-b="pause" class="b-pause" aria-label="Pause"><svg viewBox="0 0 16 16"><rect x="3" y="2" width="3.5" height="12" /><rect x="9.5" y="2" width="3.5" height="12" /></svg></button>
         <button data-b="full" class="b-full" aria-label="Fullscreen"><svg viewBox="0 0 16 16" fill="none" stroke-width="2.2"><path d="M1.5 6V1.5H6M10 1.5h4.5V6M14.5 10v4.5H10M6 14.5H1.5V10" /></svg></button>
       </div>`;
     document.body.appendChild(this.root);
@@ -57,7 +63,7 @@ export class TouchControls {
     this.stickKnob = this.root.querySelector('.stick-knob') as HTMLElement;
     this.fireArrow = this.root.querySelector('.aim-arrow') as HTMLElement;
 
-    const bitOf: Record<string, number> = { jump: IN.JUMP, fire: IN.FIRE, special: IN.SPECIAL, interact: IN.INTERACT, start: IN.START };
+    const bitOf: Record<string, number> = { jump: IN.JUMP, fire: IN.FIRE, special: IN.SPECIAL, interact: IN.INTERACT };
     this.root.querySelectorAll('button').forEach((el) => {
       const name = (el as HTMLElement).dataset.b ?? '';
       if (name === 'full') {
@@ -67,10 +73,13 @@ export class TouchControls {
         });
         return;
       }
-      const b: Btn = { el: el as HTMLElement, bit: bitOf[name] ?? 0, key: name === 'pause' ? 'Escape' : undefined };
+      const b: Btn = { el: el as HTMLElement, bit: bitOf[name] ?? 0 };
+      this.byName.set(name, b);
       this.buttons.push(b);
       el.addEventListener('pointerdown', (e) => {
         e.preventDefault();
+        // a tap after leaving fullscreen (or after a zoom) brings it back
+        if (document.fullscreenEnabled && !document.fullscreenElement) void goFullscreen();
         this.held.set(e.pointerId, b);
         this.tapBits |= b.bit;
         el.classList.add('on');
@@ -153,10 +162,30 @@ export class TouchControls {
     window.addEventListener('resize', () => this.layout());
     window.addEventListener('orientationchange', () => setTimeout(() => this.layout(), 200));
     document.addEventListener('fullscreenchange', () => this.layout());
+    blockZoom();
     this.setVisible(false);
   }
 
-  /** pause/fullscreen sit at the game's right edge, just below the HUD's lives panel */
+  /** relabel/hide the four buttons for the current screen */
+  setLabels(l: TouchLabels): void {
+    const key = JSON.stringify(l);
+    if (key === this.labels) return;
+    this.labels = key;
+    for (const name of ['jump', 'fire', 'special', 'interact'] as const) {
+      const b = this.byName.get(name);
+      if (!b) continue;
+      const t = l[name];
+      b.el.style.display = t === null ? 'none' : '';
+      (b.el.querySelector('.lbl') as HTMLElement).textContent = t ?? '';
+      b.el.classList.toggle('small', !!t && t.length > 5);
+      if (t === null) {
+        for (const [id, hb] of this.held) if (hb === b) this.held.delete(id);
+        b.el.classList.remove('on');
+      }
+    }
+  }
+
+  /** fullscreen button sits at the game's right edge, just below the HUD's lives panel */
   private layout(): void {
     const sys = this.root.querySelector('.sys') as HTMLElement;
     const c = document.querySelector('#game canvas');
@@ -178,11 +207,11 @@ export class TouchControls {
     this.stickKnob.style.transform = `translate(${kx}px, ${ky}px)`;
   }
 
-  setVisible(v: boolean, showStart = false): void {
+  setVisible(v: boolean, labels: TouchLabels = GAME_LABELS): void {
     this.visible = v;
     this.root.style.display = v ? 'block' : 'none';
     if (v) requestAnimationFrame(() => this.layout());
-    (this.root.querySelector('.b-start') as HTMLElement).style.display = showStart ? 'block' : 'none';
+    this.setLabels(labels);
     if (!v) {
       this.held.clear();
       this.stickId = null;
@@ -206,6 +235,23 @@ export class TouchControls {
     if (this.fireAim !== null) b = withAim(b, this.fireAim);
     return b;
   }
+}
+
+/** phones zoom on fast double taps and pinches even with user-scalable=no: stop that */
+function blockZoom(): void {
+  const editable = (t: EventTarget | null) => {
+    const tag = (t as HTMLElement | null)?.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+  };
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1 && !editable(e.target)) e.preventDefault();
+  }, { passive: false });
+  let lastEnd = 0;
+  document.addEventListener('touchend', (e) => {
+    if (e.timeStamp - lastEnd < 450 && !editable(e.target)) e.preventDefault();
+    lastEnd = e.timeStamp;
+  }, { passive: false });
+  for (const t of ['gesturestart', 'gesturechange', 'gestureend', 'dblclick']) document.addEventListener(t, (e) => e.preventDefault(), { passive: false });
 }
 
 export async function goFullscreen(): Promise<void> {
