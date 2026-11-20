@@ -326,7 +326,10 @@ export class GameScene extends Phaser.Scene {
       }
       if (this.data0.mode === 'local') this.paused = true;
       this.escArm = this.time.now + 2500;
-      this.pauseText.setText(this.data0.mode === 'local' ? 'PAUSED\n\nESC AGAIN: QUIT TO MENU\nP: RESUME' : 'ESC AGAIN TO LEAVE THE ONLINE GAME').setVisible(true);
+      const t = !!inp.touch;
+      this.pauseText
+        .setText(this.data0.mode === 'local' ? (t ? 'PAUSED\n\nPAUSE AGAIN: QUIT TO MENU\nJUMP: RESUME' : 'PAUSED\n\nESC AGAIN: QUIT TO MENU\nP: RESUME') : t ? 'PAUSE AGAIN TO LEAVE THE ONLINE GAME' : 'ESC AGAIN TO LEAVE THE ONLINE GAME')
+        .setVisible(true);
     }
     if (tap('KeyP') && this.data0.mode === 'local') {
       this.paused = !this.paused;

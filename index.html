@@ -36,9 +36,12 @@
       #touch-ui .b-fire { right: 98px; bottom: 6px; width: 78px; height: 78px; background: #c0302080; }
       #touch-ui .b-special { right: 8px; bottom: 100px; width: 64px; height: 64px; background: #d0802080; }
       #touch-ui .b-interact { right: 92px; bottom: 100px; width: 58px; height: 58px; background: #3060c080; font-size: 11px; }
-      #touch-ui .b-start { left: 50%; transform: translateX(-50%); top: 8px; width: auto; height: 34px; padding: 0 16px; border-radius: 8px; background: #f0c02090; color: #120c10; }
-      #touch-ui .b-pause { left: max(10px, env(safe-area-inset-left)); top: 50%; width: 36px; height: 36px; font-size: 12px; }
-      #touch-ui .b-full { left: 50%; margin-left: 90px; top: 6px; width: 36px; height: 36px; font-size: 11px; }
+      #touch-ui .b-start { left: 50%; transform: translateX(-50%); bottom: max(22%, env(safe-area-inset-bottom)); width: auto; height: 40px; padding: 0 26px; border-radius: 8px; background: #f0c020d0; color: #120c10; font-size: 16px; letter-spacing: 2px; }
+      #touch-ui .b-start.on { transform: translateX(-50%) scale(0.94); }
+      #touch-ui .sys { position: absolute; right: 12px; top: 15%; display: flex; gap: 10px; pointer-events: none; }
+      #touch-ui .sys button { position: static; width: 34px; height: 34px; padding: 0; border-radius: 8px; border-width: 2px; background: #00000070; display: flex; align-items: center; justify-content: center; }
+      #touch-ui .sys svg { width: 16px; height: 16px; fill: #fff; stroke: #fff; }
+      #touch-ui .sys .b-full svg { fill: none; }
       #rotate-hint { display: none; position: fixed; inset: 0; z-index: 50; background: #0a0608; color: #f0c020; font: bold 20px 'Courier New', monospace; align-items: center; justify-content: center; text-align: center; padding: 20px; }
       @media (orientation: portrait) and (pointer: coarse) { #rotate-hint { display: flex; } }
     </style>

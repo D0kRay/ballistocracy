@@ -69,12 +69,10 @@ export class MenuScene extends Phaser.Scene {
       this.texts.push(t);
     });
     this.help = this.add.bitmapText(VIEW_W / 2, 168, 'pix', CONTROLS_HELP.join('\n'), undefined, 1).setOrigin(0.5, 0).setDepth(11).setVisible(false);
-    this.add.bitmapText(4, VIEW_H - 8, 'pix', `BEST LEVEL ${save.best}   M MUSIC  N MUTE`).setDepth(10).setTint(0x909090);
+    const touch = !!getInput().touch;
+    this.add.bitmapText(4, VIEW_H - 8, 'pix', touch ? `BEST LEVEL ${save.best}   TAP AN ITEM TO START` : `BEST LEVEL ${save.best}   M MUSIC  N MUTE`).setDepth(10).setTint(0x909090);
     this.add.bitmapText(VIEW_W - 4, VIEW_H - 8, 'pix', 'V0.1').setOrigin(1, 0).setDepth(10).setTint(0x909090);
     music.play('menu');
-    if (getInput().touch) {
-      this.add.bitmapText(VIEW_W / 2, VIEW_H - 18, 'pix', 'TAP A MENU ITEM.  FULLSCREEN BUTTON: TOP RIGHT IN GAME').setOrigin(0.5).setDepth(10).setTint(0xc0c0c0);
-    }
   }
 
   private toggleHelp(): void {
