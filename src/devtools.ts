@@ -12,10 +12,10 @@ export function installDevtools(game: Phaser.Game): void {
     if (!seeds[k]) seeds[k] = s;
   }
   w.__seeds = seeds;
-  w.__view = async (key: string | number, frac = 0.35, level = 4) => {
-    const seed = typeof key === 'number' ? key : seeds[key];
+  w.__view = async (key: string | number, frac = 0.35, level = 4, custom?: unknown) => {
+    const seed = typeof key === 'number' ? key : seeds[key] ?? 1;
     const cur = game.scene.getScenes(true)[0];
-    cur.scene.start('Game', { mode: 'local', level, seed, total: 0, lives: 5, players: [{ pid: 0, hero: 0, owner: 'host', device: 'kbA' }] });
+    cur.scene.start('Game', { mode: 'local', level, seed, total: 0, lives: 5, players: [{ pid: 0, hero: 0, owner: 'host', device: 'kbA' }], custom });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let world: any = null;
     // drive the loop by hand: the preview pane may be hidden (throttled rAF)
@@ -30,7 +30,7 @@ export function installDevtools(game: Phaser.Game): void {
       run(1);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const g = game.scene.getScene('Game') as any;
-      if (g?.world && game.scene.isActive('Game') && g.world.level.plan.seed === seed) world = g.world;
+      if (g?.world && game.scene.isActive('Game') && (custom || level === 1 || g.world.level.plan.seed === seed)) world = g.world;
     }
     if (!world) return 'timeout';
     world.intro = null;

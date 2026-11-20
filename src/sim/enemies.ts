@@ -15,13 +15,13 @@ export interface EnemyDef {
 }
 
 export const ENEMY_DEFS: Record<EnemyType, EnemyDef> = {
-  grunt: { hp: 2, speed: 28, chase: 50, sight: 170, w: 10, h: 14 },
-  shield: { hp: 4, speed: 20, chase: 38, sight: 150, w: 12, h: 14 },
-  sniper: { hp: 2, speed: 0, chase: 0, sight: 300, w: 10, h: 14 },
-  bomber: { hp: 2, speed: 28, chase: 100, sight: 150, w: 10, h: 14 },
-  dog: { hp: 2, speed: 40, chase: 135, sight: 160, w: 14, h: 9 },
+  grunt: { hp: 1, speed: 28, chase: 50, sight: 170, w: 10, h: 14 },
+  shield: { hp: 3, speed: 20, chase: 38, sight: 150, w: 12, h: 14 },
+  sniper: { hp: 1, speed: 0, chase: 0, sight: 300, w: 10, h: 14 },
+  bomber: { hp: 1, speed: 28, chase: 100, sight: 150, w: 10, h: 14 },
+  dog: { hp: 1, speed: 40, chase: 135, sight: 160, w: 14, h: 9 },
   drone: { hp: 2, speed: 35, chase: 60, sight: 190, w: 14, h: 8 },
-  heavy: { hp: 12, speed: 16, chase: 26, sight: 190, w: 12, h: 15 },
+  heavy: { hp: 9, speed: 16, chase: 26, sight: 190, w: 12, h: 15 },
 };
 
 function findTarget(w: World, e: Enemy, range: number): Player | null {

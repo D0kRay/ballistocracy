@@ -23,6 +23,14 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
   minigun: { name: 'MINIGUN', rate: 0.05, ammo: 320, spread: 0.09, pellets: 1, speed: 460, dmg: 1, proj: 'bullet', life: 0.55, sfx: 'minigun', kick: 8 },
 };
 
+/** every hero has a signature weapon with unlimited ammo and a default special */
+export const HERO_LOADOUT: { weapon: WeaponId; special: SpecialId; count: number }[] = [
+  { weapon: 'rifle', special: 'grenade', count: 3 }, // MAYHEM: all-rounder
+  { weapon: 'flamer', special: 'grenade', count: 3 }, // BLAZE: close-range burner
+  { weapon: 'shotgun', special: 'c4', count: 2 }, // CRATER: breacher
+  { weapon: 'rocket', special: 'grenade', count: 2 }, // HAVOC: demolition
+];
+
 export const SPECIALS: Record<SpecialId, { name: string; count: number }> = {
   grenade: { name: 'GRENADE', count: 3 },
   c4: { name: 'C4', count: 2 },

@@ -50,6 +50,7 @@ export interface Player extends Body {
   bits: number;
   prev: number;
   connected: boolean;
+  base: WeaponId; // signature weapon (unlimited ammo)
   inVehicle: boolean; // riding the intro helicopter or boarded the extraction vehicle
 }
 

@@ -136,7 +136,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     flat: (x, maxW) => {
       const len = Math.min(maxW, rng.int(8, 14));
       for (let i = 0; i < len; i++) {
-        if (i % 3 === 0 && rng.chance(0.3)) g = clampG(g + rng.pick([-1, 1]));
+        if (i % 3 === 0 && rng.chance(0.4)) g = clampG(g + rng.pick([-2, -1, 1, 2]));
         ground(x + i, g);
       }
       if (rng.chance(0.4)) {
@@ -470,13 +470,13 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
   const runEnd = plan.isBoss ? plan.lengthTiles - 4 : W - 12;
   let x = startLen;
   const weights: (readonly [Chunk, number])[] = [
-    ['flat', 4],
-    ['pit', 2.5],
-    ['bunker', levelNo >= 2 ? 2 : 1],
-    ['tower', levelNo >= 2 ? 1.2 : 0.4],
-    ['hill', 2],
-    ['cave', levelNo >= 2 ? 1.5 : 0.5],
-    ['platforms', levelNo >= 2 ? 1.2 : 0.3],
+    ['flat', 2.2],
+    ['pit', 2],
+    ['bunker', 2.6],
+    ['tower', 1.5],
+    ['hill', 2.2],
+    ['cave', 1.8],
+    ['platforms', 1],
     ['traps', plan.trapRate * 6],
     ['acid', plan.trapRate * 3],
     ['village', biome === 'jungle' || biome === 'desert' || biome === 'snow' ? 2 : 0],
@@ -484,7 +484,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     ['ruin', biome === 'city' ? 3 : biome === 'snow' ? 0.6 : 0],
     ['scaffold', biome === 'industrial' ? 3 : biome === 'city' ? 0.8 : 0],
     ['bridge', biome === 'jungle' || biome === 'snow' || biome === 'volcano' ? 1.2 : 0.5],
-    ['cliff', 1.4],
+    ['cliff', 1.8],
   ];
   let last: Chunk | null = null;
   while (x < runEnd) {
@@ -558,7 +558,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     }
   }
   // underground tunnels with a ladder shaft down from the surface
-  const caves = Math.floor((endX - startX) / 55) + (rng.chance(0.5) ? 1 : 0);
+  const caves = Math.floor((endX - startX) / 38) + 1;
   for (let c = 0; c < caves; c++) {
     let cx = rng.int(startX + 4, Math.max(startX + 5, endX - 20));
     const s0 = surfaceOf(cx);
@@ -579,6 +579,16 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
       }
       if (i === Math.floor(len / 2)) enemyAt(cx, cy + 1, 'grunt');
       if (i === len - 2) propAt(rng.chance(0.5) ? 'cage' : 'crate', cx, cy + 1, { item: randomItem(rng) });
+      if (i === 4 && rng.chance(0.5)) propAt('barrel', cx, cy + 1);
+    }
+    // exit shaft back up so tunnels never dead-end
+    const ex = cx - 1;
+    const es = surfaceOf(ex);
+    if (es >= 0) {
+      for (let y = es; y < cy; y++) {
+        if (grid.get(ex, y) === T.DIRT || grid.get(ex, y) === T.STONE || grid.get(ex, y) === T.EMPTY) grid.init(ex, y, T.LADDER);
+        back[y * W + ex] = 1;
+      }
     }
   }
   // trees and other scenery on open ground

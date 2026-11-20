@@ -1,6 +1,7 @@
 import { VIEW_W } from '../config';
 import type { BossType, EnemyType } from '../progress/difficulty';
 import { makeBody } from '../sim/physics';
+import { HERO_LOADOUT } from '../sim/weapons';
 import type { Boss, Debris, Enemy, GameEvent, Pickup, Player, Projectile, ProjType, Prop, SpecialId, WeaponId } from '../sim/types';
 import type { World, Status } from '../sim/World';
 import type { ItemId, PropType } from '../world/LevelGen';
@@ -95,7 +96,8 @@ export function applySnapshot(w: World, s: Snap): void {
     p.id = a[0]; p.pid = a[1]; p.hero = a[2]; p.x = a[3]; p.y = a[4]; p.vx = a[5]; p.vy = a[6]; p.facing = a[7];
     p.alive = (a[8] & 1) !== 0; p.onGround = (a[8] & 2) !== 0; p.climbing = (a[8] & 4) !== 0; p.connected = (a[8] & 8) !== 0; p.inVehicle = (a[8] & 16) !== 0;
     p.hp = a[9]; p.armor = a[10]; p.inv = a[11]; p.weapon = WEAPON_IDS[a[12]] ?? 'rifle'; p.ammo = a[13] < 0 ? Infinity : a[13];
-    p.special = SPECIAL_IDS[a[14]] ?? 'grenade'; p.specialCount = a[15]; p.respawnT = a[16] < 0 ? Infinity : a[16]; p.speedT = a[17];
+    p.special = SPECIAL_IDS[a[14]] ?? 'grenade'; p.specialCount = a[15];
+    p.base = HERO_LOADOUT[p.hero % 4].weapon; p.respawnT = a[16] < 0 ? Infinity : a[16]; p.speedT = a[17];
     if (Math.abs(p.x - prevX) > 0.01) p.animT += 0.05;
     return p;
   });

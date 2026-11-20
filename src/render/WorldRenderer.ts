@@ -9,6 +9,7 @@ import { SCENERY_TILED, makeScenery } from '../gfx/scenery';
 import type { GameEvent } from '../sim/types';
 import type { World } from '../sim/World';
 import { T, isSolid } from '../world/tiles';
+import { TerrainPainter, isNatural } from './TerrainPainter';
 import { biomeAt } from '../world/biomes';
 
 interface Particle {
@@ -92,6 +93,7 @@ export class WorldRenderer {
   private smooth = new Map<number, { x: number; y: number }>();
   private time = 0;
   private sceneObjs: SceneObj[] = [];
+  private painter!: TerrainPainter;
   private night = false;
   private frameNo = 0;
 
@@ -150,8 +152,9 @@ export class WorldRenderer {
     for (let y = 0; y < g.h; y++)
       for (let x = 0; x < g.w; x++) {
         const v = back ? back[y * g.w + x] : 0;
-        if (v !== BACK.NONE) this.backLayer.putTileAt(GID_BACK + v, x, y);
+        if (v !== BACK.NONE && v !== BACK.DIRT) this.backLayer.putTileAt(GID_BACK + v, x, y);
       }
+    this.painter = new TerrainPainter(this.scene, g, back ?? new Uint8Array(g.w * g.h), w.biome, w.level.plan.seed % 9973);
     for (let y = 0; y < g.h; y++) for (let x = 0; x < g.w; x++) this.refreshTile(x, y, false);
     for (let y = 0; y < g.h; y++) for (let x = 0; x < g.w; x++) this.refreshTint(x, y);
   }
@@ -240,7 +243,7 @@ export class WorldRenderer {
   private refreshTile(x: number, y: number, tint = true): void {
     const g = this.world.grid;
     const t = g.get(x, y);
-    if (t === T.EMPTY) this.layer.removeTileAt(x, y);
+    if (t === T.EMPTY || isNatural(t)) this.layer.removeTileAt(x, y);
     else {
       let mask = 0;
       const solidLike = (tt: number) => isSolid(tt) || tt === T.SANDBAG;
@@ -278,7 +281,7 @@ export class WorldRenderer {
     }
     if (g.get(x, y) === T.EMPTY && (below === T.DIRT || below === T.STONE)) {
       const h = hash2(x * 3 + 1, y * 7 + 5) % 100;
-      const f = h < 55 ? h % 4 : h < 62 ? 4 : h < 67 ? 5 : h < 71 ? 6 : h < 73 ? DECOR_FRAMES - 1 : -1;
+      const f = h < 22 ? h % 4 : h < 29 ? 4 : h < 34 ? 5 : h < 38 ? 6 : h < 40 ? DECOR_FRAMES - 1 : -1;
       if (f >= 0) this.decorLayer.putTileAt(GID_DECOR + f, x, y);
       else this.decorLayer.removeTileAt(x, y);
     } else this.decorLayer.removeTileAt(x, y);
@@ -313,7 +316,9 @@ export class WorldRenderer {
       const y = Math.floor(i / w);
       for (const [dx, dy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) this.refreshTile(x + dx, y + dy, dx === 0 && dy === 0);
       if (changes[k + 1] === T.EMPTY) this.eraseDecal(x * TILE, y * TILE);
+      this.painter.repaint(x, y);
     }
+    this.painter.flush();
   }
 
   // ------------------------------------------------------------ decals

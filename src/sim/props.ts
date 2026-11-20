@@ -191,7 +191,11 @@ export function updatePickups(w: World, dt: number): void {
       const it = k.item;
       let took = false;
       if (isWeaponItem(it)) {
-        if (p.weapon === 'rifle') {
+        if (it === p.base) {
+          // own signature weapon: refill specials instead
+          p.specialCount = Math.min(9, p.specialCount + 1);
+          took = true;
+        } else if (p.weapon === p.base) {
           p.weapon = it;
           p.ammo = WEAPONS[it].ammo;
           took = true;

@@ -3,6 +3,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { DT } from '../src/config';
+import { IN } from '../src/core/input';
 import { World } from '../src/sim/World';
 import { generateLevel } from '../src/world/LevelGen';
 import { blankLevel, levelFromFile, levelToFile, validateLevel, type LevelFile } from '../src/world/levelFormat';
@@ -50,5 +51,27 @@ describe('level format', () => {
     const v2 = validateLevel(g);
     expect(v2.errors.join(' ')).toContain('unknown enemy');
     expect(v2.errors.join(' ')).toContain('spawn');
+  });
+});
+
+describe('campaign opener', () => {
+  it('jungle-assault is beatable by a simple bot with every hero', () => {
+    const f = JSON.parse(readFileSync('levels/jungle-assault.json', 'utf8')) as LevelFile;
+    for (const hero of [0, 1, 2, 3]) {
+      const w = new World(levelFromFile(f), [{ pid: 0, hero, name: 'B' }], 30);
+      const p = w.players[0];
+      let stuck = 0;
+      let lastX = 0;
+      for (let i = 0; i < 60 * 180 && w.status === 'playing'; i++) {
+        let bits = IN.RIGHT | IN.FIRE;
+        if (i % 50 < 18) bits |= IN.JUMP;
+        stuck = Math.abs(p.x - lastX) < 0.05 ? stuck + 1 : 0;
+        lastX = p.x;
+        if (stuck > 40) bits |= IN.UP | IN.JUMP | (i % 90 === 0 ? IN.SPECIAL : 0);
+        w.step(DT, new Map([[0, bits]]));
+        w.events = [];
+      }
+      expect(w.status).toBe('complete');
+    }
   });
 });

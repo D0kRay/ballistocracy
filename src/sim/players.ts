@@ -1,4 +1,5 @@
 import { CLIMB_SPEED, GRAVITY, JUMP_VEL, MAX_FALL, RUN_SPEED, TILE, WALL_SLIDE } from '../config';
+import type { ItemId } from '../world/LevelGen';
 import { IN, has, pressed } from '../core/input';
 import { T, isOneWay } from '../world/tiles';
 import { moveBody, overlap } from './physics';
@@ -119,10 +120,10 @@ function actions(w: World, p: Player): void {
     w.sfx(wd.sfx, p.x);
     if (wd.kick && !p.onGround) p.vx -= p.facing * wd.kick;
     else if (wd.kick) p.x -= p.facing * wd.kick * 0.02;
-    if (Number.isFinite(p.ammo)) {
+    if (Number.isFinite(p.ammo) && p.weapon !== p.base) {
       p.ammo--;
       if (p.ammo <= 0) {
-        p.weapon = 'rifle';
+        p.weapon = p.base;
         p.ammo = Infinity;
         w.text(p.x - 8, p.y - 8, 'EMPTY', '#ff8080');
       }
@@ -155,9 +156,9 @@ function actions(w: World, p: Player): void {
     const pk = w.pickups.find((k) => !k.dead && overlap(p, k) && (isWeaponItem(k.item) || isSpecialItem(k.item)));
     if (pk) {
       if (isWeaponItem(pk.item)) {
-        if (p.weapon !== 'rifle' && p.ammo > 0) w.spawnPickup(p.weapon, p.x, p.y, 15);
+        if (p.weapon !== p.base && p.ammo > 0) w.spawnPickup(p.weapon as ItemId, p.x, p.y, 15);
         p.weapon = pk.item;
-        p.ammo = WEAPONS[pk.item].ammo;
+        p.ammo = pk.item === p.base ? Infinity : WEAPONS[pk.item].ammo;
       } else if (isSpecialItem(pk.item)) {
         if (p.special !== pk.item && p.specialCount > 0) w.spawnPickup(p.special, p.x, p.y, 15);
         p.special = pk.item;
@@ -166,10 +167,10 @@ function actions(w: World, p: Player): void {
       pk.dead = true;
       w.sfx('pickup', p.x);
       w.text(p.x - 10, p.y - 8, ITEM_NAMES[pk.item], '#ffe040');
-    } else if (p.weapon !== 'rifle') {
+    } else if (p.weapon !== p.base) {
       const t = w.spawnProjectile('thrown', p.x + p.w / 2, p.y + 4, p.facing * 260, -120, 'p', p.id, 4, 2);
-      t.item = p.weapon;
-      p.weapon = 'rifle';
+      t.item = p.weapon as ItemId;
+      p.weapon = p.base;
       p.ammo = Infinity;
       w.sfx('throw', p.x);
     }

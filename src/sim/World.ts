@@ -9,6 +9,7 @@ import { T } from '../world/tiles';
 import { makeBody, overlap } from './physics';
 import type { Boss, Debris, Enemy, GameEvent, Owner, Pickup, Player, Projectile, Prop, ProjType, SfxName } from './types';
 import { updatePlayer } from './players';
+import { HERO_LOADOUT } from './weapons';
 import { ENEMY_DEFS, updateEnemies } from './enemies';
 import { updateProjectiles } from './projectiles';
 import { updateProps, updatePickups, updateDebris } from './props';
@@ -106,10 +107,11 @@ export class World {
       inv: 1.5,
       alive: true,
       respawnT: 0,
-      weapon: 'rifle',
+      weapon: HERO_LOADOUT[d.hero % 4].weapon,
+      base: HERO_LOADOUT[d.hero % 4].weapon,
       ammo: Infinity,
-      special: 'grenade',
-      specialCount: 3,
+      special: HERO_LOADOUT[d.hero % 4].special,
+      specialCount: HERO_LOADOUT[d.hero % 4].count,
       fireCd: 0,
       facing: 1,
       climbing: false,
@@ -383,10 +385,11 @@ export class World {
     p.alive = true;
     p.hp = PLAYER_HP;
     p.inv = 2;
-    p.weapon = 'rifle';
+    const lo = HERO_LOADOUT[p.hero % 4];
+    p.weapon = p.base;
     p.ammo = Infinity;
-    p.special = 'grenade';
-    p.specialCount = 3;
+    p.special = lo.special;
+    p.specialCount = lo.count;
     p.armor = 0;
     this.text(p.x, p.y + 10, 'GO!', '#ffe040');
   }
