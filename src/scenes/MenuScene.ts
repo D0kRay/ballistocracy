@@ -34,6 +34,8 @@ export class MenuScene extends Phaser.Scene {
     clearDom();
     setNet(null);
     this.sel = 0;
+    this.confirmNew = false;
+    this.showHelp = false;
     this.texts = [];
     this.heroes = [];
     const biome = BIOMES[Math.floor(Math.random() * BIOMES.length)];
@@ -53,7 +55,7 @@ export class MenuScene extends Phaser.Scene {
     const save = loadSave();
     this.items = [
       { label: save.level > 1 ? `CONTINUE  LEVEL ${save.level}` : 'START MISSION', action: () => this.go('local', save.level) },
-      { label: 'NEW CAMPAIGN', action: () => this.go('local', resetSave().level) },
+      { label: 'NEW CAMPAIGN', action: () => this.newCampaign(save.level) },
       { label: save.level > 1 ? `HOST ONLINE  LEVEL ${save.level}` : 'HOST ONLINE GAME', action: () => this.go('host', save.level) },
       { label: 'JOIN ONLINE GAME', action: () => this.go('guest', 1) },
       { label: 'COMMUNITY LEVELS', action: () => this.scene.start('Levels') },
@@ -80,7 +82,26 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private touchLabels(): TouchLabels {
+    if (this.confirmNew) return { jump: 'RESET', fire: null, special: 'NO', interact: null };
     return { jump: 'OK', fire: null, special: this.showHelp ? 'BACK' : null, interact: null };
+  }
+
+  /** NEW CAMPAIGN wipes the saved level: ask once before doing it */
+  private newCampaign(level: number): void {
+    if (level <= 1 || this.confirmNew) {
+      this.confirmNew = false;
+      this.go('local', resetSave().level);
+      return;
+    }
+    this.confirmNew = true;
+    this.confirmSel = this.sel;
+    playSfx('clink');
+    getInput().touch?.setLabels(this.touchLabels());
+  }
+
+  private cancelConfirm(): void {
+    this.confirmNew = false;
+    getInput().touch?.setLabels(this.touchLabels());
   }
 
   private toggleHelp(): void {
@@ -111,7 +132,8 @@ export class MenuScene extends Phaser.Scene {
       this.sel = (this.sel + this.items.length - 1) % this.items.length;
       playSfx('clink');
     }
-    if (this.showHelp && inp.anyPressed(IN.SPECIAL)) this.toggleHelp();
+    if (this.confirmNew && (this.sel !== this.confirmSel || inp.anyPressed(IN.SPECIAL) || inp.keyDown('Escape'))) this.cancelConfirm();
+    else if (this.showHelp && inp.anyPressed(IN.SPECIAL)) this.toggleHelp();
     if (inp.anyPressed(IN.JUMP) || inp.anyPressed(IN.START) || inp.anyPressed(IN.FIRE)) {
       this.items[this.sel].action();
       return;
@@ -127,10 +149,18 @@ export class MenuScene extends Phaser.Scene {
 
     this.texts.forEach((t, i) => {
       const on = i === this.sel;
+      if (on && this.confirmNew) {
+        const lvl = loadSave().level;
+        t.setTint(Math.floor(this.t * 6) % 2 ? 0xff4030 : 0xffffff);
+        t.setText(getInput().touch ? `LOSE LEVEL ${lvl}? RESET / NO` : `LOSE LEVEL ${lvl}? ENTER YES  ESC NO`);
+        return;
+      }
       t.setTint(on ? (Math.floor(this.t * 6) % 2 ? 0xffe040 : 0xffffff) : 0x9090a0);
       t.setText((on ? '> ' : '') + this.items[i].label + (on ? ' <' : ''));
     });
   }
   private mHeld = false;
+  private confirmNew = false;
+  private confirmSel = -1;
   private nHeld = false;
 }
