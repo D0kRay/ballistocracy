@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { DT, NET_SNAPSHOT_EVERY, VIEW_H, VIEW_W } from '../config';
-import { music } from '../audio/Music';
+import { music, trackFor } from '../audio/Music';
 import { playSfx, toggleMute } from '../audio/Sfx';
 import { getInput } from '../input/InputManager';
 import { GAME_LABELS } from '../input/TouchControls';
@@ -143,7 +143,7 @@ export class GameScene extends Phaser.Scene {
       canvas.style.cursor = '';
     });
     this.cameras.main.fadeIn(300);
-    music.play(level.plan.isBoss ? 'boss' : 'level');
+    music.play(trackFor(this.world.biome.id, level.plan.isBoss, d.level));
     this.hud.handle({
       k: 'banner',
       s: d.custom ? d.custom.name : level.plan.isBoss ? `LEVEL ${d.level}: BOSS` : `LEVEL ${d.level}`,
@@ -337,7 +337,7 @@ export class GameScene extends Phaser.Scene {
       return false;
     };
     if (tap('KeyM')) {
-      if (music.toggle()) music.play(this.world.level.plan.isBoss ? 'boss' : 'level');
+      if (music.toggle()) music.resume();
     }
     if (tap('KeyN')) toggleMute();
     if (tap('Escape')) {
