@@ -29,6 +29,8 @@ export class LevelsScene extends Phaser.Scene {
     for (let i = 0; i < 12; i++) this.rows.push(this.add.bitmapText(24, 34 + i * 13, 'pix', '').setScale(1));
     this.info = this.add.bitmapText(VIEW_W / 2, VIEW_H - 34, 'pix', '', undefined, 1).setOrigin(0.5, 0).setTint(0xa0a0a0);
     if (!this.entries.length) this.add.bitmapText(VIEW_W / 2, 100, 'pix', 'NO LEVELS YET - OPEN THE LEVEL EDITOR', undefined, 1).setOrigin(0.5);
+    getInput().touch?.setVisible(true, { jump: 'PLAY', fire: 'HOST', special: 'BACK', interact: null }, 'dpad');
+    this.events.once('shutdown', () => getInput().touch?.setVisible(false));
     this.draw();
   }
 
@@ -48,7 +50,7 @@ export class LevelsScene extends Phaser.Scene {
     const inp = getInput();
     inp.poll();
     const n = this.entries.length;
-    if (this.tap('Escape')) {
+    if (this.tap('Escape') || inp.justPressed('touch', IN.SPECIAL)) {
       this.scene.start('Menu');
       return;
     }
@@ -61,7 +63,7 @@ export class LevelsScene extends Phaser.Scene {
         this.scene.start('Lobby', { mode: 'local', level: 1, custom: e.file });
         return;
       }
-      if (this.tap('KeyH')) {
+      if (this.tap('KeyH') || inp.justPressed('touch', IN.FIRE)) {
         this.scene.start('Lobby', { mode: 'host', level: 1, custom: e.file });
         return;
       }
@@ -94,7 +96,7 @@ export class LevelsScene extends Phaser.Scene {
     });
     const e = this.entries[this.sel];
     this.info.setText(
-      `${e?.file.description ? e.file.description.toUpperCase().slice(0, 70) + '\n' : ''}ENTER PLAY LOCAL   H HOST ONLINE   E OPEN IN EDITOR   DEL DELETE (MINE)   ESC BACK`,
+      `${e?.file.description ? e.file.description.toUpperCase().slice(0, 70) + '\n' : ''}${getInput().touch ? 'CROSS: CHOOSE   PLAY: LOCAL   HOST: ONLINE   BACK: MENU' : 'ENTER PLAY LOCAL   H HOST ONLINE   E OPEN IN EDITOR   DEL DELETE (MINE)   ESC BACK'}`,
     );
   }
 }

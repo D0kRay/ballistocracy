@@ -5,6 +5,7 @@ import { music } from '../audio/Music';
 import { playSfx, toggleMute } from '../audio/Sfx';
 import { PARALLAX_H, makeParallax } from '../gfx/parallax';
 import { CONTROLS_HELP, getInput } from '../input/InputManager';
+import type { TouchLabels } from '../input/TouchControls';
 import { setNet } from '../net/NetSession';
 import { loadSave, resetSave } from '../progress/save';
 import { clearDom } from '../ui/dom';
@@ -70,13 +71,21 @@ export class MenuScene extends Phaser.Scene {
     });
     this.help = this.add.bitmapText(VIEW_W / 2, 168, 'pix', CONTROLS_HELP.join('\n'), undefined, 1).setOrigin(0.5, 0).setDepth(11).setVisible(false);
     const touch = !!getInput().touch;
-    this.add.bitmapText(4, VIEW_H - 8, 'pix', touch ? `BEST LEVEL ${save.best}   TAP AN ITEM TO START` : `BEST LEVEL ${save.best}   M MUSIC  N MUTE`).setDepth(10).setTint(0x909090);
+    this.add.bitmapText(4, VIEW_H - 8, 'pix', touch ? `BEST LEVEL ${save.best}   CROSS + OK OR TAP AN ITEM` : `BEST LEVEL ${save.best}   M MUSIC  N MUTE`).setDepth(10).setTint(0x909090);
     this.add.bitmapText(VIEW_W - 4, VIEW_H - 8, 'pix', 'V0.1').setOrigin(1, 0).setDepth(10).setTint(0x909090);
     music.play('menu');
+    // touch: d-pad steps through the items, OK picks one
+    getInput().touch?.setVisible(true, this.touchLabels(), 'dpad');
+    this.events.once('shutdown', () => getInput().touch?.setVisible(false));
+  }
+
+  private touchLabels(): TouchLabels {
+    return { jump: 'OK', fire: null, special: this.showHelp ? 'BACK' : null, interact: null };
   }
 
   private toggleHelp(): void {
     this.showHelp = !this.showHelp;
+    getInput().touch?.setLabels(this.touchLabels());
     this.help.setVisible(this.showHelp);
     this.heroes.forEach((h) => h.setVisible(!this.showHelp));
   }
@@ -102,6 +111,7 @@ export class MenuScene extends Phaser.Scene {
       this.sel = (this.sel + this.items.length - 1) % this.items.length;
       playSfx('clink');
     }
+    if (this.showHelp && inp.anyPressed(IN.SPECIAL)) this.toggleHelp();
     if (inp.anyPressed(IN.JUMP) || inp.anyPressed(IN.START) || inp.anyPressed(IN.FIRE)) {
       this.items[this.sel].action();
       return;

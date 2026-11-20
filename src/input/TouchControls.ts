@@ -8,6 +8,8 @@ export type TouchButton = 'jump' | 'fire' | 'special' | 'interact';
 /** label per button; null hides it */
 export type TouchLabels = Record<TouchButton, string | null>;
 export const GAME_LABELS: TouchLabels = { jump: 'JUMP', fire: 'FIRE', special: 'BOOM', interact: 'GRAB' };
+/** left side: analog stick (game) or a d-pad cross (menus) */
+export type TouchPad = 'stick' | 'dpad';
 
 export function isTouchDevice(): boolean {
   if (typeof window === 'undefined') return false;
@@ -32,6 +34,7 @@ export class TouchControls {
   private held = new Map<number, Btn>(); // pointerId -> button
   private buttons: Btn[] = [];
   private tapBits = 0; // presses since the last poll (keeps very short taps)
+  private lastOut = 0; // bits returned by the previous poll
   // FIRE doubles as an aim stick: drag away from where it was pressed to shoot that way
   private fireId: number | null = null;
   private fireOrigin = { x: 0, y: 0 };
@@ -49,6 +52,12 @@ export class TouchControls {
     this.root.innerHTML = `
       <div class="zone-left"></div>
       <div class="stick-base"><div class="stick-knob"></div></div>
+      <div class="dpad">
+        <button data-b="up" class="d-up" aria-label="Up"></button>
+        <button data-b="left" class="d-left" aria-label="Left"></button>
+        <button data-b="right" class="d-right" aria-label="Right"></button>
+        <button data-b="down" class="d-down" aria-label="Down"></button>
+      </div>
       <div class="btns">
         <button data-b="special" class="b-special"><span class="lbl">BOOM</span></button>
         <button data-b="interact" class="b-interact"><span class="lbl">GRAB</span></button>
@@ -63,7 +72,7 @@ export class TouchControls {
     this.stickKnob = this.root.querySelector('.stick-knob') as HTMLElement;
     this.fireArrow = this.root.querySelector('.aim-arrow') as HTMLElement;
 
-    const bitOf: Record<string, number> = { jump: IN.JUMP, fire: IN.FIRE, special: IN.SPECIAL, interact: IN.INTERACT };
+    const bitOf: Record<string, number> = { jump: IN.JUMP, fire: IN.FIRE, special: IN.SPECIAL, interact: IN.INTERACT, up: IN.UP, down: IN.DOWN, left: IN.LEFT, right: IN.RIGHT };
     this.root.querySelectorAll('button').forEach((el) => {
       const name = (el as HTMLElement).dataset.b ?? '';
       if (name === 'full') {
@@ -207,9 +216,13 @@ export class TouchControls {
     this.stickKnob.style.transform = `translate(${kx}px, ${ky}px)`;
   }
 
-  setVisible(v: boolean, labels: TouchLabels = GAME_LABELS): void {
+  setVisible(v: boolean, labels: TouchLabels = GAME_LABELS, pad: TouchPad = 'stick'): void {
     this.visible = v;
     this.root.style.display = v ? 'block' : 'none';
+    this.root.classList.toggle('pad-dpad', pad === 'dpad');
+    this.stickId = null;
+    this.dir = { x: 0, y: 0 };
+    this.stickBase.classList.remove('active');
     if (v) requestAnimationFrame(() => this.layout());
     this.setLabels(labels);
     if (!v) {
@@ -230,8 +243,16 @@ export class TouchControls {
     if (this.dir.y < -0.55) b |= IN.UP;
     if (this.dir.y > 0.55) b |= IN.DOWN;
     for (const btn of this.held.values()) b |= btn.bit;
-    b |= this.tapBits;
-    this.tapBits = 0;
+    // a tap on a bit that was already on last poll would not register as a new press:
+    // hold it back one poll (output 0 now, press next poll) so fast repeated taps all count
+    let defer = 0;
+    for (let bit = 1; bit <= IN.START; bit <<= 1) {
+      if (!(this.tapBits & bit)) continue;
+      if (this.lastOut & bit && !(b & bit)) defer |= bit;
+      else b |= bit;
+    }
+    this.tapBits = defer;
+    this.lastOut = b;
     if (this.fireAim !== null) b = withAim(b, this.fireAim);
     return b;
   }
