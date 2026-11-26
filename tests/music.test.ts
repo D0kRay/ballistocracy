@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { PLAYLISTS, TRACKS, playlistFor } from '../src/audio/Music';
+import { PLAYLISTS, TRACKS, menuPlaylist, playlistFor } from '../src/audio/Music';
+import { SYLLABLES } from '../src/audio/Singer';
 import { BIOMES } from '../src/world/biomes';
 
 const toks = (s: string) => s.trim().split(/\s+/);
@@ -22,6 +23,11 @@ describe('soundtracks', () => {
     for (const n of playlistFor('jungle', true, 1)) expect(PLAYLISTS.boss).toContain(n);
   });
 
+  it('the menu opens with the sung title song', () => {
+    expect(menuPlaylist()[0]).toBe('title');
+    expect(Object.values(TRACKS.title.parts).some((p) => p.vox?.includes('/bal'))).toBe(true);
+  });
+
   it('every track is used in some playlist', () => {
     const used = new Set(Object.values(PLAYLISTS).flat());
     for (const n of Object.keys(TRACKS)) expect(used, n).toContain(n);
@@ -42,8 +48,20 @@ describe('soundtracks', () => {
         for (const x of [...lead, ...bass]) expect(x === '.' || x === '-' || Number.isFinite(Number(x)), `${name} token ${x}`).toBe(true);
         expect(lead[0] === '-' || bass[0] === '-').toBe(false);
         if (p.chords) expect(p.chords.length).toBeGreaterThan(0);
+        if (p.vox) {
+          const vox = toks(p.vox);
+          expect(vox.length, `${name} ${k} vox length`).toBe(lead.length);
+          expect(vox[0]).not.toBe('-');
+          for (const v of vox) {
+            if (v === '.' || v === '-') continue;
+            const [deg, syl] = v.split('/');
+            expect(Number.isFinite(Number(deg)), `${name} vox ${v}`).toBe(true);
+            expect(SYLLABLES[syl], `${name} syllable ${syl}`).toBeTruthy();
+          }
+        }
+        for (const lane of Object.values(p.drums ?? {})) expect([16, 32, 64]).toContain(lane!.length);
       }
-      for (const lane of Object.values(t.drums)) expect([16, 32]).toContain(lane!.length);
+      for (const lane of Object.values(t.drums)) expect([16, 32, 64]).toContain(lane!.length);
       if (t.chordRhythm) expect(t.chordRhythm.length).toBe(16);
       if (t.chordInst || t.arpWave) expect(Object.values(t.parts).every((p) => p.chords?.length)).toBe(true);
     });

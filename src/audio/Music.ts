@@ -1,4 +1,5 @@
 import { audioOut } from './Sfx';
+import { sing } from './Singer';
 
 // Small synth + sequencer. Every track picks its instruments (detuned supersaws, distorted
 // guitars with power chords, acid / reese / slap basses, pads, strings, brass...), a drum
@@ -21,6 +22,12 @@ interface Part {
   lead: string;
   /** chord (scale degrees) per bar for the arpeggio / pad / stab channel */
   chords?: number[][];
+  /** sung line, one token per 16th: 'degree/syllable' (see Singer), '.' rest, '-' hold */
+  vox?: string;
+  /** drums for this part only (intro without kick, build-up with a snare roll...) */
+  drums?: Partial<Record<Lane, string>>;
+  /** white-noise sweep rising over the whole part (EDM build-up) */
+  riser?: boolean;
 }
 
 interface Track {
@@ -52,6 +59,10 @@ interface Track {
   delay?: number; // echo send level (0..1)
   reverb?: number; // reverb send level (0..1)
   loops?: number; // times the whole order plays before the playlist moves on
+  /** sidechain pumping: bass, chords and lead duck on every beat while the kick plays */
+  pump?: boolean;
+  voxOct?: number; // semitones above root for the singer (default 12)
+  voxVol?: number;
   parts: Record<string, Part>;
   order: string; // e.g. 'AABA'
 }
@@ -69,7 +80,74 @@ const L = (...bars: string[]) => bars.join(' ');
 /** repeat a bar */
 const R = (bar: string, n: number) => Array(n).fill(bar).join(' ');
 
+const REST = '. . . . . . . . . . . . . . . .';
+const EDM_CHORDS = [[0, 2, 4], [5, 7, 9], [2, 4, 6], [6, 8, 10]]; // Am F C G
+const EDM_DROP: Partial<Record<Lane, string>> = {
+  k: 'k...k...k...k...',
+  c: '....C.......C...',
+  o: '..o...o...o...o.',
+  h: 'h.hhh.hhh.hhh.hh',
+  x: 'X...............................',
+};
+
 export const TRACKS: Record<string, Track> = {
+  // ------------------------------------------------------------------ title song
+  // EDM anthem: the synth singer chants BAL-LIS-TO-CRA-CY over pumping supersaws
+  title: {
+    style: 'edm',
+    bpm: 128, root: 57, scale: MINOR, bassWave: 'sawtooth', leadWave: 'sawtooth', bassInst: 'saw', leadInst: 'supersaw', leadVol: 0.1,
+    chordInst: 'pad', kit: 'electro', pump: true, delay: 0.35, reverb: 0.45, voxOct: 0, voxVol: 0.34, loops: 2,
+    drums: EDM_DROP,
+    parts: {
+      // intro: pad and the voice, no kick
+      I: {
+        bass: L('0 - - - - - - -', '-2 - - - - - - -', '-5 - - - - - - -', '-1 - - - - - - -'),
+        lead: R(REST, 4),
+        chords: EDM_CHORDS,
+        vox: L(REST, '0/bal - - 2/lis - 4/to - - 3/cra - 2/cy - - - - -', REST, '4/oh - - - - - - - 2/oh - - - - - - -'),
+        drums: { h: '..h...h...h...h.' },
+      },
+      // build-up: kick, accelerating snare roll, noise riser, chopped vocals
+      B: {
+        bass: L('0 . 0 . 0 . 0 .', '-2 . -2 . -2 . -2 .', '-5 . -5 . -5 . -5 .', '-1 -1 -1 -1 -1 -1 -1 -1'),
+        lead: L(REST, REST, REST, '7 . 9 . 11 . 12 . 14 . 16 . 17 . 18 .'),
+        chords: EDM_CHORDS,
+        vox: L(
+          '0/bal . . . 0/bal . . . 0/bal . . . 0/bal . . .',
+          '0/bal . 2/lis . 4/to . . . 0/bal . 2/lis . 4/to . . .',
+          '0/bal . 0/bal . 2/lis . 2/lis . 4/to . 4/to . 3/cra . 2/cy .',
+          '7/bal 7/lis 9/to 10/cra 9/cy - - - - - - - . . . .',
+        ),
+        drums: {
+          k: 'k...k...k...k...',
+          s: 'S.......S.......S.......S.......S...S...S...S...S.S.S.S.SSSSSSSS',
+          h: '..h...h...h...h.',
+        },
+        riser: true,
+      },
+      // drop 1: the chorus, sung
+      D: {
+        bass: L(R('0', 8), R('-2', 8), R('-5', 8), R('-1', 8)),
+        lead: L('. . 7 . . . 7 . . . 7 . . . . .', '. . 5 . . . 5 . . . 5 . . . . .', '. . 9 . . . 9 . . . 9 . . . . .', '. . 8 . . . 8 . . . 10 . . . . .'),
+        chords: EDM_CHORDS,
+        vox: L(
+          '7/bal - 7/lis - 9/to - 10/cra - 9/cy - - - . . 7/hey -',
+          '. . . . . . . . 5/oh - - - 4/oh - - -',
+          '9/bal - 9/lis - 11/to - 12/cra - 11/cy - - - - - - -',
+          '. . . . 10/hey - 9/hey - 8/oh - - - - - - -',
+        ),
+      },
+      // drop 2: full supersaw riff, shouts
+      E: {
+        bass: L(R('0', 8), R('-2', 8), R('-5', 8), R('-1', 8)),
+        lead: L('7 . 7 . 9 . 7 . 11 . 10 . 9 . 7 .', '5 . 5 . 7 . 5 . 9 . 7 . 5 . 4 .', '9 . 9 . 11 . 9 . 13 . 11 . 9 . 8 .', '8 . 8 . 10 . 8 . 13 . 12 . 10 . 8 .'),
+        chords: EDM_CHORDS,
+        vox: L('. . . . . . . . . . . . 7/hey - . .', REST, '. . . . . . . . . . . . 9/hey - . .', '7/bal 7/lis 9/to 10/cra 9/cy - - - . . . . . . . .'),
+      },
+    },
+    order: 'IBDEBDE',
+  },
+
   // ------------------------------------------------------------------ menu
   menu: {
     style: 'chiptune',
@@ -460,7 +538,7 @@ export const TRACKS: Record<string, Track> = {
 
 /** each place has several tracks in different styles; the playlist rotates through them */
 export const PLAYLISTS: Record<string, string[]> = {
-  menu: ['menu_synth', 'menu_anthem', 'menu'],
+  menu: ['title', 'menu_synth', 'menu_anthem', 'menu'],
   jungle: ['jungle_dnb', 'jungle_funk', 'jungle'],
   desert: ['desert_surf', 'desert_stoner', 'desert'],
   snow: ['snow_trance', 'snow_epic', 'snow'],
@@ -481,8 +559,11 @@ export function playlistFor(biomeId: string, isBoss: boolean, seed: number): str
 }
 
 /** menu playlist, starting somewhere random */
+/** menu playlist: always opens with the title song, then the others from a random start */
 export function menuPlaylist(): string[] {
-  return playlistFor('menu', false, Math.floor(Math.random() * 1000));
+  const rest = PLAYLISTS.menu.filter((n) => n !== 'title');
+  const k = Math.floor(Math.random() * rest.length);
+  return ['title', ...rest.slice(k), ...rest.slice(0, k)];
 }
 
 interface Note {
@@ -503,15 +584,33 @@ function parse(s: string): (Note | null)[] {
   return out;
 }
 
+interface VoxNote {
+  deg: number;
+  syl: string;
+  len: number;
+}
+
 interface Compiled {
   t: Track;
-  parts: { bass: (Note | null)[]; lead: (Note | null)[]; chords?: number[][] }[];
+  parts: { bass: (Note | null)[]; lead: (Note | null)[]; chords?: number[][]; vox: (VoxNote | null)[]; drums?: Partial<Record<Lane, string>>; riser?: boolean }[];
+}
+
+/** '7/bal - 9/to .' -> sung note or null per token */
+export function parseVox(s: string): (VoxNote | null)[] {
+  const tok = s.trim().split(/\s+/);
+  return tok.map((t, i) => {
+    if (t === '.' || t === '-') return null;
+    const [d, syl] = t.split('/');
+    let len = 1;
+    while (tok[i + len] === '-') len++;
+    return { deg: Number(d), syl, len };
+  });
 }
 
 function compile(t: Track): Compiled {
   const parts = [...t.order].map((k) => {
     const p = t.parts[k];
-    return { bass: parse(p.bass), lead: parse(p.lead), chords: p.chords };
+    return { bass: parse(p.bass), lead: parse(p.lead), chords: p.chords, vox: p.vox ? parseVox(p.vox) : [], drums: p.drums, riser: p.riser };
   });
   return { t, parts };
 }
@@ -567,7 +666,7 @@ const BASS: Record<BassInst, Patch> = {
 
 const LEAD: Record<LeadInst, Patch> = {
   chip: { oscs: [sq()], cutoff: 3200, d: 0.05, s: 1, dly: 0.15 },
-  supersaw: { oscs: [saw(-22, 0.6), saw(-10), saw(0), saw(10), saw(22, 0.6)], cutoff: 5200, q: 0.8, a: 0.01, d: 0.3, s: 0.85, r: 0.25, dly: 0.35, rev: 0.4 },
+  supersaw: { oscs: [saw(-18), saw(0, 0.8), saw(18)], cutoff: 5200, q: 0.8, a: 0.01, d: 0.3, s: 0.85, r: 0.25, dly: 0.35, rev: 0.4 },
   guitar: { oscs: [saw(0), sq(8, 0.7)], cutoff: 3000, q: 1.4, drive: 9, a: 0.004, d: 0.3, s: 0.85, r: 0.12, vib: 0.22, dly: 0.25, rev: 0.25 },
   twang: { oscs: [saw(0), saw(5, 0.5, 12)], cutoff: 2200, q: 2, fenv: 1.6, fdec: 0.12, a: 0.002, d: 0.25, s: 0.6, r: 0.08, dly: 0.3, rev: 0.6 },
   brass: { oscs: [saw(-7), saw(7)], cutoff: 1300, q: 1, fenv: 2.4, fdec: 0.14, a: 0.03, d: 0.25, s: 0.8, r: 0.12, vib: 0.15, rev: 0.4 },
@@ -583,8 +682,16 @@ const CHORD: Record<ChordInst, Patch> = {
   stab: { oscs: [sq(), saw(6, 0.7)], cutoff: 2200, q: 1.5, fenv: 1.5, fdec: 0.08, a: 0.002, d: 0.12, s: 0, r: 0.05, dly: 0.35, rev: 0.25 },
 };
 
-/** the rhythm guitar that doubles the bass as power chords */
-const RHYTHM_GTR: Patch = { oscs: [saw(-6), sq(6, 0.6)], cutoff: 2400, q: 1.2, drive: 14, a: 0.003, d: 0.25, s: 0.75, r: 0.06, rev: 0.15 };
+/** the rhythm guitar that doubles the bass as power chords (all three notes share one amp) */
+const RHYTHM_GTR: Patch = { oscs: [saw(-5)], cutoff: 2400, q: 1.2, drive: 14, a: 0.003, d: 0.25, s: 0.75, r: 0.06, rev: 0.15 };
+/** root, fifth, octave */
+const POWER_CHORD = [1, 1.4983, 2];
+
+/** most voices sounding at once; extra pad / arp / stab notes are skipped beyond this */
+const MAX_VOICES = 36;
+/** scheduler: how far ahead notes are queued, and how often it runs (ms) */
+const LOOKAHEAD = 0.4;
+const TICK_MS = 25;
 
 const curves = new Map<number, Float32Array>();
 function driveCurve(k: number): Float32Array {
@@ -614,6 +721,8 @@ function impulse(c: BaseAudioContext, sec: number): AudioBuffer {
 interface Bus {
   master: GainNode;
   dry: GainNode;
+  /** sidechain: pitched instruments go through this gain, which ducks on the beat */
+  pump: GainNode;
   dlyIn: GainNode;
   revIn: GainNode;
   delay: DelayNode;
@@ -630,6 +739,9 @@ export class Music {
   private ctx: BaseAudioContext | null = null;
   private noise: AudioBuffer | null = null;
   private current: string[] = [];
+  /** end times of the voices still sounding (for the voice limit) */
+  private ends: number[] = [];
+  private sends = new Map<string, GainNode>();
   enabled = true;
 
   /** name of the track playing right now */
@@ -645,7 +757,23 @@ export class Music {
     const a = audioOut();
     if (!a) return;
     this.start(a.ctx, a.out, a.ctx.currentTime + 0.1);
-    this.timer = window.setInterval(() => this.schedule(this.ctx!.currentTime + 0.25), 50);
+    this.timer = window.setInterval(() => this.tick(), TICK_MS);
+  }
+
+  private tick(): void {
+    const c = this.ctx;
+    if (!c || !this.bus) return;
+    // the page stalled (busy frame, hidden tab): drop the missed steps instead of firing them
+    // all at once, which sounds like a burst of noise
+    if (this.nextTime < c.currentTime) this.skipTo(c.currentTime + 0.05);
+    this.schedule(c.currentTime + LOOKAHEAD);
+  }
+
+  private skipTo(t: number): void {
+    while (this.nextTime < t) {
+      this.step++;
+      this.nextTime += 60 / this.song.t.bpm / 4;
+    }
   }
 
   /** set up the effect bus on any audio context (also used for offline rendering) */
@@ -665,6 +793,8 @@ export class Music {
     comp.connect(master).connect(out);
     const dry = ctx.createGain();
     dry.connect(comp);
+    const pump = ctx.createGain();
+    pump.connect(dry);
     // echo: filtered feedback loop
     const dlyIn = ctx.createGain();
     const delay = ctx.createDelay(1.5);
@@ -681,11 +811,13 @@ export class Music {
     // reverb
     const revIn = ctx.createGain();
     const conv = ctx.createConvolver();
-    conv.buffer = impulse(ctx, 2.4);
+    conv.buffer = impulse(ctx, 1.6);
     const revOut = ctx.createGain();
     revOut.gain.value = 0.6;
     revIn.connect(conv).connect(revOut).connect(comp);
-    this.bus = { master, dry, dlyIn, revIn, delay };
+    this.bus = { master, dry, pump, dlyIn, revIn, delay };
+    this.sends.clear();
+    this.ends = [];
     this.load(at);
   }
 
@@ -763,9 +895,8 @@ export class Music {
           if (tr.guitarBass) {
             const palm = b.len === 1;
             const r = midi(note + 12);
-            for (const [f, v] of [[r, 0.06], [r * 1.4983, 0.05], [r * 2, 0.035]] as const) {
-              this.voice(RHYTHM_GTR, f, t, palm ? stepDur * 0.8 : len * 0.95, v, palm ? 0.4 : 1);
-            }
+            // palm-muted chugs only need root and fifth
+            this.voice(RHYTHM_GTR, (palm ? POWER_CHORD.slice(0, 2) : POWER_CHORD).map((k) => r * k), t, palm ? stepDur * 0.8 : len * 0.95, 0.09, palm ? 0.4 : 1);
           }
         }
       }
@@ -781,21 +912,39 @@ export class Music {
       if (tr.arpWave && chord) {
         const seq = [0, 1, 2, 1];
         const deg = chord[seq[ps % 4] % chord.length] + (ps % 8 >= 4 ? tr.scale.length : 0);
-        this.voice({ oscs: [{ type: tr.arpWave }], cutoff: 2400, a: 0.003, d: 0.08, s: 0.3, r: 0.03, dly: 0.3 }, midi(tr.root + 12 + semis(tr.scale, deg)), t, stepDur * 0.8, 0.06);
+        if (this.room(t)) this.voice({ oscs: [{ type: tr.arpWave }], cutoff: 2400, a: 0.003, d: 0.08, s: 0.3, r: 0.03, dly: 0.3 }, midi(tr.root + 12 + semis(tr.scale, deg)), t, stepDur * 0.8, 0.06);
       }
       // pads / strings: one chord per bar; stabs on their rhythm lane
       if (tr.chordInst && chord) {
         const p = CHORD[tr.chordInst];
+        const freqs = chord.map((d) => midi(tr.root + semis(tr.scale, d)));
+        const k = Math.sqrt(chord.length);
         if (tr.chordInst === 'stab') {
           const lane = tr.chordRhythm ?? '..x...x...x...x.';
-          if (lane[ps % lane.length] !== '.') for (const d of chord) this.voice(p, midi(tr.root + semis(tr.scale, d)), t, stepDur * 1.2, 0.045);
+          if (lane[ps % lane.length] !== '.' && this.room(t)) this.voice(p, freqs, t, stepDur * 1.2, 0.045 * k);
         } else if (ps % 16 === 0) {
-          for (const d of chord) this.voice(p, midi(tr.root + semis(tr.scale, d)), t, stepDur * 16, tr.chordInst === 'pad' ? 0.035 : 0.04);
+          this.voice(p, freqs, t, stepDur * 16, (tr.chordInst === 'pad' ? 0.035 : 0.04) * k);
         }
       }
+      // sung line
+      const vx = part.vox[ps];
+      if (vx) {
+        const f = midi(tr.root + (tr.voxOct ?? 12) + semis(tr.scale, vx.deg));
+        sing(c, { dry: this.bus.dry, rev: this.bus.revIn, dly: this.bus.dlyIn, noise: this.noiseBuf(c) }, vx.syl, f, t, stepDur * vx.len * 0.95, tr.voxVol ?? 0.3);
+      }
+      // build-up riser over the whole part
+      if (part.riser && ps === 0) this.riser(c, t, stepDur * partLen);
       // drums
       const kit = tr.kit ?? 'chip';
-      const d = tr.drums;
+      const d = part.drums ?? tr.drums;
+      // sidechain: duck on every beat of a part with a kick
+      if (tr.pump && ps % 4 === 0) {
+        const g = this.bus.pump.gain;
+        if (d.k) {
+          g.setValueAtTime(0.25, t);
+          g.linearRampToValueAtTime(1, t + stepDur * 2.6);
+        } else g.setValueAtTime(1, t);
+      }
       const hit = (lane?: string): number => {
         if (!lane) return 0;
         const ch = lane[s % lane.length];
@@ -816,38 +965,52 @@ export class Music {
     }
   }
 
-  /** one synth note: oscillators -> (drive) -> filter -> envelope -> dry / echo / reverb */
-  private voice(p: Patch, f: number, t: number, dur: number, vol: number, cutMul = 1, vibOverride?: number): void {
+  /** is there room for one more low-priority voice at time t? */
+  private room(t: number): boolean {
+    this.ends = this.ends.filter((e) => e > t);
+    return this.ends.length < MAX_VOICES;
+  }
+
+  /** shared send gain into the echo or reverb, one per send level */
+  private send(kind: 'd' | 'r', level: number): GainNode {
+    const key = kind + level;
+    let g = this.sends.get(key);
+    if (!g) {
+      g = this.ctx!.createGain();
+      g.gain.value = level;
+      g.connect(kind === 'd' ? this.bus!.dlyIn : this.bus!.revIn);
+      this.sends.set(key, g);
+    }
+    return g;
+  }
+
+  /** one synth note (or a chord sharing one filter and amp): oscillators -> (drive) -> filter -> envelope -> dry / echo / reverb */
+  private voice(p: Patch, freq: number | number[], t: number, dur: number, vol: number, cutMul = 1, vibOverride?: number): void {
     const c = this.ctx!;
     const bus = this.bus!;
+    const freqs = typeof freq === 'number' ? [freq] : freq;
+    const f = freqs[0];
     const mix = c.createGain();
     const lp = c.createBiquadFilter();
     lp.type = 'lowpass';
     lp.Q.value = p.q ?? 0.7;
     const cut = Math.min(16000, p.cutoff * cutMul);
     if (p.fenv) {
+      // a ramp that ends: afterwards the filter is static again (a never-ending setTargetAtTime
+      // keeps the filter recomputing every sample, which is expensive)
       lp.frequency.setValueAtTime(Math.min(16000, cut * (1 + p.fenv)), t);
-      lp.frequency.setTargetAtTime(cut, t, (p.fdec ?? 0.1) / 3);
+      lp.frequency.exponentialRampToValueAtTime(cut, t + Math.min(dur, p.fdec ?? 0.1));
     } else lp.frequency.setValueAtTime(cut, t);
     if (p.drive) {
       const ws = c.createWaveShaper();
       ws.curve = driveCurve(p.drive);
-      ws.oversample = '2x';
       mix.connect(ws).connect(lp);
     } else mix.connect(lp);
     const amp = c.createGain();
     lp.connect(amp);
-    amp.connect(bus.dry);
-    if (p.dly) {
-      const sg = c.createGain();
-      sg.gain.value = p.dly;
-      amp.connect(sg).connect(bus.dlyIn);
-    }
-    if (p.rev) {
-      const sg = c.createGain();
-      sg.gain.value = p.rev;
-      amp.connect(sg).connect(bus.revIn);
-    }
+    amp.connect(this.song.t.pump ? bus.pump : bus.dry);
+    if (p.dly) amp.connect(this.send('d', p.dly));
+    if (p.rev) amp.connect(this.send('r', p.rev));
     const a = p.a ?? 0.005;
     const dc = p.d ?? 0.1;
     const sus = p.s ?? 0.8;
@@ -858,6 +1021,8 @@ export class Music {
     amp.gain.setTargetAtTime(Math.max(0.0001, vol * sus), t + a, dc / 3);
     amp.gain.setTargetAtTime(0.0001, t + hold, rel / 3);
     const end = t + hold + rel * 2 + 0.05;
+    if (this.ends.length > 128) this.ends = this.ends.filter((e) => e > t);
+    this.ends.push(end);
     const vib = vibOverride ?? p.vib ?? 0;
     let lfoGain: GainNode | null = null;
     if (vib > 0 && dur > 0.15) {
@@ -870,18 +1035,25 @@ export class Music {
       lfo.start(t);
       lfo.stop(end);
     }
-    for (const o of p.oscs) {
-      const osc = c.createOscillator();
-      osc.type = o.type;
-      osc.frequency.value = f * Math.pow(2, (o.semi ?? 0) / 12);
-      if (o.det) osc.detune.value = o.det;
-      if (lfoGain) lfoGain.connect(osc.frequency);
-      const g = c.createGain();
-      g.gain.value = (o.vol ?? 1) / Math.sqrt(p.oscs.length);
-      osc.connect(g).connect(mix);
-      osc.start(t);
-      osc.stop(end);
-    }
+    const n = p.oscs.length * freqs.length;
+    for (const fr of freqs)
+      for (const o of p.oscs) {
+        const osc = c.createOscillator();
+        osc.type = o.type;
+        osc.frequency.value = fr * Math.pow(2, (o.semi ?? 0) / 12);
+        if (o.det) osc.detune.value = o.det;
+        if (lfoGain) lfoGain.connect(osc.frequency);
+        // one gain node per oscillator only when its level differs
+        if ((o.vol ?? 1) === 1) osc.connect(mix);
+        else {
+          const g = c.createGain();
+          g.gain.value = o.vol!;
+          osc.connect(g).connect(mix);
+        }
+        osc.start(t);
+        osc.stop(end);
+      }
+    mix.gain.value = 1 / Math.sqrt(n);
   }
 
   // ---------------------------------------------------------------- drums
@@ -906,11 +1078,7 @@ export class Music {
     g.gain.setValueAtTime(vol, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + dur);
     s.connect(f).connect(g).connect(this.bus!.dry);
-    if (rev) {
-      const sg = c.createGain();
-      sg.gain.value = rev;
-      g.connect(sg).connect(this.bus!.revIn);
-    }
+    if (rev) g.connect(this.send('r', rev));
     s.start(t);
     s.stop(t + dur + 0.02);
   }
@@ -929,11 +1097,7 @@ export class Music {
       o.connect(ws).connect(g);
     } else o.connect(g);
     g.connect(this.bus!.dry);
-    if (rev) {
-      const sg = c.createGain();
-      sg.gain.value = rev;
-      g.connect(sg).connect(this.bus!.revIn);
-    }
+    if (rev) g.connect(this.send('r', rev));
     o.start(t);
     o.stop(t + dur + 0.02);
   }
@@ -957,6 +1121,26 @@ export class Music {
     const tight = kit === 'breaks';
     this.noiseHit(c, t, 'bandpass', tight ? 2400 : 1900, 0.6, (tight ? 0.4 : 0.5) * v, tight ? 0.12 : 0.2, kit === 'orch' ? 0.5 : 0.35);
     this.thump(c, t, 210, 140, 0.05, 0.3 * v, 0.08, 'triangle');
+  }
+
+  /** noise sweeping up and getting louder, cut at the end (the drop comes right after) */
+  private riser(c: BaseAudioContext, t: number, len: number): void {
+    const s = c.createBufferSource();
+    s.buffer = this.noiseBuf(c);
+    s.loop = true;
+    const f = c.createBiquadFilter();
+    f.type = 'bandpass';
+    f.Q.value = 2;
+    f.frequency.setValueAtTime(300, t);
+    f.frequency.exponentialRampToValueAtTime(8000, t + len);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.005, t);
+    g.gain.exponentialRampToValueAtTime(0.22, t + len * 0.97);
+    g.gain.linearRampToValueAtTime(0, t + len);
+    s.connect(f).connect(g).connect(this.bus!.dry);
+    g.connect(this.send('r', 0.4));
+    s.start(t);
+    s.stop(t + len + 0.02);
   }
 
   private clap(c: BaseAudioContext, t: number, v: number): void {

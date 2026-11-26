@@ -48,6 +48,8 @@
 - Progress is saved in your browser, so you can continue where you stopped.
 - Built-in level editor and community levels.
 
+The main menu opens with an EDM title song where a synthesized robot voice (formant synthesis, no samples) sings BAL-LIS-TO-CRA-CY.
+
 All graphics and sounds are generated in code at startup (ASCII pixel grids + limited palettes, WebAudio synth), so there are no external assets.
 
 ## Run locally
