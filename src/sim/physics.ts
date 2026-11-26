@@ -110,6 +110,27 @@ export function overlap(a: { x: number; y: number; w: number; h: number }, b: { 
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 }
 
+/** does the segment (x0,y0)-(x1,y1) touch the box? (Liang-Barsky clipping) */
+export function segmentHits(x0: number, y0: number, x1: number, y1: number, b: { x: number; y: number; w: number; h: number }): boolean {
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  let t0 = 0;
+  let t1 = 1;
+  const clip = (p: number, q: number): boolean => {
+    if (p === 0) return q >= 0;
+    const r = q / p;
+    if (p < 0) {
+      if (r > t1) return false;
+      if (r > t0) t0 = r;
+    } else {
+      if (r < t0) return false;
+      if (r < t1) t1 = r;
+    }
+    return true;
+  };
+  return clip(-dx, x0 - b.x) && clip(dx, b.x + b.w - x0) && clip(-dy, y0 - b.y) && clip(dy, b.y + b.h - y0) && t0 <= t1;
+}
+
 export function pointIn(px: number, py: number, b: { x: number; y: number; w: number; h: number }): boolean {
   return px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h;
 }

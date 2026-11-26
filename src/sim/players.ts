@@ -123,7 +123,10 @@ function actions(w: World, p: Player): void {
       const sp = wd.speed * (wd.pellets > 1 ? w.rng.range(0.8, 1.1) : 1);
       const vx = Math.cos(a) * sp * p.facing;
       const vy = Math.sin(a) * sp;
-      w.spawnProjectile(wd.proj, mx, my, vx, vy, 'p', p.id, wd.dmg, wd.life * (wd.proj === 'flame' ? w.rng.range(0.8, 1.2) : 1));
+      const shot = w.spawnProjectile(wd.proj, mx, my, vx, vy, 'p', p.id, wd.dmg, wd.life * (wd.proj === 'flame' ? w.rng.range(0.8, 1.2) : 1));
+      // the hit test starts at the hero's body, so an enemy pressed against the hero (a biting dog) is hit too
+      shot.ox = p.x + p.w / 2;
+      shot.oy = my;
     }
     if (wd.proj !== 'flame') w.emit({ k: 'muzzle', x: mx, y: my, d: p.facing, r: p.aim });
     w.sfx(wd.sfx, p.x);

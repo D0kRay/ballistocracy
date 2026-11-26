@@ -19,7 +19,7 @@ export const ENEMY_DEFS: Record<EnemyType, EnemyDef> = {
   shield: { hp: 3, speed: 20, chase: 38, sight: 150, w: 12, h: 14 },
   sniper: { hp: 1, speed: 0, chase: 0, sight: 300, w: 10, h: 14 },
   bomber: { hp: 1, speed: 28, chase: 100, sight: 150, w: 10, h: 14 },
-  dog: { hp: 1, speed: 40, chase: 135, sight: 160, w: 14, h: 9 },
+  dog: { hp: 1, speed: 40, chase: 118, sight: 160, w: 14, h: 9 },
   drone: { hp: 2, speed: 35, chase: 60, sight: 190, w: 14, h: 8 },
   heavy: { hp: 9, speed: 16, chase: 26, sight: 190, w: 12, h: 15 },
 };
@@ -152,7 +152,10 @@ export function updateEnemies(w: World, dt: number): void {
           w.killEnemy(e);
         } else if (e.cd <= 0) {
           w.hurtPlayer(p, 1, e.x);
-          e.cd = 0.8;
+          // bite, then jump back and circle: gives the player a moment to shoot it
+          e.cd = 1.6;
+          e.vx = -e.facing * 140;
+          e.vy = -170;
         }
       }
     }
@@ -202,6 +205,11 @@ function attack(w: World, e: Enemy, def: EnemyDef, tp: Player, visible: boolean,
       break;
     }
     case 'dog': {
+      // after a bite the dog backs off for a moment (e.cd counts down the bite cooldown)
+      if (e.cd > 0.9) {
+        e.vx = -e.facing * 90;
+        break;
+      }
       e.vx = e.facing * def.chase;
       if (e.onGround && ((e.facing > 0 ? e.wallR : e.wallL) || (dist < 50 && dy < -4) || ledgeAhead(w, e))) {
         e.vy = -270;

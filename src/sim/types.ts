@@ -104,6 +104,9 @@ export interface Projectile {
   dead: boolean;
   hits: number[]; // ids already hit (piercing flames)
   item?: ItemId;
+  /** where the projectile was before its last move: hits are tested along the whole path */
+  ox?: number;
+  oy?: number;
 }
 
 export interface Prop {

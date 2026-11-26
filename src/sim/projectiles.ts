@@ -1,5 +1,5 @@
 import { GRAVITY, TILE } from '../config';
-import { pointIn } from './physics';
+import { pointIn, segmentHits } from './physics';
 import type { Projectile } from './types';
 import { hurtBoss, bossHitboxes } from './boss';
 import type { World } from './World';
@@ -34,6 +34,11 @@ export function updateProjectiles(w: World, dt: number): void {
 
     const nx = pr.x + pr.vx * dt;
     const ny = pr.y + pr.vy * dt;
+    // remember the start of this step (a fresh shot keeps the muzzle origin set by the shooter)
+    if (pr.ox === undefined || pr.oy === undefined) {
+      pr.ox = pr.x;
+      pr.oy = pr.y;
+    }
     if (w.grid.solidAt(nx, ny)) {
       onTileHit(w, pr, nx, ny);
       if (pr.dead || pr.stuck) continue;
@@ -47,6 +52,8 @@ export function updateProjectiles(w: World, dt: number): void {
       continue;
     }
     hitEntities(w, pr);
+    pr.ox = pr.x;
+    pr.oy = pr.y;
   }
 }
 
@@ -123,7 +130,8 @@ function hitEntities(w: World, pr: Projectile): void {
 
   if (pr.owner === 'p') {
     for (const e of w.enemies) {
-      if (e.dead || pr.hits.includes(e.id) || !pointIn(pr.x, pr.y, e)) continue;
+      // swept test: fast bullets must not skip small enemies, or ones standing right at the muzzle
+      if (e.dead || pr.hits.includes(e.id) || !segmentHits(pr.ox ?? pr.x, pr.oy ?? pr.y, pr.x, pr.y, e)) continue;
       if (explosive) return detonate(w, pr);
       const blocked = e.type === 'shield' && Math.sign(pr.vx) === -e.facing && pr.type !== 'thrown';
       if (blocked) {
