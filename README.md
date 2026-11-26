@@ -39,7 +39,7 @@
 
 ## Features
 
-- Procedural levels in six biomes (jungle, desert, arctic, ruined city, industrial, volcano), each with its own soundtrack.
+- Procedural levels in six biomes (jungle, desert, arctic, ruined city, industrial, volcano), each with a playlist of three tracks in different styles (drum and bass, funk, surf rock, stoner rock, trance, orchestral, thrash, darksynth, acid techno, doom and power metal, synthwave...) that rotate while you play.
 - No two runs alike: every level rolls its own mix of sections, scenery and often a twist (ambush, minefield, prison camp, sniper alley, dog pack and more). Even level 1 changes from run to run.
 - Destructible terrain: rockets, grenades, C4 and barrels tear the map apart, and loose chunks fall.
 - Three bosses, enemies that alert each other, traps, weapons, power-ups and prisoners to free.

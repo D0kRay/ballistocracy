@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { DT, NET_SNAPSHOT_EVERY, VIEW_H, VIEW_W } from '../config';
-import { music, trackFor } from '../audio/Music';
+import { music, playlistFor } from '../audio/Music';
 import { playSfx, toggleMute } from '../audio/Sfx';
 import { getInput } from '../input/InputManager';
 import { GAME_LABELS } from '../input/TouchControls';
@@ -148,7 +148,7 @@ export class GameScene extends Phaser.Scene {
       canvas.style.cursor = '';
     });
     this.cameras.main.fadeIn(300);
-    music.play(trackFor(this.world.biome.id, level.plan.isBoss, d.level));
+    music.play(playlistFor(this.world.biome.id, level.plan.isBoss, d.seed + d.level));
     this.hud.handle({
       k: 'banner',
       s: d.custom ? d.custom.name : level.plan.isBoss ? `LEVEL ${d.level}: BOSS` : `LEVEL ${d.level}`,

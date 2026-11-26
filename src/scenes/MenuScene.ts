@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { VIEW_H, VIEW_W } from '../config';
 import { IN } from '../core/input';
-import { music } from '../audio/Music';
+import { menuPlaylist, music } from '../audio/Music';
 import { playSfx, toggleMute } from '../audio/Sfx';
 import { PARALLAX_H, makeParallax } from '../gfx/parallax';
 import { controlsHelp, getInput } from '../input/InputManager';
@@ -75,7 +75,7 @@ export class MenuScene extends Phaser.Scene {
     const touch = !!getInput().touch;
     this.add.bitmapText(4, VIEW_H - 8, 'pix', touch ? `BEST LEVEL ${save.best}   CROSS + OK OR TAP AN ITEM` : `BEST LEVEL ${save.best}   M MUSIC  N MUTE`).setDepth(10).setTint(0x909090);
     this.add.bitmapText(VIEW_W - 4, VIEW_H - 8, 'pix', 'V0.1').setOrigin(1, 0).setDepth(10).setTint(0x909090);
-    music.play('menu');
+    music.play(menuPlaylist());
     // touch: d-pad steps through the items, OK picks one
     getInput().touch?.setVisible(true, this.touchLabels(), 'dpad');
     this.events.once('shutdown', () => getInput().touch?.setVisible(false));
@@ -144,7 +144,7 @@ export class MenuScene extends Phaser.Scene {
       return;
     }
     if (inp.keyDown('KeyM')) {
-      if (!this.mHeld) music.toggle() && music.play('menu');
+      if (!this.mHeld) music.toggle() && music.play(menuPlaylist());
       this.mHeld = true;
     } else this.mHeld = false;
     if (inp.keyDown('KeyN')) {
