@@ -1,0 +1,15 @@
+{
+  "name": "Ballistocracy",
+  "short_name": "Ballistocracy",
+  "description": "80s pixel-art co-op run'n'gun in your browser.",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0a0608",
+  "theme_color": "#0a0608",
+  "icons": [
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
