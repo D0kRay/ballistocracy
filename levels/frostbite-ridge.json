@@ -1,0 +1,561 @@
+{
+ "format": "ballistocracy-level",
+ "version": 1,
+ "name": "FROSTBITE RIDGE",
+ "author": "Ballistocracy team",
+ "biome": "snow",
+ "tod": "day",
+ "width": 174,
+ "height": 20,
+ "tiles": [
+  "..............................................................................................................................................................................",
+  "..............................................................................................................................................................................",
+  "..............................................................................................................................................................................",
+  "..............................................................................................................................................................................",
+  "..............................................................................................................................................................................",
+  ".................................................................................................dddbbdddddd..................................................................",
+  ".................................................................................................dddbbdddddd..................................................................",
+  ".................................................................................................dddbbdddddd..................................................................",
+  ".........................................g...g...................................................ssdbbdddddd..................................................................",
+  ".........................................pplpp................................................................................................................................",
+  "...........................................l..................................................................................dddddl..........................................",
+  "...........................................l.....dddddddddd......................................................g...........ddddddld....................ppp..................",
+  "...........ppp................ddddd........l.....dddddddddd................lsdddlddddddddldddddddddsddsssssddddddd..........dddddddldd..........................g.............",
+  "......................g......ddddddd.......l...............................lsdddlddddddddldddddddddddddddsdddddddddddddddddldddddddl..ddddddldddddlddddd.....ddddddddddddddddd",
+  "dddddddddd.....ddddddddd....ddddddddd......l....................ddddd......lsdddl....ddddldddddddddddddddddddddddddddddddddldsddddd...ddddddldddddlddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddd...ddddddddddd.....l..................ddddddddd....lsddd.........ldddddddddddddddddddddddddddddddddlssssdddddd......l.ddddlddddddddddddddddddsdddddddd",
+  "dddddsssssddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddsssssssss.....dddddddddddddddddddddddddddddddssl................l......ddddddddddddddddddsdddddddd",
+  "ddddsssssssdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddsdssssssssdddddddddddddddddddddddddddddddddssss...........d......d....dddddddddssddddddddsdddddddd",
+  "dddssssssssdddddddddddddddddddddddddddddddddssddddddddddddddsssssssssdddddddddddddddddddddddddddddddddddddddddddddddddssssddddddddddddddddddddddddddddddddsssssdddddssdddddddd",
+  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ ],
+ "back": [
+  "..............................................................................................................................................................................",
+  "..............................................................................................................................................................................",
+  "..............................................................................................................................................................................",
+  "..............................................................................................................................................................................",
+  "..............................................................................................................................................................................",
+  "..............................................................................................................................................................................",
+  ".................................................................................................ddddddddddd..................................................................",
+  ".................................................................................................ddddddddddd..................................................................",
+  ".................................................................................................ddddddddddd..................................................................",
+  ".................................................................................................ddddddddddd..................................................................",
+  ".................................................................................................ddddddddddd.......................d..........................................",
+  ".................................................................................................ddddddddddd..................dddddd..........................................",
+  ".................................................dddddddddd.....................d........d...................................dddddddd.........................................",
+  "..............................ddddd..............dddddddddd.................dddddddddddddddddddddddddddddddddddddd.........ddddddddddd......d.....d...........................",
+  ".............................ddddddd.............dddddddddd.................dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.....ddddddddddddddddd",
+  "dddddddddd.....ddddddddd....ddddddddd............dddddddddd.....ddddd.......dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddd...ddddddddddd........................ddddddddd.....dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+ ],
+ "spawn": {
+  "x": 3,
+  "y": 14
+ },
+ "exit": {
+  "vehicle": "chopper",
+  "x": 168,
+  "y": 13
+ },
+ "boss": null,
+ "entities": [
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 23,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 25,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 35,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 42,
+   "y": 9
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 55,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 53,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 51,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 69,
+   "y": 15
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 77,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 101,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 100,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 104,
+   "y": 5
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 114,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 116,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 127,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 161,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 132,
+   "y": 18
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 139,
+   "y": 17
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 85,
+   "y": 17
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 6,
+   "y": 14,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 10,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 11,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 12,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 13,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 14,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 20,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 32,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 57,
+   "y": 16
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 66,
+   "y": 14,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 66,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "mine",
+   "x": 86,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 88,
+   "y": 13
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 89,
+   "y": 13
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 101,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 99,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 132,
+   "y": 11,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 128,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 138,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 139,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "mine",
+   "x": 143,
+   "y": 13
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 145,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 146,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 152,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 153,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 154,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 155,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 156,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 139,
+   "y": 18,
+   "item": "armor"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 135,
+   "y": 17
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 145,
+   "y": 18,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 88,
+   "y": 17,
+   "item": "armor"
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 41,
+   "y": 16,
+   "h": 7
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 45,
+   "y": 16,
+   "h": 7
+  },
+  {
+   "kind": "scenery",
+   "type": "roof_snow",
+   "x": 43,
+   "y": 8,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pine",
+   "x": 4,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "boulder",
+   "x": 7,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "ice_crystal",
+   "x": 19,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "ice_crystal",
+   "x": 23,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pine",
+   "x": 26,
+   "y": 16,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pine",
+   "x": 33,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pine",
+   "x": 37,
+   "y": 15,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pine",
+   "x": 47,
+   "y": 16
+  },
+  {
+   "kind": "scenery",
+   "type": "snowman",
+   "x": 55,
+   "y": 11
+  },
+  {
+   "kind": "scenery",
+   "type": "ice_crystal",
+   "x": 62,
+   "y": 15,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "bones",
+   "x": 72,
+   "y": 16,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "ice_crystal",
+   "x": 82,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "pine",
+   "x": 85,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "jeep_wreck",
+   "x": 91,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "bones",
+   "x": 97,
+   "y": 5,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pine",
+   "x": 105,
+   "y": 5
+  },
+  {
+   "kind": "scenery",
+   "type": "bones",
+   "x": 108,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "bones",
+   "x": 121,
+   "y": 13
+  },
+  {
+   "kind": "scenery",
+   "type": "ice_crystal",
+   "x": 134,
+   "y": 13,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "campfire",
+   "x": 137,
+   "y": 13,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pine_small",
+   "x": 141,
+   "y": 13,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pine",
+   "x": 147,
+   "y": 13,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "stump",
+   "x": 150,
+   "y": 13
+  },
+  {
+   "kind": "scenery",
+   "type": "pine",
+   "x": 167,
+   "y": 13,
+   "flip": true
+  }
+ ],
+ "description": "Cliffs, caves and rope bridges in the arctic wilds."
+}

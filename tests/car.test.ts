@@ -3,10 +3,11 @@ import { DT } from '../src/config';
 import { IN } from '../src/core/input';
 import { CAR_HP, CHEAT, makeCar } from '../src/sim/cars';
 import { World } from '../src/sim/World';
-import { generateLevel } from '../src/world/LevelGen';
+import { blankLevel, levelFromFile } from '../src/world/levelFormat';
 
 function world(): World {
-  const w = new World(generateLevel(1, 5, 0), [{ pid: 0, hero: 0, name: 'A' }], 99);
+  // flat test ground, so the result does not depend on what the level generator builds
+  const w = new World(levelFromFile(blankLevel(120)), [{ pid: 0, hero: 0, name: 'A' }], 99);
   w.intro = null;
   for (const p of w.players) {
     p.inVehicle = false;

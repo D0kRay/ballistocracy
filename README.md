@@ -40,6 +40,7 @@
 ## Features
 
 - Procedural levels in six biomes (jungle, desert, arctic, ruined city, industrial, volcano), each with its own soundtrack.
+- No two runs alike: every level rolls its own mix of sections, scenery and often a twist (ambush, minefield, prison camp, sniper alley, dog pack and more). Even level 1 changes from run to run.
 - Destructible terrain: rockets, grenades, C4 and barrels tear the map apart, and loose chunks fall.
 - Three bosses, enemies that alert each other, traps, weapons, power-ups and prisoners to free.
 - Local co-op for 1–4 players (two keyboard halves plus gamepads) and online co-op over peer-to-peer.
@@ -70,6 +71,8 @@ npm run build    # static build in dist/
 
 `Esc` pause/quit, `P` pause, `M` music, `N` mute. Down+Jump drops through wooden platforms.
 
+**Change your keys:** main menu → **CONTROLS**. Pick Keyboard A or B, select an action, press Enter (or click the key) and press the new key. Every action can have two keys. Backspace clears a key, and a key you take from another action is removed there. `Esc`, `P`, `M` and `N` stay reserved. Your keys are saved in the browser. Gamepad and mouse buttons are fixed.
+
 **Mouse:** the keyboard player (Keyboard A, else B) aims with the mouse: left click fires, right click throws a grenade toward the cursor, middle click picks up or throws a weapon. Pressing the keyboard fire key switches back to keyboard aiming. Walking with the keys turns the hero; the cursor takes over again as soon as you move the mouse or click.
 
 **Touch (phones):** stick on the left, JUMP / FIRE / BOOM / GRAB on the right. Hold FIRE and drag to aim. GRAB + BOOM together pauses. In menus the left side becomes a cross and the four buttons change to OK / BACK and so on.
@@ -84,7 +87,9 @@ One player picks **Host online game** and shares the 6-letter key. Others pick *
 
 ## Game rules
 - **Camera:** follows the group and never scrolls anyone off screen. When the team is spread across the full width, the front player is held at the edge until the last one catches up.
-- **Levels:** generated from a seed out of chunks (hills, pits, bunkers, towers, caves, platforms, trap fields, acid pools) in six biomes. Level 1 is short; each level, and the total time played, pushes the exit further away.
+- **Levels:** generated from a seed out of chunks (hills, pits, bunkers, towers, caves, platforms, trap fields, acid pools, camps, trenches, craters, outposts) in six biomes. Each level weights the chunks and the scenery differently. Level 1 is short and is the hand-built JUNGLE ASSAULT on about every third run; each level, and the total time played, pushes the exit further away.
+- **Twists:** from level 2, most normal levels roll a twist that is shown when the level starts: AMBUSH, ARMORY RAID, MINEFIELD, PRISON CAMP, DOG PACK, SNIPER ALLEY, DEMOLITION ZONE, SKY PATROL, FORTIFIED LINE or DEEP WILDS.
+- **Community levels:** `npx vite-node tools/make-community-levels.ts` rebuilds the themed pack in `levels/` (it only keeps seeds a simple bot can finish).
 - **Bosses:** every 5th level has a fixed-length approach and a locked arena: IRON HOG (tank), HORNET GUNSHIP, THE BURROWER (drill worm). Each enrages at half health.
 - **Destruction:** only explosions (rockets, grenades, C4, barrels, mines, boss shells) break terrain. Unsupported chunks fall and crush what is below. Blasts also tear down the back walls of houses, and ladders that lose their hold break off.
 - **Enemies:** grunts, riot shields (block bullets from the front), snipers (laser warning), suicide bombers, dogs, drones, heavies. They alert each other.

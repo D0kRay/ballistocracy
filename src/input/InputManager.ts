@@ -1,46 +1,39 @@
 import { IN } from '../core/input';
 import { TouchControls, isTouchDevice } from './TouchControls';
+import { actionKeys, allBoundKeys, bindingsVersion, keyMap, type KeyMap } from './keybinds';
 
 export type DeviceId = string; // 'kbA' | 'kbB' | 'pad0'..'pad3'
 
-interface KeyMap {
-  [bit: number]: string[];
+/** controls text for the help screen, built from the current key bindings */
+export function controlsHelp(): string[] {
+  const k = (id: 'kbA' | 'kbB', bit: number) => actionKeys(id, bit);
+  const move = (id: 'kbA' | 'kbB') => [IN.UP, IN.LEFT, IN.DOWN, IN.RIGHT].map((b) => k(id, b)).join('');
+  const line = (id: 'kbA' | 'kbB', name: string) => {
+    const m = move(id);
+    const mv = m === 'WASD' ? 'WASD' : m === 'UPLEFTDOWNRIGHT' ? 'ARROWS' : [IN.LEFT, IN.RIGHT, IN.UP, IN.DOWN].map((b) => k(id, b)).join(' ');
+    return `${name}: ${mv} MOVE  ${k(id, IN.JUMP)} JUMP  ${k(id, IN.FIRE)} FIRE  ${k(id, IN.SPECIAL)} GRENADE  ${k(id, IN.INTERACT)} PICK`;
+  };
+  return [
+    line('kbA', 'KEYBOARD A'),
+    'MOUSE (WITH KEYBOARD A): AIM  LEFT FIRE  RIGHT GRENADE  MIDDLE PICK/THROW',
+    line('kbB', 'KEYBOARD B'),
+    'GAMEPAD: STICK MOVE  A JUMP  X/RT FIRE  B/LT GRENADE  Y PICK/THROW',
+    'TOUCH: HOLD FIRE AND DRAG TO AIM.  GRAB + BOOM TOGETHER: PAUSE',
+    'HOLD TOWARD A WALL + JUMP TO CLIMB.  DOWN+JUMP DROPS THROUGH PLATFORMS',
+  ];
 }
 
-// Player A: left side of the keyboard. Player B: arrows + numpad (or J/K/L/I on laptops).
-const KB_A: KeyMap = {
-  [IN.LEFT]: ['KeyA'],
-  [IN.RIGHT]: ['KeyD'],
-  [IN.UP]: ['KeyW'],
-  [IN.DOWN]: ['KeyS'],
-  [IN.JUMP]: ['Space'],
-  [IN.FIRE]: ['KeyF'],
-  [IN.SPECIAL]: ['KeyG'],
-  [IN.INTERACT]: ['KeyE'],
-  [IN.START]: ['Enter'],
-};
-const KB_B: KeyMap = {
-  [IN.LEFT]: ['ArrowLeft'],
-  [IN.RIGHT]: ['ArrowRight'],
-  [IN.UP]: ['ArrowUp'],
-  [IN.DOWN]: ['ArrowDown'],
-  [IN.JUMP]: ['Numpad0', 'KeyK'],
-  [IN.FIRE]: ['Numpad1', 'KeyJ'],
-  [IN.SPECIAL]: ['Numpad2', 'KeyL'],
-  [IN.INTERACT]: ['Numpad3', 'KeyI'],
-  [IN.START]: ['NumpadEnter'],
-};
-
-export const CONTROLS_HELP = [
-  'KEYBOARD A: WASD MOVE  SPACE JUMP  F FIRE  G GRENADE  E PICK/THROW',
-  'MOUSE (WITH KEYBOARD A): AIM  LEFT FIRE  RIGHT GRENADE  MIDDLE PICK/THROW',
-  'KEYBOARD B: ARROWS MOVE  NUM0/K JUMP  NUM1/J FIRE  NUM2/L GRENADE  NUM3/I PICK',
-  'GAMEPAD: STICK MOVE  A JUMP  X/RT FIRE  B/LT GRENADE  Y PICK/THROW',
-  'TOUCH: HOLD FIRE AND DRAG TO AIM.  GRAB + BOOM TOGETHER: PAUSE',
-  'HOLD TOWARD A WALL + JUMP TO CLIMB.  DOWN+JUMP DROPS THROUGH PLATFORMS',
-];
-
-const PREVENT = new Set(['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Numpad0', 'Tab']);
+const PREVENT_BASE = ['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Numpad0', 'Tab'];
+let preventVer = -1;
+let PREVENT = new Set<string>(PREVENT_BASE);
+/** keys whose browser default (scrolling, quick find...) is blocked: the base set plus every bound key */
+function preventSet(): Set<string> {
+  if (preventVer !== bindingsVersion()) {
+    preventVer = bindingsVersion();
+    PREVENT = new Set([...PREVENT_BASE, ...[...allBoundKeys()].filter((k) => !/^F\d+$/.test(k))]);
+  }
+  return PREVENT;
+}
 
 export class InputManager {
   private down = new Set<string>();
@@ -55,7 +48,15 @@ export class InputManager {
     const tag = (e.target as HTMLElement | null)?.tagName;
     this.typingTarget = tag === 'INPUT' || tag === 'TEXTAREA';
     if (this.typingTarget) return;
-    if (PREVENT.has(e.code)) e.preventDefault();
+    if (this.capture) {
+      e.preventDefault();
+      const cb = this.capture;
+      this.capture = null;
+      this.down.clear();
+      cb(e.code);
+      return;
+    }
+    if (preventSet().has(e.code) && !e.ctrlKey && !e.metaKey) e.preventDefault();
     this.down.add(e.code);
     this.tapped.add(e.code);
   };
@@ -161,9 +162,9 @@ export class InputManager {
     this.mouseFrame = this.mouseTap;
     this.mouseTap = 0;
     // keyboard fire hands aiming back to the keys
-    if (['KeyF', 'KeyJ', 'Numpad1'].some((k) => this.frameTapped.has(k))) this.mouseActive = false;
-    this.curBits.set('kbA', this.kbBits(KB_A));
-    this.curBits.set('kbB', this.kbBits(KB_B));
+    if ([...keyMap('kbA')[IN.FIRE], ...keyMap('kbB')[IN.FIRE]].some((k) => this.frameTapped.has(k))) this.mouseActive = false;
+    this.curBits.set('kbA', this.kbBits(keyMap('kbA')));
+    this.curBits.set('kbB', this.kbBits(keyMap('kbB')));
     if (this.touch) this.curBits.set('touch', this.touch.bits());
     const pads = navigator.getGamepads ? navigator.getGamepads() : [];
     for (let i = 0; i < 4; i++) {
@@ -191,12 +192,20 @@ export class InputManager {
   }
 
   private kbBits(map: KeyMap): number {
+    if (this.capture) return 0;
     let b = 0;
     for (const k of Object.keys(map)) {
       const bit = Number(k);
       if (map[bit].some((c) => this.down.has(c) || this.frameTapped.has(c))) b |= bit;
     }
     return b;
+  }
+
+  /** while set, the next key press goes to this callback instead of the game (key rebinding) */
+  private capture: ((code: string) => void) | null = null;
+
+  captureNextKey(cb: ((code: string) => void) | null): void {
+    this.capture = cb;
   }
 }
 

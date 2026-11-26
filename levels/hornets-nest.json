@@ -1,0 +1,303 @@
+{
+ "format": "ballistocracy-level",
+ "version": 1,
+ "name": "HORNET'S NEST",
+ "author": "Ballistocracy team",
+ "biome": "jungle",
+ "tod": "night",
+ "width": 102,
+ "height": 20,
+ "tiles": [
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".........................................dddddd........................m..............................",
+  "........................................lddddddd......................................................",
+  "......................................ddlddddddddd....................................................",
+  "dddddddddd...........................dddl...ddddddd.....................dddddddddddddddddddddddddddddd",
+  "dddddddddd..ddddddddddddddddddd...dddddd.........................ddddddddddddddddddddddddddddddddddddd",
+  "dddddsssss..dddddddddddddddddddddddddddddddd...........ddddddddddddddddddddddddddddddddddsssdddddddddd",
+  "dddddddsss..ssssssdddddddddssssddddddddddddddddddddddddddddddddddddddddddddddddddddddddsssssdddddddddd",
+  "ddddddddss..sssddddddddddddssssddddddddddddddddddddddddddddddddddddddddddddddddddddddssssssssddddddddd",
+  "xxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ ],
+ "back": [
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "........................................ddddddd.......................................................",
+  "........................................dddddddd......................................................",
+  "......................................dddddddddddd....................................................",
+  "dddddddddd...........................dddddddddddddddddd.................dddddddddddddddddddddddddddddd",
+  "dddddddddd..ddddddddddddddddddd...ddddddddddddddddddddd..........ddddddddddddddddddddddddddddddddddddd",
+  "dddddddddd..dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddd..dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddd..dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+ ],
+ "spawn": {
+  "x": 3,
+  "y": 14
+ },
+ "exit": null,
+ "boss": {
+  "type": "gunship"
+ },
+ "entities": [
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 21,
+   "y": 15
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 19,
+   "y": 15
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 38,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "heavy",
+   "x": 45,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 39,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 46,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 59,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 64,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 57,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 69,
+   "y": 20
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 47,
+   "y": 17
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 6,
+   "y": 14,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "mine",
+   "x": 17,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "mine",
+   "x": 19,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "flamejet",
+   "x": 21,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "flamejet",
+   "x": 24,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 31,
+   "y": 16
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 32,
+   "y": 16
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 33,
+   "y": 16
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 43,
+   "y": 11,
+   "item": "health"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 44,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 56,
+   "y": 16
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 67,
+   "y": 15,
+   "item": "minigun"
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 53,
+   "y": 17,
+   "item": "shotgun"
+  },
+  {
+   "kind": "pickup",
+   "item": "rocket",
+   "x": 67,
+   "y": 15
+  },
+  {
+   "kind": "pickup",
+   "item": "armor",
+   "x": 65,
+   "y": 15
+  },
+  {
+   "kind": "scenery",
+   "type": "jungletree",
+   "x": 6,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "flowers",
+   "x": 9,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "palm",
+   "x": 23,
+   "y": 15,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "flowers",
+   "x": 27,
+   "y": 15
+  },
+  {
+   "kind": "scenery",
+   "type": "palm",
+   "x": 39,
+   "y": 13
+  },
+  {
+   "kind": "scenery",
+   "type": "fern",
+   "x": 47,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "flowers",
+   "x": 58,
+   "y": 16,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "bush",
+   "x": 65,
+   "y": 15
+  },
+  {
+   "kind": "scenery",
+   "type": "bamboo",
+   "x": 73,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "fern",
+   "x": 83,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "stump",
+   "x": 86,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "palm",
+   "x": 94,
+   "y": 14
+  }
+ ],
+ "description": "Boss: the HORNET GUNSHIP over the night jungle."
+}

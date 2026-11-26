@@ -1,0 +1,298 @@
+{
+ "format": "ballistocracy-level",
+ "version": 1,
+ "name": "DEEP DRILL",
+ "author": "Ballistocracy team",
+ "biome": "snow",
+ "tod": "day",
+ "width": 102,
+ "height": 20,
+ "tiles": [
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  "......................................wwwww..wwwww.....................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".........................dddd..........................................m..............................",
+  ".........................dddd........lppppp.lppppp....................................................",
+  "..........................sd.........l......l...........................dddddddddddddddddddddddddddddd",
+  ".....................................l......l...........................dddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddd.........dddddddddddddddddddddd..ddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddd.........dddddddddddddddddddddd..dddddddddddddddddddddddddddsssddddddddsssssss",
+  "dddddddddddddddddddddddd.........dssssssssddddddddddddd..ddsssdddddddddddddddddddddsssssdddddsssssssss",
+  "ddddddddddddddddddddsssd.........ddssssssssdddddddddddd..ddddddddddddddddddddddddddsssssdddddddddddssd",
+  "dddddddddddddddddddsssss.........ddddssssssdddddddddddd..ddddddddddddddddddddddddddsssssdddddddddddddd",
+  "xxxxxxxxxxxxxxxxxxxxxxxx.........xxxxxxxxxxxxxxxxxxxxxx..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ ],
+ "back": [
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................wwwww..wwwww....................................................",
+  "......................................wwwww..wwwww....................................................",
+  "......................................wwwww..wwwww....................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "........................................................................dddddddddddddddddddddddddddddd",
+  "........................................................................dddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddd.........dddddddddddddddddddddd..ddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddd.........dddddddddddddddddddddd..ddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddd.........dddddddddddddddddddddd..ddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddd.........dddddddddddddddddddddd..ddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddd.........dddddddddddddddddddddd..ddddddddddddddddddddddddddddddddddddddddddddd"
+ ],
+ "spawn": {
+  "x": 3,
+  "y": 14
+ },
+ "exit": null,
+ "boss": {
+  "type": "drill"
+ },
+ "entities": [
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 19,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 17,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 40,
+   "y": 6
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 41,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "heavy",
+   "x": 47,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 48,
+   "y": 6
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 37,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "heavy",
+   "x": 46,
+   "y": 7
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 38,
+   "y": 7
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 65,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 66,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 6,
+   "y": 14,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "mine",
+   "x": 10,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "flamejet",
+   "x": 12,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 15,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 17,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 18,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 65,
+   "y": 14
+  },
+  {
+   "kind": "pickup",
+   "item": "rocket",
+   "x": 67,
+   "y": 14
+  },
+  {
+   "kind": "pickup",
+   "item": "armor",
+   "x": 65,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 38,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 42,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "roof_snow",
+   "x": 40,
+   "y": 8,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 45,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 49,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "roof_snow",
+   "x": 47,
+   "y": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "enemyflag",
+   "x": 50,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "log_pile",
+   "x": 6,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pine",
+   "x": 15,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pine",
+   "x": 34,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "boulder",
+   "x": 50,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pine_small",
+   "x": 60,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "log_pile",
+   "x": 63,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "ice_crystal",
+   "x": 66,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "snowman",
+   "x": 77,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pine_small",
+   "x": 95,
+   "y": 12,
+   "flip": true
+  }
+ ],
+ "anchors": [
+  [
+   27,
+   11
+  ]
+ ],
+ "description": "Boss: THE BURROWER tunnels under the frozen ground."
+}

@@ -1,0 +1,1027 @@
+{
+ "format": "ballistocracy-level",
+ "version": 1,
+ "name": "RUST BELT",
+ "author": "Ballistocracy team",
+ "biome": "industrial",
+ "tod": "dusk",
+ "width": 247,
+ "height": 20,
+ "tiles": [
+  ".......................................................l...............................................................................................................................................................................................",
+  ".......................................................l...............................................................................................................................................................................................",
+  ".......................................................l.........................................lpppppppppp...................................................................................lppppppppp..............................................",
+  ".............................................lpppppppp................ddddbbdddldd...............l.................................................................................gg..........l.......................................................",
+  ".............................................l........................ddddbbdddldd...............l...............................................................................bbbbbbbblbb...l.......................................................",
+  ".............................................l........................ddddbbdddldd...............l...............................................................................b.......l.b...l.......................................................",
+  ".............................................l........................ddddbbdddldd.................ppppppppppl...................................................................b.......l.b.....pppppppppl............................................",
+  "...............................................ppppppppl.......................l.............................l...................................................................bpppppppl.b..............l............................................",
+  ".......................................................l.......................l.............................l...........................................................................l................l............................................",
+  ".......................................................l.......................l........g....................l......................................g..........g...g.........g...........l................l...g..........g.............................",
+  "....................lsddddddddddddddddd................l........dddddldddddddddldddddddddddddddddddddddddddddddddddddddddddddddldddddddddlddddddddddd...pp.....dddddddddddddddddddddlddddddddddddlddldddddddldd..........dddddddldddddddd..............",
+  "....................lsdddddddddddddddddddddddddddddddddddddddddddddddldddddddddldddddddddddddddddddddddddddddddddddddddddddddddldddddddddlddddddddddd..........dddddddddddddddddddddlddddddddddddlddldddddddldd..........dddddddldddddddddddddddddddddd",
+  "...........ppp......lsdddddddddddddddddddddddddddddddddddddddddddddddldddddddddldddddssddddddddddddddddddddddddddddsdddddddddddldddddsssdldddddddddddddddddddddsssddddddddddddddddddlddddddddddddld.lddddd..lssddldddldddsddddddldddddddddddddddddddddd",
+  "....................lsdddddddddddddddddddddddddddddddddssssssssddddddldddddddddldddddssddddddddddddddddddddddddddddddddddddddddlddddsssssldddddddddddddddddddddsssddddddddddddddddddlddddddddddddl...........ssddldddldddsddddddldddddddddddddddddddddd",
+  "dddddddddd.....ddddddsddddddddddddddddddddddddddddddddddddssssdddddddldd.ddddddlddddssdddddddddddddddddddsssdddddddddddddddddddldddssssssldddddddddddddddddddddssssdddddddddddddddddldddddddd....l........dddddddl.....sssddddddldddddddddddddddddddddd",
+  "dddddddddddddddddddddsddddddddddddddddddddddddddddddddddddddsddddddddl.........lssssssddddddddddddddddddsssssssddddddddddddddddlddss..ssslsdddddddddddsddddddddsssssssddddddddddddddldd.............ddddddddddddd..........d...dldddddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddddddddddddddddddddddssssddddddddddddddddd...d.......ssssssdddddddddsddddddddssssssssdddddddddddddddl..........sssddddddddsssdddddddssssssssdddddddddddddl........dddddddddddddddddddddddd...........ldddddddddddddssssddddd",
+  "dddddddddsssdddddddssdsdddddddddddddddddddddddddsssddddddddsssddddddsssssddddddssssddddddddddddssddddddssssssssdddddddddddddddd.....ss...ssdddddddddddssdddddddsssssssssdddddddddddd...dddddddddddddddddddddddddddddddssss.......dddddddddddddddddddddd",
+  "dddddddddssssssssssssssdddddddddddddddddddddsssssdddddddddssssssdddsssssssdddddssdddddddddddddsssssddsssssssssdddddddddddddddddssssssssdddddddddddddddsddddddddssssssssssddddddddddddddddddddddddddsddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ ],
+ "back": [
+  ".......................................................................................................................................................................................................................................................",
+  ".......................................................................................................................................................................................................................................................",
+  ".......................................................................................................................................................................................................................................................",
+  "...............................................................................d.......................................................................................................................................................................",
+  "......................................................................dddddddddddd...............................................................................................sssssssssss...........................................................",
+  "......................................................................dddddddddddd...............................................................................................sssssssssss...........................................................",
+  "......................................................................dddddddddddd...............................................................................................ssWssWssWss...........................................................",
+  "......................................................................dddddddddddd...............................................................................................sssssssssss...........................................................",
+  "......................................................................dddddddddddd...............................................................................................sssssssssss...........................................................",
+  "......................................................................dddddddddddd...............................................................................................sssssssssss...........................................................",
+  ".....................................................................d.........d...............................................d.........d...........dddddddddd.....................d............d..d.......d..dddddddddd.......d......................",
+  ".....................dddddddddddddddddd.........................ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd..............",
+  ".....................dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd..........dddddddddddddddddddddddddddddddddddddddddddddddd..d...d...dddddddddddddddddddddddddddddd",
+  ".....................dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  ".....................dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddd.....dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+ ],
+ "spawn": {
+  "x": 3,
+  "y": 14
+ },
+ "exit": {
+  "vehicle": "plane",
+  "x": 236,
+  "y": 11
+ },
+ "boss": null,
+ "entities": [
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 28,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 36,
+   "y": 5
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 32,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 50,
+   "y": 7
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 50,
+   "y": 3
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 48,
+   "y": 1
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 61,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 61,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 78,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 75,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 71,
+   "y": 1
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 89,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 93,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 107,
+   "y": 1
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 106,
+   "y": 2
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 114,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 131,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 145,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 145,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 150,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 158,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 166,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 170,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 180,
+   "y": 2
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 179,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 184,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 194,
+   "y": 6
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 197,
+   "y": 2
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 211,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 215,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 214,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 228,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 227,
+   "y": 5
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 217,
+   "y": 17
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 219,
+   "y": 18
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 132,
+   "y": 17
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 199,
+   "y": 15
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 74,
+   "y": 17
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 188,
+   "y": 17
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 6,
+   "y": 14,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 10,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 11,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 12,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 13,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "acid",
+   "x": 14,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 27,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 38,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 52,
+   "y": 3
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 53,
+   "y": 1
+  },
+  {
+   "kind": "prop",
+   "type": "crusher",
+   "x": 76,
+   "y": 8
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 79,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 89,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 90,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 114,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "flamejet",
+   "x": 116,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "mine",
+   "x": 118,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 126,
+   "y": 10,
+   "item": "flamer"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 124,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 125,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 144,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 158,
+   "y": 12,
+   "item": "minigun"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 149,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "mine",
+   "x": 160,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 172,
+   "y": 10,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 167,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 196,
+   "y": 6
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 193,
+   "y": 2
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 216,
+   "y": 12,
+   "item": "shotgun"
+  },
+  {
+   "kind": "prop",
+   "type": "mine",
+   "x": 218,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 234,
+   "y": 11,
+   "item": "flamer"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 234,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 213,
+   "y": 16
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 223,
+   "y": 18,
+   "item": "c4"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 217,
+   "y": 17
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 223,
+   "y": 18,
+   "item": "c4"
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 136,
+   "y": 18,
+   "item": "c4"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 197,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 203,
+   "y": 14,
+   "item": "c4"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 73,
+   "y": 17
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 78,
+   "y": 17,
+   "item": "speed"
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 195,
+   "y": 14,
+   "item": "ammo"
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 47,
+   "y": 11,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 51,
+   "y": 11,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 55,
+   "y": 11,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 45,
+   "y": 11,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 49,
+   "y": 11,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 53,
+   "y": 11,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 47,
+   "y": 11,
+   "h": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 51,
+   "y": 11,
+   "h": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 55,
+   "y": 11,
+   "h": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "tank",
+   "x": 50,
+   "y": 11,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pipe",
+   "x": 45,
+   "y": 11,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 99,
+   "y": 10,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 103,
+   "y": 10,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 107,
+   "y": 10,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 97,
+   "y": 10,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 101,
+   "y": 10,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 105,
+   "y": 10,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "tank",
+   "x": 103,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "pipe",
+   "x": 97,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "warnsign",
+   "x": 147,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "campfire",
+   "x": 168,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "barrel_stack",
+   "x": 165,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "warnsign",
+   "x": 171,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "enemyflag",
+   "x": 173,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 193,
+   "y": 10,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 197,
+   "y": 10,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 201,
+   "y": 10,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 191,
+   "y": 10,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 195,
+   "y": 10,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 199,
+   "y": 10,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "tank",
+   "x": 197,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "pipe",
+   "x": 191,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "warnsign",
+   "x": 205,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "spool",
+   "x": 3,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "spool",
+   "x": 9,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "warnsign",
+   "x": 14,
+   "y": 15,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "spool",
+   "x": 17,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "warnsign",
+   "x": 25,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "tank",
+   "x": 28,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "pipe",
+   "x": 33,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "warnsign",
+   "x": 42,
+   "y": 11,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "generator",
+   "x": 58,
+   "y": 11,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 63,
+   "y": 11
+  },
+  {
+   "kind": "scenery",
+   "type": "tank",
+   "x": 66,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 70,
+   "y": 3
+  },
+  {
+   "kind": "scenery",
+   "type": "tank",
+   "x": 76,
+   "y": 3,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "crate_stack",
+   "x": 83,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 113,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 116,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "warnsign",
+   "x": 121,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "pipe",
+   "x": 124,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "tank",
+   "x": 131,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "vent",
+   "x": 138,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "pipe",
+   "x": 142,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 147,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "generator",
+   "x": 150,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "barrel_stack",
+   "x": 154,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "warnsign",
+   "x": 158,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "warnsign",
+   "x": 168,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 188,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "vent",
+   "x": 191,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "watertower",
+   "x": 203,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "spool",
+   "x": 211,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "crate_stack",
+   "x": 215,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "vent",
+   "x": 219,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 222,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "generator",
+   "x": 227,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "cone",
+   "x": 230,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 234,
+   "y": 11
+  },
+  {
+   "kind": "scenery",
+   "type": "warnsign",
+   "x": 240,
+   "y": 11
+  }
+ ],
+ "description": "A factory full of barrels. Shoot first, run faster."
+}

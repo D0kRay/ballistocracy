@@ -1,0 +1,813 @@
+{
+ "format": "ballistocracy-level",
+ "version": 1,
+ "name": "NEON RUINS",
+ "author": "Ballistocracy team",
+ "biome": "city",
+ "tod": "night",
+ "width": 247,
+ "height": 20,
+ "tiles": [
+  ".......................................................................................................................................................................................................................................................",
+  ".......................................................................................................................................................................................................................................................",
+  "..........................................b..l..b......................................................................................................................................................................................................",
+  "..........................................b..l...b..............................................ddddddddbbdd......................................................................................................bbbbb..l.............................",
+  ".............................................l..................................................ddddddddbbdd......................................................................................................b......l..b..........................",
+  "..........................................b..l...b..............................................ddddddddbbdd...............................b.l.b.........................................................................l.............................",
+  "..........................................bbl.bbbb....................lppppppp..................ddddddddbbdd................dddbbddldd....b..l...b................................................................b......l..b..........................",
+  "..........................................b.l....b....dddddddddbbd....l.....................................................dddbbddldd.......l........dddddddbbddd................................................bbbbbl.bbbb..........................",
+  "............................................l.........dddddddddbbd....l.....................................................dddbbssldd....b..l...b....dddddddbbddd.................................ddddddddbbd....b....l....b..........................",
+  "..........ddddddddddddd...................b.l....b....dddddddddbbd....l..........................................g..........dddbbssldd....bbbbl.bb....ssssdddbbddd.................................ddddddddbbd.........l...............................",
+  "..........ddddddddddddd...................bbl.bbbb....dddddddddbbd......pppppppl....lsddddddlddddddddddddddddldddd........................b...l..b.................................................ddddddddbbd....b....l....b..........................",
+  "..........................................b.l....b.............................l....lsddddddlddddddddddddddddldddd............................l.........................................g..........ddddddddbbd....bbbbbbbl.bb..........................",
+  "............................................l..................................l....lsddddddlddddddddddddddddlddddddd.........................l......................ddddddddd.......dddddd.......................b......l..b..........................",
+  "...........................g..........g.....l..................................l....lsddddddlddddddddddddddddldddddddddddddddddddsssssdddddddddddldlddddddddddlddddddddddddddd.......ddddddddd...........................l.............................",
+  "dddddddddddddddsdddddddddddd...pp.....dddddddddddddddddddddddddddddddddddddddddddddddsddddddldddddddddddd...dldddddddddddddddddddddddddddddddddddldlddssddddddlddddddddddsssdddddddddddddddddd...........................l.............................",
+  "ddddddddddddddssdddddddddddd..........dddddddddddddddddddddddddddddddddddddddddddddddsddddddlddddddddddd.....lsdddddddddsddddddddddddddddd.dd...dlslssssssss..ldddddddddssssdddddddddddddsddddddddddddddssddddddddddddddddddddddd....d...dddddddddddddd",
+  "ddddddddddddddsssdddddddssssddddddddddddssddddddddddddddddddddddddddddddddddddddddddddddddddl............dss..ssddddddddssdddddddddddddddd.......l.l...........dddddddssssssdddddddddddssssddddddddddddssssddddddddddddddddddddddd..dd..ddddddddddddddd",
+  "dddddddddddddddsdddddddddssdddddddddddddsddddddddddddddddddddddddddddddddddddddddddddddddddd............dddsdssdddddddddssddddddddddddddddd..ddd............ssdddddddddsssssdddddddddddddsdddddddddddddssssddddddddddddddddssssddddddddddddddddddddssss",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddsddddddddddddddddddddddddssssssddddddddddddddddddddddssssssssssddddddddddssssddddddddddddddddddddddddddsssssdddddddddddddddddssdddddddddddddddddddddddss",
+  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ ],
+ "back": [
+  ".......................................................................................................................................................................................................................................................",
+  ".......................................................................................................................................................................................................................................................",
+  "..........................................ssssssss.....................................................................................................................................................................................................",
+  "..........................................ssssssss................................................................................................................................................................sssssssssss..........................",
+  "..........................................sWssWsss..............................................dddddddddddd......................................................................................................sssssssssss..........................",
+  "..........................................ssssssss..............................................dddddddddddd..............................ssssssss................................................................sWssWssWsss..........................",
+  "..........................................ssssssss..............................................dddddddddddd.......................d......ssssssss................................................................sssssssssss..........................",
+  "..........................................ssssssss..............................................dddddddddddd................dddddddddd....sWssWsss................................................................sssssssssss..........................",
+  "..........................................sWssWsss....dddddddddddd..............................dddddddddddd................dddddddddd....ssssssss....dddddddddddd................................................sssssssssss..........................",
+  "..........................................ssssssss....dddddddddddd..............................dddddddddddd................dddddddddd....ssssssss....dddddddddddd.................................ddddddddddd....sWssWssWsss..........................",
+  "..........ddddddddddddd...................ssssssss....dddddddddddd..........................d................d..............dddddddddd....ssssssss....dddddddddddd.................................ddddddddddd....sssssssssss..........................",
+  "..........ddddddddddddd...................ssssssss....dddddddddddd...................ddddddddddddddddddddddddddddd..........ddddddddddddddsWssWsss....dddddddddddd.................................ddddddddddd....sssssssssss..........................",
+  "..........ddddddddddddd...................sWssWsss....dddddddddddd...................ddddddddddddddddddddddddddddd..........ddddddddddddddssssssss....dddddddddddd.................................ddddddddddd....sssssssssss..........................",
+  "..........ddddddddddddd...................ssssssss....dddddddddddd...................dddddddddddddddddddddddddddddddd............................d.d..........d......ddddddddd.......dddddd........ddddddddddd....sWssWssWsss..........................",
+  "............................dddddddddd...............................................ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.......ddddddddd.....ddddddddddd....sssssssssss..........................",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.........................................................",
+  "dddddddddddddddddddddddddddd..........ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd....d...dddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd..dd..ddddddddddddddd",
+  "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+ ],
+ "spawn": {
+  "x": 3,
+  "y": 14
+ },
+ "exit": {
+  "vehicle": "truck",
+  "x": 238,
+  "y": 15
+ },
+ "boss": null,
+ "entities": [
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 19,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 20,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 15,
+   "y": 4
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 30,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 30,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 43,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 45,
+   "y": 1
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 44,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 57,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 60,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 64,
+   "y": 2
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 73,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 74,
+   "y": 6
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 92,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 98,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 101,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 106,
+   "y": 3
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 114,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 119,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 126,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 131,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 131,
+   "y": 1
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 143,
+   "y": 4
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 144,
+   "y": 5
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 140,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 159,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 152,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 156,
+   "y": 7
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 175,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 170,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 185,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 183,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 187,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 198,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 201,
+   "y": 15
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 200,
+   "y": 8
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 217,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 211,
+   "y": 7
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 214,
+   "y": 3
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 212,
+   "y": 15
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 228,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 232,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 152,
+   "y": 18
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 139,
+   "y": 18
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 101,
+   "y": 18
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 6,
+   "y": 14,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "crusher",
+   "x": 16,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 14,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 28,
+   "y": 16
+  },
+  {
+   "kind": "prop",
+   "type": "crusher",
+   "x": 60,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 76,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 91,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "crusher",
+   "x": 102,
+   "y": 8
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 118,
+   "y": 13
+  },
+  {
+   "kind": "prop",
+   "type": "crusher",
+   "x": 129,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 143,
+   "y": 13,
+   "item": "minigun"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 179,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 204,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "mine",
+   "x": 226,
+   "y": 17
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 149,
+   "y": 18
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 157,
+   "y": 17,
+   "item": "minigun"
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 146,
+   "y": 18,
+   "item": "rocket"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 96,
+   "y": 18
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 108,
+   "y": 17,
+   "item": "c4"
+  },
+  {
+   "kind": "scenery",
+   "type": "barrier",
+   "x": 26,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 41,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "enemyflag",
+   "x": 48,
+   "y": 2
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 72,
+   "y": 14,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 76,
+   "y": 14,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 70,
+   "y": 14,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "girder",
+   "x": 74,
+   "y": 14,
+   "h": 8
+  },
+  {
+   "kind": "scenery",
+   "type": "tank",
+   "x": 75,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "pipe",
+   "x": 70,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 137,
+   "y": 13,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "enemyflag",
+   "x": 144,
+   "y": 5
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 209,
+   "y": 15,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "enemyflag",
+   "x": 219,
+   "y": 3,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "car",
+   "x": 229,
+   "y": 15
+  },
+  {
+   "kind": "scenery",
+   "type": "deadtree",
+   "x": 4,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "cone",
+   "x": 7,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "car",
+   "x": 15,
+   "y": 9,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "cone",
+   "x": 21,
+   "y": 9
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 24,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "sign",
+   "x": 34,
+   "y": 16,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "deadtree",
+   "x": 40,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "rubble",
+   "x": 51,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 57,
+   "y": 7
+  },
+  {
+   "kind": "scenery",
+   "type": "car",
+   "x": 61,
+   "y": 7,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "trashcan",
+   "x": 66,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "rubble",
+   "x": 70,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "phonebooth",
+   "x": 80,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 83,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "jeep_wreck",
+   "x": 86,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "rubble",
+   "x": 95,
+   "y": 10,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 98,
+   "y": 3
+  },
+  {
+   "kind": "scenery",
+   "type": "trashcan",
+   "x": 101,
+   "y": 3,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 106,
+   "y": 3,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "rubble",
+   "x": 115,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 119,
+   "y": 13,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "trashcan",
+   "x": 124,
+   "y": 6
+  },
+  {
+   "kind": "scenery",
+   "type": "trashcan",
+   "x": 129,
+   "y": 6,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "phonebooth",
+   "x": 146,
+   "y": 13,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "trashcan",
+   "x": 149,
+   "y": 13,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "rubble",
+   "x": 152,
+   "y": 7,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "car",
+   "x": 161,
+   "y": 7
+  },
+  {
+   "kind": "scenery",
+   "type": "cone",
+   "x": 165,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 175,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "sign",
+   "x": 180,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "trashcan",
+   "x": 187,
+   "y": 13,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "car",
+   "x": 191,
+   "y": 15
+  },
+  {
+   "kind": "scenery",
+   "type": "sign",
+   "x": 197,
+   "y": 8,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 201,
+   "y": 8,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 223,
+   "y": 15,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "deadtree",
+   "x": 226,
+   "y": 17
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 230,
+   "y": 17
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 235,
+   "y": 15,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "lamp",
+   "x": 239,
+   "y": 15,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "sign",
+   "x": 242,
+   "y": 15
+  }
+ ],
+ "description": "Snipers in every ruin of a burning city at night."
+}

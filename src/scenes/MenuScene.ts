@@ -4,7 +4,7 @@ import { IN } from '../core/input';
 import { music } from '../audio/Music';
 import { playSfx, toggleMute } from '../audio/Sfx';
 import { PARALLAX_H, makeParallax } from '../gfx/parallax';
-import { CONTROLS_HELP, getInput } from '../input/InputManager';
+import { controlsHelp, getInput } from '../input/InputManager';
 import type { TouchLabels } from '../input/TouchControls';
 import { setNet } from '../net/NetSession';
 import { loadSave, resetSave } from '../progress/save';
@@ -60,7 +60,7 @@ export class MenuScene extends Phaser.Scene {
       { label: 'JOIN ONLINE GAME', action: () => this.go('guest', 1) },
       { label: 'COMMUNITY LEVELS', action: () => this.scene.start('Levels') },
       { label: 'LEVEL EDITOR', action: () => this.scene.start('Editor', {}) },
-      { label: 'CONTROLS', action: () => this.toggleHelp() },
+      { label: 'CONTROLS', action: () => (getInput().touch ? this.toggleHelp() : this.openControls()) },
     ];
     // the level editor needs a mouse: hide it on touch devices
     if (getInput().touch) this.items = this.items.filter((i) => i.label !== 'LEVEL EDITOR');
@@ -71,7 +71,7 @@ export class MenuScene extends Phaser.Scene {
       t.on('pointerdown', () => it.action());
       this.texts.push(t);
     });
-    this.help = this.add.bitmapText(VIEW_W / 2, 168, 'pix', CONTROLS_HELP.join('\n'), undefined, 1).setOrigin(0.5, 0).setDepth(11).setVisible(false);
+    this.help = this.add.bitmapText(VIEW_W / 2, 168, 'pix', controlsHelp().join('\n'), undefined, 1).setOrigin(0.5, 0).setDepth(11).setVisible(false);
     const touch = !!getInput().touch;
     this.add.bitmapText(4, VIEW_H - 8, 'pix', touch ? `BEST LEVEL ${save.best}   CROSS + OK OR TAP AN ITEM` : `BEST LEVEL ${save.best}   M MUSIC  N MUTE`).setDepth(10).setTint(0x909090);
     this.add.bitmapText(VIEW_W - 4, VIEW_H - 8, 'pix', 'V0.1').setOrigin(1, 0).setDepth(10).setTint(0x909090);
@@ -109,6 +109,11 @@ export class MenuScene extends Phaser.Scene {
     getInput().touch?.setLabels(this.touchLabels());
     this.help.setVisible(this.showHelp);
     this.heroes.forEach((h) => h.setVisible(!this.showHelp));
+  }
+
+  private openControls(): void {
+    playSfx('pickup');
+    this.scene.start('Controls');
   }
 
   private go(mode: 'local' | 'host' | 'guest', level: number): void {

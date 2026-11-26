@@ -15,6 +15,7 @@ import type { GameEvent } from '../sim/types';
 import { HERO_NAMES, World } from '../sim/World';
 import { clearDom } from '../ui/dom';
 import { generateLevel } from '../world/LevelGen';
+import { MUTATORS } from '../progress/difficulty';
 import { levelFromFile } from '../world/levelFormat';
 import { communityLevels } from '../world/levelLibrary';
 import { randomSeed } from '../core/rng';
@@ -83,8 +84,9 @@ export class GameScene extends Phaser.Scene {
   create(): void {
     clearDom();
     const d = this.data0;
-    // campaign opener is hand-built; everything after that is procedural
-    const opener = !d.custom && d.level === 1 ? communityLevels().find((l) => l.id === 'jungle-assault')?.file : undefined;
+    // level 1 is the hand-built opener on every third run (picked from the shared seed so
+    // online guests agree); otherwise it is procedural like everything after it
+    const opener = !d.custom && d.level === 1 && d.seed % 3 === 0 ? communityLevels().find((l) => l.id === 'jungle-assault')?.file : undefined;
     const level = d.custom ? levelFromFile(d.custom) : opener ? levelFromFile(opener) : generateLevel(d.level, d.seed, d.total);
     if (opener) level.plan.level = 1;
     this.world = new World(level, d.players.map((p) => ({ pid: p.pid, hero: p.hero, name: HERO_NAMES[p.hero % 4] })), d.lives);
@@ -150,7 +152,11 @@ export class GameScene extends Phaser.Scene {
     this.hud.handle({
       k: 'banner',
       s: d.custom ? d.custom.name : level.plan.isBoss ? `LEVEL ${d.level}: BOSS` : `LEVEL ${d.level}`,
-      sub: d.custom ? `BY ${d.custom.author || 'UNKNOWN'}  -  ${this.world.biome.name}` : `${this.world.biome.name}${level.plan.isBoss ? '  -  FIGHT TO THE END' : '  -  GET TO THE EXTRACTION'}`,
+      sub: d.custom
+        ? `BY ${d.custom.author || 'UNKNOWN'}  -  ${this.world.biome.name}`
+        : level.plan.mutator
+          ? `${this.world.biome.name}  -  ${MUTATORS[level.plan.mutator].name}: ${MUTATORS[level.plan.mutator].sub}`
+          : `${this.world.biome.name}${level.plan.isBoss ? '  -  FIGHT TO THE END' : '  -  GET TO THE EXTRACTION'}`,
     });
     this.events.once('shutdown', () => music.stop());
   }

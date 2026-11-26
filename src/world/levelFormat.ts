@@ -35,6 +35,10 @@ export const SCENERY_TYPES = [
   'palm', 'jungletree', 'fern', 'totem', 'cactus', 'bones', 'tent', 'pine', 'pine_small', 'lamp', 'car', 'deadtree',
   'sign', 'hydrant', 'pipe', 'tank', 'crate_stack', 'spire', 'post', 'roof_thatch', 'roof_snow', 'roof_tent',
   'enemyflag', 'statue', 'girder', 'rope',
+  'bamboo', 'bush', 'flowers', 'mossrock', 'stump', 'log_pile', 'boulder', 'skull_cow', 'tumbleweed', 'well', 'obelisk',
+  'jeep_wreck', 'snowman', 'ice_crystal', 'radar', 'trashcan', 'cone', 'barrier', 'billboard', 'phonebooth', 'rubble',
+  'barrel_stack', 'generator', 'spool', 'warnsign', 'vent', 'lavarock', 'obsidian', 'skullpile', 'brazier', 'campfire',
+  'radio_tower', 'watertower',
 ] as const;
 
 export type LevelEntity =
@@ -207,6 +211,7 @@ export function levelFromFile(f: LevelFile): Level {
     name: f.name,
     height: H,
     skyExit: false,
+    mutator: null,
   };
   const level: Level = {
     plan,

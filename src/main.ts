@@ -8,6 +8,7 @@ import { GameScene } from './scenes/GameScene';
 import { GameOverScene } from './scenes/GameOverScene';
 import { EditorScene } from './scenes/EditorScene';
 import { LevelsScene } from './scenes/LevelsScene';
+import { ControlsScene } from './scenes/ControlsScene';
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -24,7 +25,7 @@ const game = new Phaser.Game({
   },
   input: { gamepad: false, keyboard: false },
   fps: { target: 60 },
-  scene: [BootScene, MenuScene, LobbyScene, GameScene, GameOverScene, EditorScene, LevelsScene],
+  scene: [BootScene, MenuScene, LobbyScene, GameScene, GameOverScene, EditorScene, LevelsScene, ControlsScene],
 });
 
 const unlock = () => unlockAudio();

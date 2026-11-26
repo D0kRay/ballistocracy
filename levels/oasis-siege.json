@@ -1,0 +1,986 @@
+{
+ "format": "ballistocracy-level",
+ "version": 1,
+ "name": "OASIS SIEGE",
+ "author": "Ballistocracy team",
+ "biome": "desert",
+ "tod": "day",
+ "width": 320,
+ "height": 20,
+ "tiles": [
+  "................................................................................................................................................................................................................................................................................................................................",
+  "................................................................................................................................................................................................................................................................................................................................",
+  "................................................................................................................................................................................................................................................................................................................................",
+  "................................................................................................................................................................................................................................................................................................................................",
+  "................................................................................................................................................................................................................................................................................................................................",
+  "................................................................................................................................................................................................................................................................................................................................",
+  "...............................................................................dldlddddddddd.....................................................................................................................................gg.......................gg....................................................................",
+  "...............................................................................dldlddddddddd....................................................g..............................................................................bbbbbbblbb...............bbbbbbbbbblbb........................................g..................",
+  "...............................................................................slslddddddssd..............................................lpppppp....................gg........................................................b......l.b...............b.........l.b..................................lpppppp..................",
+  "...............................................................................slsldddddddsd..............................................l........................bbbbbbbblbb..............gg.................................b......l.b...............b.........l.b..................................l........................",
+  ".....................................................ddddd......................l.l....................................................g..l........................b.......l.b............bbbbbblbb...................................l...........................l.................................g..l........................",
+  "...................................................ddddddddd....................l.l..................................g.................g..l.......g................b.......l.b............b.....l.b...................................l...........................l.................g...........g...g..l.........g..............",
+  "...........ddddddd..............ddldddddpccppppcldddddddddddd...................l.l............................lpppppp............ddddddddddddldddddd..............bpppppppl.b............b.....l.b...................lsddddddddddddddddddddddddddddddddddddddddldddddddd.cc....ddddd....pp.....dddddddddddddddddddddddddddddddd",
+  ".........ddddddddddd...........gddlddddd........lddddddddddddddddddldddddldddddsldldddddddddddd................l..................ddddddddddddldddddd......................l..............bpppppl.b...................lsddddddddddddddddddddddddddddddddddddddddldddddddd.......ddddd...........dddddddddddddddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddddddddlddddd........lddddddddddddddddddldddddlddddddldldddddddddddd.............g..l............ddddddddddddddddddl......ddddldddd.............l....................l.....................lsddddddddddddddsdddddddddddddddddddddddddl......dd.......dddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddddddddlddddd........lddddddddddddddddddl.....l......l.lddddddddddddddd..........g..l.........g..dddddddddddddddddd.......ddddlddddddddddddddddddddddddd.............l.....................lsddddddddddddddsddddddddddddddddddddddddd................dddddddddddddddddddddddddddddddddddddddddddsdddd",
+  "dddddddddddddddddddddddddssssdddddl.............lsddddddddddddddddd................dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddssssssd....lddddddddddddddddddddddddddddddddddddddddddddd....dd....ddddddssddddddddddddssdddddddddddddddddddddddddddddddd.........dddddddddddddddddddddddssssssdddddddddddddssdddd",
+  "dddddddddddddddddddddddddddddddddd...............ddddddddddddddddddddddddddd....dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddssssdd.....dddddddddddddddddddddssddddddddddddddddddddddddddddddddddddddsddddddddddddddddddddddddddddddddddddddddddddddddd.......dddddddddddddddddddddddsssdddddddddddddddddsdddd",
+  "ssssddddddddddddddddddddddddddddddddddds........ddddddddddddddddddddddddddddddddddddddddddddddsssddddddddsdddddddddddddddddddsddddddddddddddddddddddddddddddddddddddddddddddddsssddddddddddssssssssssssddddddddddddddddddddddddddddddddddddddddddddddsddddddddddddddddddd.......dddddddddddddddddddddddssdddddddddddddssdddddddd",
+  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx........xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.......xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ ],
+ "back": [
+  "................................................................................................................................................................................................................................................................................................................................",
+  "................................................................................................................................................................................................................................................................................................................................",
+  "................................................................................................................................................................................................................................................................................................................................",
+  "................................................................................................................................................................................................................................................................................................................................",
+  "................................................................................................................................................................................................................................................................................................................................",
+  "................................................................................................................................................................................................................................................................................................................................",
+  "................................................................................d.d.............................................................................................................................................................................................................................................",
+  "...............................................................................ddddddddddddd...................................................................................................................................ssssssssss...............sssssssssssss...........................................................",
+  "...............................................................................ddddddddddddd...................................................................................................................................ssssssssss...............sssssssssssss...........................................................",
+  "...............................................................................ddddddddddddd.......................................................................sssssssssss.................................................ssWssWssss...............ssWssWssWssss...........................................................",
+  "...............................................................................ddddddddddddd.......................................................................sssssssssss............sssssssss............................ssssssssss...............sssssssssssss...........................................................",
+  ".....................................................ddddd.....................ddddddddddddd.......................................................................ssWssWssWss............sssssssss............................ssssssssss...............sssssssssssss...........................................................",
+  "..................................d.............d..ddddddddd...................ddddddddddddd..................................................d....................sssssssssss............ssWssWsss.............................................................d....................ddddddddddd................................",
+  "...........ddddddd..............dddddddd........ddddddddddddd......d.....d......d.d...............................................ddddddddddddddddddd..............sssssssssss............sssssssss....................dddddddddddddddddddddddddddddddddddddddddddddddddd.......dddddddddddddddddddddddddddddddddddddddddddddddd",
+  ".........ddddddddddd............dddddddd........ddddddddddddddddddddddddddddddddddddddddddddddd...................................ddddddddddddddddddd....d.........sssssssssss............sssssssss....................dddddddddddddddddddddddddddddddddddddddddddddddddd.......ddddd...........dddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddd........ddddddddddddddddddddddddddddddddddddddddddddddd.............................dddddddddddddddddddddddddddddddddd............................sssssssss....................ddddddddddddddddddddddddddddddddddddddddddddddddddddd....dddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd..........................ddddddddddddddddddddddddddddddddddddddddddddddddddddddd....................................ddddddddddddddddddddddddddddddddddddddddddddddddddddd....dddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd....dd....dddddddddddddddddddddddddddddddddddddddddddddddddddddddd.......dddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddd........ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.......dddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddd........ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.......dddddddddddddddddddddddddddddddddddddddddddddddd"
+ ],
+ "spawn": {
+  "x": 3,
+  "y": 14
+ },
+ "exit": {
+  "vehicle": "plane",
+  "x": 309,
+  "y": 12
+ },
+ "boss": null,
+ "entities": [
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 10,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 13,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 17,
+   "y": 7
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 32,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 25,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "heavy",
+   "x": 25,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "heavy",
+   "x": 34,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 59,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 59,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 65,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 70,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 68,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "heavy",
+   "x": 80,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 88,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 81,
+   "y": 6
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 97,
+   "y": 10
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 98,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 96,
+   "y": 15
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 114,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 116,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 110,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 119,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 132,
+   "y": 7
+  },
+  {
+   "kind": "enemy",
+   "type": "heavy",
+   "x": 129,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 141,
+   "y": 8
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 143,
+   "y": 3
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 137,
+   "y": 7
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 144,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "drone",
+   "x": 154,
+   "y": 9
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 154,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 166,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 165,
+   "y": 15
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 170,
+   "y": 15
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 168,
+   "y": 9
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 177,
+   "y": 15
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 189,
+   "y": 13
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 188,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 191,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "heavy",
+   "x": 210,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 203,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 208,
+   "y": 17
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 219,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 225,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 229,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 228,
+   "y": 7
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 244,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 238,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 250,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 257,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 281,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 283,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 285,
+   "y": 14
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 298,
+   "y": 8
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 294,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 303,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 262,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 78,
+   "y": 18
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 41,
+   "y": 18
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 148,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 74,
+   "y": 17
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 6,
+   "y": 14,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 19,
+   "y": 13,
+   "item": "ammo"
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 32,
+   "y": 12,
+   "item": "minigun"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 53,
+   "y": 10
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 85,
+   "y": 13
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 115,
+   "y": 16,
+   "item": "armor"
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 125,
+   "y": 14,
+   "item": "flamer"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 131,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 142,
+   "y": 12,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 157,
+   "y": 14,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 150,
+   "y": 14
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 167,
+   "y": 15
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 180,
+   "y": 16,
+   "item": "shotgun"
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 190,
+   "y": 16,
+   "item": "armor"
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 207,
+   "y": 17,
+   "item": "minigun"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 219,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 227,
+   "y": 12,
+   "item": "speed"
+  },
+  {
+   "kind": "prop",
+   "type": "flamejet",
+   "x": 237,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 239,
+   "y": 13
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 240,
+   "y": 13
+  },
+  {
+   "kind": "prop",
+   "type": "spikes",
+   "x": 243,
+   "y": 13
+  },
+  {
+   "kind": "prop",
+   "type": "saw",
+   "x": 266,
+   "y": 9,
+   "x2": 270
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 287,
+   "y": 14,
+   "item": "armor"
+  },
+  {
+   "kind": "prop",
+   "type": "mine",
+   "x": 289,
+   "y": 12
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 299,
+   "y": 12,
+   "item": "flamer"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 260,
+   "y": 16
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 266,
+   "y": 17,
+   "item": "flamer"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 77,
+   "y": 18
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 81,
+   "y": 17,
+   "item": "armor"
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 47,
+   "y": 18,
+   "item": "shotgun"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 146,
+   "y": 16
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 152,
+   "y": 18,
+   "item": "ammo"
+  },
+  {
+   "kind": "prop",
+   "type": "barrel",
+   "x": 71,
+   "y": 17
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 79,
+   "y": 17,
+   "item": "ammo"
+  },
+  {
+   "kind": "scenery",
+   "type": "rope",
+   "x": 39,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "rope",
+   "x": 48,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 112,
+   "y": 16,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 117,
+   "y": 16,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "watertower",
+   "x": 119,
+   "y": 16
+  },
+  {
+   "kind": "scenery",
+   "type": "generator",
+   "x": 110,
+   "y": 16
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 139,
+   "y": 12,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 144,
+   "y": 12,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "watertower",
+   "x": 144,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "generator",
+   "x": 137,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "bones",
+   "x": 204,
+   "y": 16
+  },
+  {
+   "kind": "scenery",
+   "type": "sign",
+   "x": 275,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 296,
+   "y": 12,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 301,
+   "y": 12,
+   "h": 4
+  },
+  {
+   "kind": "scenery",
+   "type": "watertower",
+   "x": 303,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "generator",
+   "x": 294,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "boulder",
+   "x": 4,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "bones",
+   "x": 12,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "cactus",
+   "x": 21,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "boulder",
+   "x": 26,
+   "y": 14
+  },
+  {
+   "kind": "scenery",
+   "type": "cactus",
+   "x": 35,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "cactus",
+   "x": 56,
+   "y": 10
+  },
+  {
+   "kind": "scenery",
+   "type": "bush",
+   "x": 65,
+   "y": 13
+  },
+  {
+   "kind": "scenery",
+   "type": "tumbleweed",
+   "x": 75,
+   "y": 13,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "bones",
+   "x": 78,
+   "y": 13
+  },
+  {
+   "kind": "scenery",
+   "type": "tent",
+   "x": 84,
+   "y": 6
+  },
+  {
+   "kind": "scenery",
+   "type": "obelisk",
+   "x": 87,
+   "y": 6
+  },
+  {
+   "kind": "scenery",
+   "type": "boulder",
+   "x": 92,
+   "y": 13,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "tumbleweed",
+   "x": 98,
+   "y": 16
+  },
+  {
+   "kind": "scenery",
+   "type": "cactus",
+   "x": 101,
+   "y": 16,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "bones",
+   "x": 130,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "cactus",
+   "x": 133,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "boulder",
+   "x": 136,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "tumbleweed",
+   "x": 154,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "bones",
+   "x": 159,
+   "y": 15
+  },
+  {
+   "kind": "scenery",
+   "type": "boulder",
+   "x": 177,
+   "y": 15
+  },
+  {
+   "kind": "scenery",
+   "type": "tent",
+   "x": 195,
+   "y": 16
+  },
+  {
+   "kind": "scenery",
+   "type": "palm",
+   "x": 198,
+   "y": 16
+  },
+  {
+   "kind": "scenery",
+   "type": "cactus",
+   "x": 203,
+   "y": 16
+  },
+  {
+   "kind": "scenery",
+   "type": "obelisk",
+   "x": 207,
+   "y": 17,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "cactus",
+   "x": 212,
+   "y": 16
+  },
+  {
+   "kind": "scenery",
+   "type": "tumbleweed",
+   "x": 216,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "cactus",
+   "x": 233,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "bush",
+   "x": 237,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "cactus",
+   "x": 241,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "tumbleweed",
+   "x": 261,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "tent",
+   "x": 274,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "boulder",
+   "x": 277,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "cactus",
+   "x": 293,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "bones",
+   "x": 302,
+   "y": 12
+  },
+  {
+   "kind": "scenery",
+   "type": "obelisk",
+   "x": 307,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "cactus",
+   "x": 315,
+   "y": 12,
+   "flip": true
+  }
+ ],
+ "description": "Bunkers, trenches and outposts guard the desert oasis."
+}

@@ -283,6 +283,449 @@ function defs(b: Biome): Record<string, Def> {
         R(c, 9, 20, 1, 6, '#ff6020');
       },
     },
+    // ---------------------------------------------------------------- jungle
+    bamboo: {
+      w: 18, h: 52, draw: (c, rng) => {
+        const g = '#7aa83a';
+        for (const [x, top] of [[3, 6], [8, 0], [13, 10]] as const) {
+          for (let y = top; y < 52; y++) R(c, x, y, 3, 1, (y - top) % 9 === 0 ? shade(g, 0.6) : g);
+          R(c, x, top, 1, 52 - top, shade(g, 1.3));
+          for (let k = 0; k < 3; k++) {
+            const ly = top + 4 + k * 12 + rng.int(0, 3);
+            const dir = k % 2 ? 1 : -1;
+            for (let s = 0; s < 5; s++) R(c, x + 1 + dir * (s + 1), ly + Math.floor(s / 2), 1, 1, shade(leaf, 0.9));
+          }
+        }
+      },
+    },
+    bush: {
+      w: 28, h: 16, draw: (c, rng) => {
+        for (let i = 0; i < 6; i++) disc(c, 5 + i * 3.6, 10 + rng.range(-2, 1), rng.int(3, 5), shade(leaf, 0.75));
+        for (let i = 0; i < 5; i++) disc(c, 6 + i * 4, 8 + rng.range(-2, 1), rng.int(3, 4), leaf);
+        for (let i = 0; i < 6; i++) R(c, rng.int(4, 23), rng.int(4, 10), 1, 1, shade(leaf, 1.35));
+        if (b.id === 'jungle') for (let i = 0; i < 3; i++) R(c, rng.int(5, 22), rng.int(6, 12), 2, 2, '#e04040');
+      },
+    },
+    flowers: {
+      w: 18, h: 10, draw: (c, rng) => {
+        for (let i = 0; i < 5; i++) {
+          const x = 2 + i * 3 + rng.int(0, 1);
+          const h = rng.int(4, 8);
+          R(c, x, 10 - h, 1, h, shade(leaf, 0.8));
+          const col = rng.pick(['#f04870', '#f0d040', '#f0f0f0', '#a060f0']);
+          R(c, x - 1, 10 - h - 1, 3, 2, col);
+          R(c, x, 10 - h - 1, 1, 1, '#f8f0a0');
+        }
+      },
+    },
+    mossrock: {
+      w: 26, h: 16, draw: (c) => {
+        disc(c, 13, 11, 10, shade(b.rock, 0.8), 0.55);
+        disc(c, 12, 10, 9, b.rock, 0.5);
+        disc(c, 9, 8, 4, shade(b.rock, 1.3), 0.6);
+        for (let x = 4; x < 22; x++) R(c, x, 5 + Math.round(Math.abs(x - 13) * 0.35), 1, 2, b.vines ?? leaf);
+      },
+    },
+    stump: {
+      w: 20, h: 13, draw: (c) => {
+        const t = b.id === 'volcano' ? '#2a2020' : bark;
+        R(c, 4, 3, 12, 10, t);
+        R(c, 4, 3, 2, 10, shade(t, 1.3));
+        R(c, 14, 3, 2, 10, shade(t, 0.6));
+        R(c, 1, 10, 18, 3, t);
+        R(c, 4, 2, 12, 2, b.id === 'volcano' ? '#ff6020' : '#c8a070');
+        R(c, 8, 2, 4, 1, b.id === 'volcano' ? '#ffd040' : '#a07a4a');
+      },
+    },
+    log_pile: {
+      w: 32, h: 16, draw: (c) => {
+        const log = (x: number, y: number) => {
+          R(c, x, y, 14, 6, bark);
+          R(c, x, y, 14, 1, shade(bark, 1.3));
+          disc(c, x + 13, y + 3, 3, '#c8a070');
+          R(c, x + 13, y + 3, 1, 1, '#7a5a3a');
+          if (b.id === 'snow') R(c, x, y - 1, 14, 2, '#f0f4ff');
+        };
+        log(1, 10);
+        log(15, 10);
+        log(8, 4);
+      },
+    },
+    // ---------------------------------------------------------------- desert
+    boulder: {
+      w: 28, h: 20, draw: (c) => {
+        disc(c, 14, 13, 12, shade(b.rock, 0.7), 0.6);
+        disc(c, 13, 12, 11, b.rock, 0.58);
+        disc(c, 9, 8, 5, shade(b.rock, 1.3), 0.6);
+        R(c, 15, 9, 1, 6, shade(b.rock, 0.55));
+        R(c, 16, 14, 4, 1, shade(b.rock, 0.55));
+      },
+    },
+    skull_cow: {
+      w: 22, h: 11, draw: (c) => {
+        const bo = '#e8e0c8';
+        R(c, 7, 3, 8, 6, bo);
+        R(c, 8, 9, 6, 2, bo);
+        R(c, 8, 5, 2, 2, '#1a1210');
+        R(c, 12, 5, 2, 2, '#1a1210');
+        R(c, 1, 2, 6, 2, bo);
+        R(c, 0, 0, 2, 3, bo);
+        R(c, 15, 2, 6, 2, bo);
+        R(c, 20, 0, 2, 3, bo);
+        R(c, 7, 3, 1, 6, shade(bo, 1.1));
+      },
+    },
+    tumbleweed: {
+      w: 14, h: 13, draw: (c, rng) => {
+        const t = '#a8844a';
+        for (let i = 0; i < 40; i++) {
+          const a = rng.range(0, Math.PI * 2);
+          const r = rng.range(2, 6);
+          R(c, 7 + Math.cos(a) * r, 7 + Math.sin(a) * r, 1, 1, i % 3 ? t : shade(t, 0.7));
+        }
+        for (let i = 0; i < 8; i++) {
+          const a = (i / 8) * Math.PI * 2;
+          for (let s = 0; s < 6; s++) R(c, 7 + Math.cos(a) * s, 7 + Math.sin(a) * s, 1, 1, shade(t, 0.8));
+        }
+      },
+    },
+    well: {
+      w: 30, h: 32, draw: (c) => {
+        const st = b.brick;
+        R(c, 3, 20, 24, 12, st);
+        for (let y = 20; y < 32; y += 4) for (let x = 3 + ((y / 4) % 2) * 3; x < 27; x += 6) R(c, x, y, 1, 4, b.brickDark);
+        for (let y = 23; y < 32; y += 4) R(c, 3, y, 24, 1, b.brickDark);
+        R(c, 3, 20, 24, 2, shade(st, 1.2));
+        R(c, 5, 4, 2, 16, wood);
+        R(c, 23, 4, 2, 16, wood);
+        R(c, 1, 2, 28, 3, shade(wood, 0.8));
+        R(c, 14, 5, 1, 9, '#c8a868');
+        R(c, 12, 13, 5, 4, shade(wood, 0.7));
+      },
+    },
+    obelisk: {
+      w: 16, h: 46, draw: (c) => {
+        const st = b.structure === 'sandstone' ? '#c8985e' : b.brick;
+        for (let y = 6; y < 42; y++) {
+          const hw = 3 + (y - 6) * 0.06;
+          R(c, 8 - hw, y, hw * 2, 1, st);
+          R(c, 8 - hw, y, 1, 1, shade(st, 1.3));
+          R(c, 8 + hw - 1, y, 1, 1, shade(st, 0.65));
+        }
+        for (let y = 0; y < 6; y++) R(c, 8 - y * 0.5, y, Math.max(1, y), 1, '#f0d060');
+        for (let y = 12; y < 38; y += 5) R(c, 6, y, 4, 2, shade(st, 0.6));
+        R(c, 2, 42, 12, 4, shade(st, 0.75));
+      },
+    },
+    jeep_wreck: {
+      w: 50, h: 22, draw: (c, rng) => {
+        const body = b.id === 'desert' ? '#8a7a4a' : b.id === 'snow' ? '#e0e4ec' : '#4a5a3a';
+        R(c, 3, 9, 40, 9, body);
+        R(c, 3, 9, 40, 1, shade(body, 1.3));
+        R(c, 3, 16, 40, 2, shade(body, 0.6));
+        R(c, 30, 3, 2, 7, '#3a3a3a');
+        R(c, 30, 3, 10, 1, '#3a3a3a');
+        R(c, 14, 11, 7, 5, '#f0f0e0');
+        R(c, 16, 12, 3, 3, body);
+        for (let i = 0; i < 10; i++) R(c, rng.int(4, 42), rng.int(10, 17), rng.int(1, 3), rng.int(1, 2), i % 2 ? '#2a1e18' : '#8a4a22');
+        disc(c, 10, 18, 4, '#1a1a1a');
+        R(c, 34, 18, 7, 3, '#1a1a1a');
+        R(c, 42, 6, 6, 3, shade(body, 0.7));
+      },
+    },
+    // ---------------------------------------------------------------- arctic
+    snowman: {
+      w: 20, h: 28, draw: (c) => {
+        disc(c, 10, 21, 7, '#f0f4ff');
+        disc(c, 10, 11, 5, '#f0f4ff');
+        R(c, 6, 16, 8, 1, '#c8d8f0');
+        R(c, 8, 9, 1, 1, '#1a1a1a');
+        R(c, 11, 9, 1, 1, '#1a1a1a');
+        R(c, 9, 11, 4, 1, '#f08020');
+        R(c, 6, 4, 8, 2, '#1a1a1a');
+        R(c, 7, 0, 6, 4, '#1a1a1a');
+        R(c, 5, 14, 10, 2, '#c02020');
+        R(c, 13, 14, 2, 5, '#c02020');
+        R(c, 9, 19, 1, 1, '#1a1a1a');
+        R(c, 9, 22, 1, 1, '#1a1a1a');
+      },
+    },
+    ice_crystal: {
+      w: 20, h: 26, draw: (c) => {
+        const ice = '#9ae0f8';
+        const spike = (x: number, h: number, w: number) => {
+          for (let y = 0; y < h; y++) {
+            const hw = Math.max(0.5, (w * y) / h);
+            R(c, x - hw, 26 - h + y, hw * 2, 1, ice);
+            R(c, x - hw, 26 - h + y, 1, 1, '#e8f8ff');
+          }
+        };
+        spike(10, 24, 3);
+        spike(5, 14, 2.5);
+        spike(15, 17, 2.5);
+        R(c, 9, 6, 1, 12, '#ffffff');
+      },
+    },
+    radar: {
+      w: 32, h: 42, draw: (c) => {
+        const m = '#7a8490';
+        R(c, 14, 18, 4, 24, m);
+        R(c, 14, 18, 1, 24, shade(m, 1.4));
+        R(c, 8, 38, 16, 4, shade(m, 0.7));
+        for (let y = 0; y < 18; y++) {
+          const hw = Math.sqrt(Math.max(0, 81 - (y - 9) * (y - 9))) * 1.5;
+          R(c, 16 - hw - 4 + y * 0.3, y, hw, 1, y < 9 ? '#d8dce4' : '#a8b0bc');
+        }
+        R(c, 18, 7, 9, 1, '#3a3e44');
+        disc(c, 27, 7, 1, '#ff3020');
+        if (b.id === 'snow') R(c, 4, 0, 14, 2, '#f8fbff');
+      },
+    },
+    // ---------------------------------------------------------------- city
+    trashcan: {
+      w: 12, h: 15, draw: (c) => {
+        const m = '#5a6a5a';
+        R(c, 2, 4, 8, 11, m);
+        for (let x = 3; x < 10; x += 2) R(c, x, 5, 1, 9, shade(m, 0.7));
+        R(c, 1, 2, 10, 2, shade(m, 1.2));
+        R(c, 5, 0, 2, 2, shade(m, 1.2));
+        R(c, 3, 1, 3, 1, '#8a6a3a');
+      },
+    },
+    cone: {
+      w: 10, h: 12, draw: (c) => {
+        for (let y = 0; y < 10; y++) {
+          const hw = 1 + y * 0.35;
+          R(c, 5 - hw, y, hw * 2, 1, y === 4 || y === 5 ? '#f0f0f0' : '#f06010');
+        }
+        R(c, 0, 10, 10, 2, '#c04808');
+      },
+    },
+    barrier: {
+      w: 32, h: 15, draw: (c) => {
+        R(c, 3, 6, 2, 9, '#3a3e44');
+        R(c, 27, 6, 2, 9, '#3a3e44');
+        for (let x = 0; x < 32; x++) R(c, x, 2, 1, 5, Math.floor((x + 2) / 4) % 2 ? '#f0f0f0' : '#d02020');
+        R(c, 0, 2, 32, 1, '#ffffff');
+        disc(c, 2, 1, 1, '#f0b020');
+      },
+    },
+    billboard: {
+      w: 52, h: 46, draw: (c, rng) => {
+        R(c, 10, 24, 3, 22, '#3a3e44');
+        R(c, 39, 24, 3, 22, '#3a3e44');
+        R(c, 1, 1, 50, 25, '#2a2a30');
+        R(c, 3, 3, 46, 21, rng.pick(['#e8c040', '#40a0e0', '#e05050']));
+        R(c, 6, 6, 20, 4, '#1a1a1a');
+        R(c, 6, 12, 28, 2, '#f8f8f8');
+        R(c, 6, 16, 22, 2, '#f8f8f8');
+        disc(c, 40, 13, 6, '#f8f0e0');
+        R(c, 38, 11, 1, 1, '#1a1a1a');
+        R(c, 42, 11, 1, 1, '#1a1a1a');
+        R(c, 38, 15, 5, 1, '#1a1a1a');
+        // torn patches
+        for (let i = 0; i < 4; i++) R(c, rng.int(3, 46), rng.int(3, 20), rng.int(3, 7), rng.int(2, 5), '#2a2a30');
+      },
+    },
+    phonebooth: {
+      w: 16, h: 34, draw: (c) => {
+        const r = '#b02020';
+        R(c, 2, 3, 12, 31, r);
+        R(c, 1, 1, 14, 3, shade(r, 0.8));
+        R(c, 4, 7, 8, 22, '#a8c8d8');
+        for (let y = 10; y < 29; y += 5) R(c, 4, y, 8, 1, r);
+        R(c, 7, 7, 1, 22, r);
+        R(c, 3, 4, 10, 2, '#f0f0e0');
+        R(c, 2, 3, 1, 31, shade(r, 1.3));
+      },
+    },
+    rubble: {
+      w: 32, h: 12, draw: (c, rng) => {
+        for (let i = 0; i < 14; i++) {
+          const x = rng.int(1, 27);
+          const y = rng.int(4, 9);
+          const col = rng.pick([b.brick, b.brickDark, '#7a7478', '#5a5458']);
+          R(c, x, y, rng.int(3, 6), 12 - y, col);
+          R(c, x, y, 2, 1, shade(col, 1.3));
+        }
+        R(c, 12, 0, 1, 6, '#3a3e44');
+        R(c, 20, 2, 1, 5, '#3a3e44');
+      },
+    },
+    // ---------------------------------------------------------------- factory
+    barrel_stack: {
+      w: 28, h: 26, draw: (c) => {
+        const drum = (x: number, y: number, col: string) => {
+          R(c, x, y, 10, 12, col);
+          R(c, x, y + 3, 10, 1, shade(col, 0.6));
+          R(c, x, y + 8, 10, 1, shade(col, 0.6));
+          R(c, x, y, 2, 12, shade(col, 1.3));
+          R(c, x + 1, y, 8, 1, shade(col, 1.2));
+        };
+        drum(2, 14, '#3a6a9a');
+        drum(15, 14, '#c0a020');
+        drum(8, 2, '#3a7a3a');
+        R(c, 11, 6, 4, 3, '#f0f0f0');
+      },
+    },
+    generator: {
+      w: 32, h: 24, draw: (c) => {
+        const m = '#c0a030';
+        R(c, 2, 6, 28, 16, m);
+        R(c, 2, 6, 28, 2, shade(m, 1.3));
+        R(c, 2, 20, 28, 2, shade(m, 0.6));
+        for (let x = 5; x < 18; x += 3) R(c, x, 10, 2, 8, shade(m, 0.6));
+        R(c, 21, 9, 6, 5, '#1a1a1a');
+        R(c, 22, 10, 2, 2, '#40ff40');
+        R(c, 25, 10, 1, 1, '#ff3020');
+        R(c, 24, 0, 3, 6, '#3a3a3a');
+        R(c, 3, 22, 4, 2, '#2a2a2a');
+        R(c, 25, 22, 4, 2, '#2a2a2a');
+      },
+    },
+    spool: {
+      w: 24, h: 22, draw: (c) => {
+        disc(c, 12, 11, 10, shade(wood, 0.8));
+        disc(c, 12, 11, 8, '#3a3a3a');
+        for (let r = 3; r < 8; r += 2) for (let a = 0; a < 40; a++) R(c, 12 + Math.cos(a / 6.4) * r, 11 + Math.sin(a / 6.4) * r, 1, 1, '#c86a2a');
+        disc(c, 12, 11, 2, wood);
+        R(c, 2, 20, 20, 2, shade(wood, 0.6));
+      },
+    },
+    warnsign: {
+      w: 16, h: 26, draw: (c) => {
+        R(c, 7, 12, 2, 14, '#3a3e44');
+        for (let y = 0; y < 13; y++) {
+          const hw = 1 + y * 0.6;
+          R(c, 8 - hw, y, hw * 2, 1, y > 11 ? '#1a1a1a' : '#f0c020');
+        }
+        R(c, 7, 4, 2, 5, '#1a1a1a');
+        R(c, 7, 10, 2, 1, '#1a1a1a');
+      },
+    },
+    vent: {
+      w: 20, h: 32, draw: (c) => {
+        const m = '#6a6e74';
+        R(c, 5, 6, 10, 26, m);
+        R(c, 5, 6, 2, 26, shade(m, 1.4));
+        R(c, 13, 6, 2, 26, shade(m, 0.6));
+        R(c, 3, 2, 14, 5, shade(m, 0.8));
+        R(c, 4, 0, 12, 2, '#3a3e44');
+        for (let y = 12; y < 30; y += 6) R(c, 4, y, 12, 2, '#4e5258');
+        R(c, 7, 3, 6, 2, '#1a1a1a');
+      },
+    },
+    // ---------------------------------------------------------------- volcano
+    lavarock: {
+      w: 26, h: 15, draw: (c, rng) => {
+        disc(c, 13, 10, 11, '#2a201c', 0.5);
+        disc(c, 12, 9, 10, '#3a2e2a', 0.45);
+        for (let i = 0; i < 4; i++) {
+          let x = rng.int(5, 20);
+          let y = rng.int(6, 11);
+          for (let s = 0; s < 5; s++) {
+            R(c, x, y, 1, 1, s % 2 ? '#ff7020' : '#ffb040');
+            x += rng.int(-1, 1) || 1;
+            y += rng.int(-1, 1);
+          }
+        }
+      },
+    },
+    obsidian: {
+      w: 22, h: 28, draw: (c) => {
+        const o = '#2a1e3a';
+        const shard = (x: number, h: number, lean: number) => {
+          for (let y = 0; y < h; y++) {
+            const hw = Math.max(0.6, 2.6 * (y / h));
+            R(c, x - hw + lean * (h - y) * 0.1, 28 - h + y, hw * 2, 1, o);
+            R(c, x - hw + lean * (h - y) * 0.1, 28 - h + y, 1, 1, '#8a6ac8');
+          }
+        };
+        shard(11, 26, 0);
+        shard(5, 15, -1);
+        shard(17, 18, 1);
+        R(c, 10, 8, 1, 6, '#c8a8ff');
+      },
+    },
+    skullpile: {
+      w: 24, h: 15, draw: (c) => {
+        const bo = '#d8d0b8';
+        const skull = (x: number, y: number) => {
+          R(c, x, y, 7, 6, bo);
+          R(c, x + 1, y + 6, 5, 1, bo);
+          R(c, x + 1, y + 2, 2, 2, '#1a1210');
+          R(c, x + 4, y + 2, 2, 2, '#1a1210');
+          R(c, x, y, 1, 6, shade(bo, 1.1));
+        };
+        skull(1, 8);
+        skull(9, 8);
+        skull(16, 8);
+        skull(5, 2);
+        skull(12, 2);
+      },
+    },
+    brazier: {
+      w: 14, h: 24, frames: 2, draw: (c, _rng, f) => {
+        const st = b.structure === 'sandstone' ? '#b8885a' : '#5a5458';
+        R(c, 5, 12, 4, 10, st);
+        R(c, 3, 21, 8, 3, shade(st, 0.7));
+        R(c, 1, 9, 12, 4, shade(st, 0.9));
+        R(c, 1, 9, 12, 1, shade(st, 1.3));
+        const fl = f ? [[3, 5], [6, 1], [9, 4]] : [[3, 3], [7, 0], [10, 5]];
+        for (const [x, top] of fl) {
+          R(c, x - 1, top + 3, 3, 9 - top - 3, '#ff6020');
+          R(c, x, top, 1, 9 - top, '#ffb030');
+          R(c, x, top + 5, 1, 9 - top - 5, '#fff0a0');
+        }
+      },
+    },
+    // ---------------------------------------------------------------- everywhere
+    campfire: {
+      w: 18, h: 14, frames: 2, draw: (c, _rng, f) => {
+        R(c, 1, 11, 16, 3, '#5a5458');
+        R(c, 3, 9, 12, 3, bark);
+        R(c, 5, 8, 2, 4, shade(bark, 0.7));
+        R(c, 11, 8, 2, 4, shade(bark, 0.7));
+        const fl = f ? [[5, 3], [9, 0], [12, 4]] : [[6, 2], [9, 1], [11, 3]];
+        for (const [x, top] of fl) {
+          R(c, x - 1, top + 3, 3, 9 - top - 3, '#ff5a10');
+          R(c, x, top, 1, 9 - top, '#ffa020');
+          R(c, x, top + 4, 1, 9 - top - 4, '#fff0a0');
+        }
+      },
+    },
+    radio_tower: {
+      w: 26, h: 64, draw: (c) => {
+        const m = '#8a8e94';
+        for (let y = 4; y < 64; y++) {
+          const hw = 1 + y * 0.17;
+          R(c, 13 - hw, y, 1, 1, m);
+          R(c, 13 + hw - 1, y, 1, 1, m);
+          if (y % 8 === 0) R(c, 13 - hw, y, hw * 2, 1, m);
+          if (y % 8 < 4) R(c, 13 - hw + ((y % 8) / 8) * hw * 2, y, 1, 1, shade(m, 0.7));
+        }
+        R(c, 12, 0, 2, 5, m);
+        disc(c, 13, 1, 1, '#ff2020');
+        R(c, 6, 20, 5, 4, '#c8ccd2');
+        R(c, 15, 34, 6, 5, '#c8ccd2');
+      },
+    },
+    watertower: {
+      w: 36, h: 58, draw: (c) => {
+        const tank = b.id === 'desert' ? '#a8885a' : '#7a8088';
+        for (const x of [6, 28]) {
+          R(c, x, 26, 2, 32, shade(wood, 0.8));
+          R(c, x, 26, 1, 32, shade(wood, 1.2));
+        }
+        for (let y = 30; y < 58; y += 8) for (let s = 0; s < 22; s++) R(c, 7 + s, y + s * 0.3, 1, 1, shade(wood, 0.6));
+        R(c, 3, 8, 30, 20, tank);
+        R(c, 3, 8, 4, 20, shade(tank, 1.3));
+        R(c, 27, 8, 6, 20, shade(tank, 0.65));
+        for (let y = 12; y < 28; y += 5) R(c, 3, y, 30, 1, shade(tank, 0.75));
+        for (let y = 0; y < 8; y++) R(c, 18 - (y + 1) * 2, y + 1, (y + 1) * 4, 1, shade(tank, 0.8));
+        R(c, 3, 26, 30, 2, '#3a3a3a');
+      },
+    },
     post: { w: 4, h: 48, draw: (c) => { R(c, 0, 0, 4, 48, shade(wood, 0.8)); R(c, 0, 0, 1, 48, shade(wood, 1.2)); for (let y = 6; y < 48; y += 12) R(c, 0, y, 4, 1, shade(wood, 0.5)); } },
     roof_thatch: {
       w: 98, h: 24, draw: (c, rng) => {
@@ -357,6 +800,15 @@ function defs(b: Biome): Record<string, Def> {
 }
 
 export const SCENERY_TILED = new Set(['girder', 'post']);
+/** scenery with 2 animation frames (flag waving, fire flickering) */
+export const SCENERY_ANIMATED = new Set(['enemyflag', 'campfire', 'brazier']);
+/** scenery that lights up the night: light offset above the base, radius, colour, strength */
+export const SCENERY_GLOW: Record<string, { dy: number; r: number; c: number; a: number }> = {
+  campfire: { dy: 6, r: 34, c: 0xff9040, a: 0.6 },
+  brazier: { dy: 16, r: 28, c: 0xff9040, a: 0.55 },
+  lavarock: { dy: 4, r: 16, c: 0xff6020, a: 0.35 },
+  radio_tower: { dy: 63, r: 8, c: 0xff2020, a: 0.7 },
+};
 
 export function makeScenery(scene: Phaser.Scene, b: Biome): void {
   const all = defs(b);

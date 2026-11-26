@@ -5,7 +5,7 @@ import { CHAR_H, FRAME, HAND, WEAPON_ANCHOR, ensureHands } from '../gfx/characte
 import { PARALLAX_H, makeParallax } from '../gfx/parallax';
 import { HERO_COLORS, shade } from '../gfx/SpriteForge';
 import { BACK, DECOR_FRAMES, EDGE, makeBackTiles, makeDecor, makeTiles, tileFrame } from '../gfx/terrain';
-import { SCENERY_TILED, makeScenery } from '../gfx/scenery';
+import { SCENERY_ANIMATED, SCENERY_GLOW, SCENERY_TILED, makeScenery } from '../gfx/scenery';
 import type { GameEvent } from '../sim/types';
 import type { World } from '../sim/World';
 import { BACK_CHANGE, T, isSolid } from '../world/tiles';
@@ -233,7 +233,9 @@ export class WorldRenderer {
         const fx = o.obj instanceof Phaser.GameObjects.Image && o.obj.flipX ? -5 : 5;
         this.lights.push({ x: o.x + fx, y: o.y - 43, r: 30, c: 0xffe0a0, a: 0.45 });
       }
-      if (o.type === 'enemyflag' && o.obj instanceof Phaser.GameObjects.Image) o.obj.setFrame(Math.floor(this.time * 4 + o.x) % 2);
+      if (SCENERY_ANIMATED.has(o.type) && o.obj instanceof Phaser.GameObjects.Image) o.obj.setFrame(Math.floor(this.time * (o.type === 'enemyflag' ? 4 : 8) + o.x) % 2);
+      const glow = SCENERY_GLOW[o.type];
+      if (glow && !o.dead && o.burnT <= 0) this.lights.push({ x: o.x, y: o.y - glow.dy, r: glow.r + Math.sin(this.time * 9 + o.x) * 2, c: glow.c, a: glow.a });
     }
   }
 

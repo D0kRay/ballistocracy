@@ -1,0 +1,244 @@
+{
+ "format": "ballistocracy-level",
+ "version": 1,
+ "name": "HOG HUNT",
+ "author": "Ballistocracy team",
+ "biome": "desert",
+ "tod": "dusk",
+ "width": 102,
+ "height": 20,
+ "tiles": [
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  ".......................................................................m..............................",
+  "....................................................bbbbbbbblbb........m..............................",
+  "....................................................b.......l.b........m..............................",
+  ".........g...g......................................b.......l.b........m..............................",
+  ".........pplpp......................................bpppppppl.b.......................................",
+  "...........l................................................l.........................................",
+  "...........l................................................l.....g...................................",
+  "...........l....................................dddddddddddddddddddddddd..............................",
+  "...........l..................lsdddddddddd..pp..dddddddddddddddddddddddd..............................",
+  "...........l..................lsdddddddddd......dddddddsddddddddddddddsd..............................",
+  "ddddddddddddddd...............lsdddsdddddd......dddddddsdddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddd............lsdddssddddd......dddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddsddssssssss......dddddddddddddddddddddddddddddddssssddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddsddssssssdd......ddddddddddddddddddddddddddddddddssdddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddddddddssssdddd......dddddddsddddddddddddddsddddddddddddddddddddddddssddddd",
+  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx......xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ ],
+ "back": [
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "......................................................................................................",
+  "....................................................sssssssssss.......................................",
+  "....................................................sssssssssss.......................................",
+  "....................................................ssWssWssWss.......................................",
+  "....................................................sssssssssss.......................................",
+  "....................................................sssssssssss.......................................",
+  "....................................................sssssssssss.......................................",
+  "......................................................................................................",
+  "................................................dddddddddddddddddddddddd..............................",
+  "...............................ddddddddddd......dddddddddddddddddddddddd..............................",
+  "...............................ddddddddddd......dddddddddddddddddddddddd..............................",
+  "ddddddddddddddd................ddddddddddd......dddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddd.............ddddddddddd......dddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddd......dddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddd......dddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddd......dddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+ ],
+ "spawn": {
+  "x": 3,
+  "y": 14
+ },
+ "exit": null,
+ "boss": {
+  "type": "tank"
+ },
+ "entities": [
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 10,
+   "y": 8
+  },
+  {
+   "kind": "enemy",
+   "type": "shield",
+   "x": 19,
+   "y": 16
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 16,
+   "y": 15
+  },
+  {
+   "kind": "enemy",
+   "type": "grunt",
+   "x": 35,
+   "y": 12
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 55,
+   "y": 8
+  },
+  {
+   "kind": "enemy",
+   "type": "dog",
+   "x": 54,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 59,
+   "y": 11
+  },
+  {
+   "kind": "enemy",
+   "type": "sniper",
+   "x": 57,
+   "y": 5
+  },
+  {
+   "kind": "enemy",
+   "type": "bomber",
+   "x": 67,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 6,
+   "y": 14,
+   "item": "grenade"
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 19,
+   "y": 16,
+   "item": "flamer"
+  },
+  {
+   "kind": "prop",
+   "type": "cage",
+   "x": 56,
+   "y": 11
+  },
+  {
+   "kind": "prop",
+   "type": "crate",
+   "x": 66,
+   "y": 10,
+   "item": "armor"
+  },
+  {
+   "kind": "pickup",
+   "item": "rocket",
+   "x": 67,
+   "y": 11
+  },
+  {
+   "kind": "pickup",
+   "item": "armor",
+   "x": 65,
+   "y": 11
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 9,
+   "y": 14,
+   "h": 6
+  },
+  {
+   "kind": "scenery",
+   "type": "post",
+   "x": 13,
+   "y": 14,
+   "h": 6
+  },
+  {
+   "kind": "scenery",
+   "type": "roof_tent",
+   "x": 11,
+   "y": 7
+  },
+  {
+   "kind": "scenery",
+   "type": "bones",
+   "x": 3,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "boulder",
+   "x": 18,
+   "y": 16
+  },
+  {
+   "kind": "scenery",
+   "type": "bones",
+   "x": 23,
+   "y": 16,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "boulder",
+   "x": 27,
+   "y": 16
+  },
+  {
+   "kind": "scenery",
+   "type": "palm",
+   "x": 35,
+   "y": 12,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "skull_cow",
+   "x": 64,
+   "y": 11
+  },
+  {
+   "kind": "scenery",
+   "type": "boulder",
+   "x": 70,
+   "y": 11,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "cactus",
+   "x": 81,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "skull_cow",
+   "x": 85,
+   "y": 14,
+   "flip": true
+  },
+  {
+   "kind": "scenery",
+   "type": "bush",
+   "x": 93,
+   "y": 14
+  }
+ ],
+ "description": "Boss: the IRON HOG tank waits in the desert."
+}

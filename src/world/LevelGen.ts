@@ -1,6 +1,6 @@
 import { LEVEL_H_TILES, TILE, VIEW_W } from '../config';
 import { Rng } from '../core/rng';
-import { planLevel, type EnemyType, type LevelPlan } from '../progress/difficulty';
+import { planLevel, type EnemyType, type LevelPlan, type PlanOverrides } from '../progress/difficulty';
 import { Grid } from './Grid';
 import { T } from './tiles';
 
@@ -48,7 +48,7 @@ export interface Level {
 
 const BASE_H = LEVEL_H_TILES;
 
-type Chunk = 'flat' | 'pit' | 'bunker' | 'tower' | 'hill' | 'cave' | 'platforms' | 'traps' | 'acid' | 'village' | 'temple' | 'ruin' | 'scaffold' | 'bridge' | 'cliff' | 'islands';
+type Chunk = 'flat' | 'pit' | 'bunker' | 'tower' | 'hill' | 'cave' | 'platforms' | 'traps' | 'acid' | 'village' | 'temple' | 'ruin' | 'scaffold' | 'bridge' | 'cliff' | 'islands' | 'camp' | 'trench' | 'crater' | 'outpost';
 
 export interface SceneSpawn {
   type: string; // see gfx/scenery
@@ -58,8 +58,9 @@ export interface SceneSpawn {
   h?: number; // stretched height for posts/girders
 }
 
-export function generateLevel(levelNo: number, seed: number, totalPlaySec: number): Level {
-  const plan = planLevel(levelNo, seed, totalPlaySec);
+export function generateLevel(levelNo: number, seed: number, totalPlaySec: number, ov: PlanOverrides = {}): Level {
+  const plan = planLevel(levelNo, seed, totalPlaySec, ov);
+  const mut = plan.mutator;
   const rng = new Rng(seed);
   const arenaW = Math.round(VIEW_W / TILE);
   const FINALE = 48; // columns for the sky finale
@@ -98,7 +99,9 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     return r < 0 ? H : r;
   };
   const enemyAt = (col: number, row: number, type?: EnemyType) => {
-    const t = type ?? rng.pick(plan.enemyTypes);
+    // some twists favour one enemy type
+    const bias: EnemyType | null = mut === 'dogpack' ? 'dog' : mut === 'snipers' ? 'sniper' : mut === 'skypatrol' ? 'drone' : null;
+    const t = type ?? (bias && rng.chance(0.4) ? bias : rng.pick(plan.enemyTypes));
     if (t === 'drone') enemies.push({ type: t, x: col * TILE + 2, y: Math.max(1, row - 5) * TILE });
     else enemies.push({ type: t, x: col * TILE + 3, y: row * TILE - 14 });
   };
@@ -121,17 +124,22 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     }
   };
   const extras = (x0: number, x1: number) => {
-    if (rng.chance(0.35)) {
+    if (rng.chance(mut === 'armory' ? 0.8 : 0.35)) {
       const col = rng.int(x0, x1);
-      propAt('crate', col, surfY(col), { item: randomItem(rng) });
+      propAt('crate', col, surfY(col), { item: mut === 'armory' && rng.chance(0.6) ? rng.pick(WEAPON_ITEMS) : randomItem(rng) });
     }
-    if (rng.chance(0.25)) {
+    if (rng.chance(mut === 'demolition' ? 0.75 : 0.25)) {
       const col = rng.int(x0, x1);
       propAt('barrel', col, surfY(col));
+      if (mut === 'demolition' && rng.chance(0.5) && col + 1 <= x1 && surfY(col + 1) === surfY(col)) propAt('barrel', col + 1, surfY(col));
     }
-    if (rng.chance(0.12)) {
+    if (rng.chance(mut === 'prison' ? 0.45 : 0.12)) {
       const col = rng.int(x0, x1);
       propAt('cage', col, surfY(col));
+    }
+    if (mut === 'minefield' && rng.chance(0.6)) {
+      const col = rng.int(x0, x1);
+      propAt('mine', col, surfY(col));
     }
   };
 
@@ -480,6 +488,107 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
       if (rng.chance(0.4)) propAt('barrel', x + len - 2, g);
       return len;
     },
+    camp: (x, maxW) => {
+      // enemy camp around a fire: tents or crates, a flag, a few guards warming up
+      const len = Math.min(maxW, rng.int(13, 16));
+      if (len < 12) return build.flat(x, maxW);
+      for (let i = 0; i < len; i++) ground(x + i, g);
+      const mid = x + Math.floor(len / 2);
+      scene('campfire', mid, g);
+      const shelter = biome === 'desert' || biome === 'jungle' ? 'tent' : biome === 'snow' ? 'log_pile' : biome === 'volcano' ? 'skullpile' : 'barrel_stack';
+      scene(shelter, x + 3, g);
+      const deco: Record<string, string[]> = {
+        snow: ['tent', 'radar', 'snowman'],
+        city: ['barrier', 'trashcan', 'car'],
+        industrial: ['generator', 'spool', 'warnsign'],
+        volcano: ['brazier', 'lavarock'],
+      };
+      scene(rng.pick(deco[biome] ?? ['log_pile', 'crate_stack', 'bush']), x + len - 4, g);
+      scene('enemyflag', x + len - 2, g);
+      grid.init(x + 1, g - 1, T.SANDBAG);
+      grid.init(x + len - 2, g - 1, T.SANDBAG);
+      enemyAt(mid - 2, g);
+      enemyAt(mid + 2, g);
+      if (rng.chance(0.5)) enemyAt(mid + 3, g, plan.enemyTypes.includes('dog') ? 'dog' : 'grunt');
+      propAt('crate', x + len - 3, g, { item: randomItem(rng) });
+      if (rng.chance(0.5)) propAt('barrel', x + 5, g);
+      if (rng.chance(mut === 'prison' ? 0.8 : 0.3)) propAt('cage', mid + 4, g);
+      return len;
+    },
+    trench: (x, maxW) => {
+      // dug-in line: a 2-deep trench with sandbags on the lip and soldiers inside
+      const len = Math.min(maxW, rng.int(12, 16));
+      if (len < 10) return build.flat(x, maxW);
+      const t0 = x + 2;
+      const t1 = x + len - 3;
+      for (let i = 0; i < len; i++) {
+        const cx = x + i;
+        if (cx >= t0 && cx <= t1) {
+          ground(cx, g + 2);
+          setBack(cx, g, cx, g + 1, 1);
+        } else ground(cx, g);
+      }
+      grid.init(t0 - 1, g - 1, T.SANDBAG);
+      grid.init(t1 + 1, g - 1, T.SANDBAG);
+      // a plank across the middle
+      const mid = Math.floor((t0 + t1) / 2);
+      if (rng.chance(0.6)) fill(mid - 1, g, mid, g, T.PLATFORM);
+      const n = rng.int(2, 3);
+      for (let k = 0; k < n; k++) enemyAt(rng.int(t0, t1), g + 2, k === 0 && plan.enemyTypes.includes('shield') ? 'shield' : undefined);
+      if (rng.chance(0.5)) propAt('crate', t1, g + 2, { item: randomItem(rng) });
+      if (rng.chance(0.4)) propAt('barrel', t0, g + 2);
+      if (rng.chance(plan.trapRate)) propAt('mine', t1 + 2, g);
+      scene(biome === 'city' ? 'barrier' : biome === 'industrial' ? 'warnsign' : 'sign', t0 - 2, g);
+      return len;
+    },
+    crater: (x, maxW) => {
+      // shelled ground: two craters, wreckage in between
+      const len = Math.min(maxW, rng.int(11, 14));
+      if (len < 10) return build.flat(x, maxW);
+      const prof = [0, 1, 2, 2, 1, 0];
+      for (let i = 0; i < len; i++) {
+        const a = i - 1;
+        const b = i - (len - 7);
+        const d = a >= 0 && a < prof.length ? prof[a] : b >= 0 && b < prof.length ? prof[b] : 0;
+        ground(x + i, Math.min(MAX_G + 1, g + d));
+      }
+      const wreck: Record<string, string[]> = {
+        volcano: ['lavarock', 'skullpile'],
+        snow: ['jeep_wreck', 'ice_crystal'],
+        city: ['rubble', 'car'],
+      };
+      scene(rng.pick(wreck[biome] ?? ['jeep_wreck', 'rubble', 'bones']), x + Math.floor(len / 2), g);
+      sprinkleEnemies(x + 1, x + len - 1, 0.8);
+      if (rng.chance(plan.trapRate + 0.2)) propAt('mine', x + 3, surfY(x + 3));
+      if (rng.chance(0.4)) propAt('crate', x + len - 4, surfY(x + len - 4), { item: randomItem(rng) });
+      return len;
+    },
+    outpost: (x, maxW) => {
+      // fenced compound: raised wooden deck with a lookout, radio mast or water tower, generator
+      const len = Math.min(maxW, rng.int(14, 17));
+      if (len < 14) return build.flat(x, maxW);
+      for (let i = 0; i < len; i++) ground(x + i, g);
+      fill(x + 1, g - 2, x + 1, g - 1, T.SANDBAG);
+      grid.init(x + len - 2, g - 1, T.SANDBAG);
+      const d0 = x + 5;
+      const d1 = x + 10;
+      const dy = g - 4;
+      fill(d0, dy, d1, dy, T.PLATFORM);
+      fill(d0 - 1, dy, d0 - 1, g - 1, T.LADDER);
+      grid.init(d1, dy - 1, T.SANDBAG);
+      scenery.push({ type: 'post', x: d0 * TILE + 8, y: g * TILE, flip: false, h: (g - dy) * TILE });
+      scenery.push({ type: 'post', x: d1 * TILE + 8, y: g * TILE, flip: false, h: (g - dy) * TILE });
+      scene(biome === 'desert' || biome === 'industrial' ? 'watertower' : 'radio_tower', x + len - 4, g);
+      scene(biome === 'snow' ? 'radar' : 'generator', x + 3, g);
+      enemyAt(d0 + 2, dy, plan.enemyTypes.includes('sniper') && rng.chance(0.5) ? 'sniper' : 'grunt');
+      if (rng.chance(0.5)) enemyAt(d1 - 1, dy);
+      enemyAt(x + 3, g);
+      enemyAt(x + len - 4, g, plan.enemyTypes.includes('heavy') && rng.chance(0.3) ? 'heavy' : undefined);
+      propAt('crate', d0 + 3, g, { item: randomItem(rng) });
+      if (rng.chance(0.5)) propAt('barrel', x + 12, g);
+      if (rng.chance(mut === 'prison' ? 0.7 : 0.25)) propAt('cage', d0 + 1, g);
+      return len;
+    },
   };
 
   /** floating island: grassy dirt on top, tapering rock underneath, anchored core */
@@ -565,7 +674,7 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
 
   const runEnd = plan.isBoss ? plan.lengthTiles - 4 : plan.skyExit ? W - FINALE : W - 12;
   let x = startLen;
-  const weights: (readonly [Chunk, number])[] = [
+  const weights: [Chunk, number][] = [
     ['flat', 2.2],
     ['pit', 2],
     ['bunker', 2.6],
@@ -582,7 +691,22 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
     ['bridge', biome === 'jungle' || biome === 'snow' || biome === 'volcano' ? 1.2 : 0.5],
     ['cliff', 1.8],
     ['islands', plan.skyExit ? 1.6 : 0.8],
+    ['camp', levelNo >= 2 ? 1.4 : 0.6],
+    ['trench', levelNo >= 2 ? 1.3 : 0.4],
+    ['crater', 1.2],
+    ['outpost', levelNo >= 3 ? 1.2 : 0.3],
   ];
+  // every level gets its own mix: some are bunker-heavy, others caves and cliffs
+  for (const w of weights) w[1] *= rng.range(0.35, 1.65);
+  const boost = (names: Chunk[], f: number) => {
+    for (const w of weights) if (names.includes(w[0])) w[1] *= f;
+  };
+  if (mut === 'outposts') boost(['bunker', 'trench', 'outpost', 'tower'], 2.5);
+  if (mut === 'wilds') {
+    boost(['hill', 'cliff', 'cave', 'islands', 'bridge', 'pit'], 1.8);
+    boost(['bunker', 'outpost', 'camp'], 0.3);
+  }
+  if (mut === 'minefield') boost(['traps', 'crater'], 2);
   let last: Chunk | null = null;
   while (x < runEnd) {
     let c = rng.weighted(weights);
@@ -692,21 +816,23 @@ export function generateLevel(levelNo: number, seed: number, totalPlaySec: numbe
   }
   // trees and other scenery on open ground
   const sceneryFor: Record<string, [string, number][]> = {
-    jungle: [['palm', 3], ['jungletree', 2], ['fern', 3], ['totem', 0.4]],
-    desert: [['palm', 1], ['cactus', 3], ['bones', 1], ['tent', 0.8]],
-    snow: [['pine', 4], ['pine_small', 2], ['bones', 0.3]],
-    city: [['lamp', 2], ['car', 1], ['deadtree', 1], ['sign', 0.6], ['hydrant', 0.6]],
-    industrial: [['pipe', 2], ['tank', 1], ['lamp', 1.5], ['crate_stack', 1]],
-    volcano: [['deadtree', 3], ['bones', 1.5], ['totem', 1], ['spire', 1]],
+    jungle: [['palm', 3], ['jungletree', 2], ['fern', 3], ['totem', 0.4], ['bamboo', 2], ['bush', 2.5], ['flowers', 2], ['mossrock', 1.2], ['stump', 0.8], ['log_pile', 0.5], ['jeep_wreck', 0.3], ['campfire', 0.25]],
+    desert: [['palm', 1], ['cactus', 3], ['bones', 1], ['tent', 0.8], ['boulder', 1.5], ['skull_cow', 1], ['tumbleweed', 1.5], ['well', 0.4], ['obelisk', 0.4], ['jeep_wreck', 0.5], ['watertower', 0.25], ['bush', 0.5]],
+    snow: [['pine', 4], ['pine_small', 2], ['bones', 0.3], ['snowman', 0.5], ['ice_crystal', 1.5], ['log_pile', 1], ['boulder', 1.2], ['radar', 0.35], ['stump', 0.6], ['jeep_wreck', 0.3], ['campfire', 0.3]],
+    city: [['lamp', 2], ['car', 1], ['deadtree', 1], ['sign', 0.6], ['hydrant', 0.6], ['trashcan', 1.2], ['cone', 1], ['barrier', 0.8], ['billboard', 0.5], ['phonebooth', 0.5], ['rubble', 1.5], ['jeep_wreck', 0.4]],
+    industrial: [['pipe', 2], ['tank', 1], ['lamp', 1.5], ['crate_stack', 1], ['barrel_stack', 1.2], ['generator', 0.8], ['spool', 1], ['warnsign', 1], ['vent', 1], ['cone', 0.6], ['watertower', 0.3], ['radio_tower', 0.25]],
+    volcano: [['deadtree', 3], ['bones', 1.5], ['totem', 1], ['spire', 1], ['lavarock', 2], ['obsidian', 1.2], ['skullpile', 0.8], ['stump', 1], ['brazier', 0.5], ['boulder', 1]],
   };
-  const opts = sceneryFor[biome] ?? sceneryFor.jungle;
+  // a different mood every level: dense or sparse, leaning to some kinds of trees and junk
+  const opts = (sceneryFor[biome] ?? sceneryFor.jungle).map(([t, w]) => [t, w * rng.range(0.15, 1.85)] as [string, number]);
+  const density = rng.range(0.14, 0.34);
   let lastScene = -10;
   for (let cx = 3; cx < W - 3; cx++) {
     if (cx - lastScene < 3) continue;
     const sr = grid.surfaceRow(cx);
     if (sr < 3 || grid.get(cx, sr) !== T.DIRT) continue;
     if (grid.get(cx, sr - 1) !== T.EMPTY || grid.get(cx, sr - 2) !== T.EMPTY || grid.get(cx, sr - 3) !== T.EMPTY) continue;
-    if (!rng.chance(0.2)) continue;
+    if (!rng.chance(density)) continue;
     scene(rng.weighted(opts), cx, sr);
     lastScene = cx;
   }
